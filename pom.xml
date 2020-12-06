@@ -1,0 +1,132 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>us.ajg0702</groupId>
+  <artifactId>ajLeaderboards</artifactId>
+  <version>1.0.9</version>
+  <name>ajLeaderboards</name>
+  
+  
+  
+    <repositories>
+	    <repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+        <repository>
+		  <id>CodeMC</id>
+		  <url>https://repo.codemc.org/repository/maven-public</url>
+		</repository>
+	    <repository>
+	        <id>everything</id>
+	        <url>https://repo.citizensnpcs.co/</url>
+	    </repository>
+  </repositories>
+
+
+
+  <dependencies>
+  	<dependency>
+        <groupId>com.github.MilkBowl</groupId>
+        <artifactId>VaultAPI</artifactId>
+        <version>1.7</version>
+        <scope>provided</scope>
+    </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>me.clip</groupId>
+          <artifactId>placeholderapi</artifactId>
+          <version>2.10.4</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+        	<groupId>us.ajg0702</groupId>
+        	<artifactId>ajUtils</artifactId>
+        	<version>1.0.0</version>
+        </dependency>
+        <dependency>
+		    <groupId>org.xerial</groupId>
+		    <artifactId>sqlite-jdbc</artifactId>
+		    <version>3.32.3.2</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.bstats</groupId>
+		  <artifactId>bstats-bukkit</artifactId>
+		  <version>1.7</version>
+		  <scope>compile</scope>
+		</dependency>
+	    <dependency>
+	        <groupId>net.citizensnpcs</groupId>
+	        <artifactId>citizens</artifactId>
+	        <version>2.0.27-SNAPSHOT</version>
+	        <type>jar</type>
+	        <scope>provided</scope>
+   		</dependency>
+  </dependencies>
+  
+  
+	<properties>
+		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+    
+    
+    <build>
+		<resources>
+        	<resource>
+            	<directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+	    <sourceDirectory>src</sourceDirectory>
+	    <plugins>
+	      <plugin>
+	        <artifactId>maven-compiler-plugin</artifactId>
+	        <version>3.8.0</version>
+	        <configuration>
+	          <source>1.8</source>
+	          <target>1.8</target>
+	        </configuration>
+	      </plugin>
+	       <plugin>
+			      <groupId>org.apache.maven.plugins</groupId>
+			      <artifactId>maven-shade-plugin</artifactId>
+			      <version>3.1.0</version>
+			      <configuration>
+			        <relocations>
+			          <relocation>
+			            <pattern>us.ajg0702.utils</pattern>
+			            <shadedPattern>us.ajg0702.leaderboards.utils</shadedPattern>
+			          </relocation>
+			          <relocation>
+			          	<pattern>org.bstats</pattern>
+			          	<shadedPattern>us.ajg0702.leaderboards.bstats</shadedPattern>
+			          </relocation>
+			        </relocations>
+			      </configuration>
+			      <executions>
+			        <execution>
+			          <phase>package</phase>
+			          <goals>
+			            <goal>shade</goal>
+			          </goals>
+			        </execution>
+			      </executions>
+			    </plugin>
+	    </plugins>
+  </build>
+    
+</project>

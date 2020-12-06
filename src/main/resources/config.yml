@@ -1,0 +1,19 @@
+# Dont touch this
+config-version: 3
+
+# What should we display for the name when there is no data available?
+#  Default: ---
+no-data-name: "---"
+
+# What should we display for the score when there is no data available?
+#  Default: ---
+no-data-score: "---"
+
+# What character should we use for the comma in long numbers.
+# You can also set this to be blank if you dont want a comma
+comma: ","
+
+# What should values be called?
+# In the default value, the ajtr_stats_wins_nocache board will have a name of "wins" to be displayed on signs
+value-names:
+- "ajtr_stats_wins_nocache%wins"
