@@ -4,7 +4,7 @@
   <groupId>us.ajg0702</groupId>
   <artifactId>ajLeaderboards</artifactId>
   <name>ajLeaderboards</name>
-  <version>1.0.9</version>
+  <version>1.0.12</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>

@@ -66,11 +66,20 @@ public class Main extends JavaPlugin {
 		
 		SignManager.getInstance(this);
 		
-		if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-			RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
-	        vaultChat = rsp.getProvider();
-	        vault = vaultChat != null;	
-		}
+		Bukkit.getScheduler().runTask(this, new Runnable() {
+			public void run() {
+				if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+					RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+			        if(rsp == null) {
+			        	vault = false;
+			        	getLogger().warning("Vault prefix hook failed! Make sure you have a plugin that implements chat (e.g. Luckperms)");
+			        } else {
+			        	vaultChat = rsp.getProvider();
+				        vault = vaultChat != null;	
+			        }
+				}
+			}
+		});
 		
 		getLogger().info("Plugin enabled! "+Cache.getInstance().getBoards().size()+" leaderboards loaded.");
 	}

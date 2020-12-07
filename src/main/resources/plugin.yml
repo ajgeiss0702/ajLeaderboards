@@ -2,7 +2,8 @@ name: ajLeaderboards
 version: ${project.version}
 main: us.ajg0702.leaderboards.Main
 author: ajgeiss0702
-depends: [PlaceholderAPI, Vault]
+depend: [PlaceholderAPI]
+softdepend: [Vault]
 description: Leaderboards for your server
 api-version: 1.13
 commands:
