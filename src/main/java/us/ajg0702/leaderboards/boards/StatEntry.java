@@ -1,5 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
+import java.text.DecimalFormat;
+
 import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.utils.spigot.Config;
 
@@ -38,13 +40,16 @@ public class StatEntry {
 		if(score == 0 && player.equals(config.getString("no-data-name"))) {
 			return config.getString("no-data-score");
 		}
+		//Bukkit.getLogger().info("before: "+score);
 		return addCommas(score);
 	}
 	
 	
 	private String addCommas(double number) {
 		Config config = Cache.getInstance().getPlugin().getAConfig();
-		String ns = number+"";
+		DecimalFormat df = new DecimalFormat("#");
+		df.setMaximumFractionDigits(0);
+		String ns = df.format(number);
 		int ic = 0;
 		for(int i = ns.length(); i > 0; i--) {
 			//System.out.println("i: "+i+" ic: "+ic + " c: " + ns.charAt(i-1));
@@ -54,10 +59,11 @@ public class StatEntry {
 			ns = ns.substring(0, i)+config.getString("comma")+ns.substring(i, ns.length());
 		}
 		
-		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0') {
+		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0' && ns.length() >= 3) {
 			ns = ns.substring(0, ns.length()-2);
 		}
 		
+		//Bukkit.getLogger().info("after: "+ns);
 		return ns;
 		
 		
