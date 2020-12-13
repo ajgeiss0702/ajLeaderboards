@@ -10,10 +10,12 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.utils.spigot.Messages;
 
@@ -41,7 +43,7 @@ public class SignManager {
 		msgs = Messages.getInstance();
 		reload();
 		
-		Bukkit.getScheduler().runTaskTimer(pl, new Runnable() {
+		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
 			public void run() {
 				updateSigns();
 			}
@@ -150,7 +152,19 @@ public class SignManager {
 			
 		}
 		lines = null;
-		sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
+		Bukkit.getScheduler().runTask(pl, new Runnable() {
+			public void run() {
+				sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
+				
+				@SuppressWarnings("deprecation")
+				OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
+				if(op != null) {
+					ArmorStandManager.getInstance().search(sign, op);
+				}
+			}
+		});
+		
+		
 	}
 	
 }

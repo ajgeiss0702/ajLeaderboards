@@ -9,6 +9,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.milkbowl.vault.chat.Chat;
+import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.utils.spigot.Messages;
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin {
 		
 		msgs = Messages.getInstance(this, dmsgs);
 		
+		ArmorStandManager.getInstance(this);
 		
 		
 		reloadInterval();

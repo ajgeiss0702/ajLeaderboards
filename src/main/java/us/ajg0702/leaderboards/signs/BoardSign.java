@@ -27,6 +27,13 @@ public class BoardSign {
 		return position;
 	}
 	
+	public Sign getSign() {
+		BlockState state = location.getBlock().getState();
+		if(!(state instanceof Sign)) return null;
+		
+		return (Sign) state;
+	}
+	
 	public void setText(String line1, String line2, String line3, String line4) {
 		BlockState state = location.getBlock().getState();
 		if(!(state instanceof Sign)) return;
