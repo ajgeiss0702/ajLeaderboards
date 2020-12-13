@@ -17,3 +17,8 @@ comma: ","
 # In the default value, the ajtr_stats_wins_nocache board will have a name of "wins" to be displayed on signs
 value-names:
 - "ajtr_stats_wins_nocache%wins"
+
+# How often should we refresh the stats of online players?
+# this is in ticks, so 20 ticks = 1 second
+#  Default: 1200 (60 seconds)
+stat-refresh: 1200

@@ -52,13 +52,8 @@ public class Main extends JavaPlugin {
 		msgs = Messages.getInstance(this, dmsgs);
 		
 		
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-			public void run() {
-				for(Player p : Bukkit.getOnlinePlayers()) {
-					cache.updatePlayerStats(p);
-				}
-			}
-		}, 30*20, 60*20);
+		
+		reloadInterval();
 		
 		metrics = new Metrics(this, 9338);
 		
@@ -82,6 +77,23 @@ public class Main extends JavaPlugin {
 		});
 		
 		getLogger().info("Plugin enabled! "+Cache.getInstance().getBoards().size()+" leaderboards loaded.");
+	}
+	
+	int updateTaskId = -1;
+	public void reloadInterval() {
+		if(updateTaskId != -1) {
+			try {
+				Bukkit.getScheduler().cancelTask(updateTaskId);
+			} catch(IllegalArgumentException e) {}
+			updateTaskId = -1;
+		}
+		updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+			public void run() {
+				for(Player p : Bukkit.getOnlinePlayers()) {
+					Cache.getInstance().updatePlayerStats(p);
+				}
+			}
+		}, 10*20, config.getInt("stat-refresh")).getTaskId();
 	}
 	
 	public Config getAConfig() {
