@@ -118,7 +118,10 @@ public class ArmorStandManager {
 								for(Entity entity : entities) {
 									if(entity instanceof ArmorStand) {
 										Location eloc = entity.getLocation();
-										if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
+										if(eloc.getBlockZ() != curloc.getBlockZ()) {
+											//pl.getLogger().info("Skipping east-facing sign bc of wrong block ("+eloc.getBlockX()+" != "+curloc.getBlockX()+", "+eloc.getBlockZ()+" != "+curloc.getBlockZ());
+											continue;
+										}
 										setArmorstandHead((ArmorStand) entity, player);
 									}
 								}
@@ -140,7 +143,7 @@ public class ArmorStandManager {
 	
 	@SuppressWarnings("deprecation")
 	private void setArmorstandHead(ArmorStand stand, OfflinePlayer player) {
-		pl.getLogger().info("in armorstand");
+		//pl.getLogger().info("in armorstand");
 		stand.setSilent(true);
 		ItemStack item = null;
 		if(VersionSupport.getMinorVersion() <= 12) {
@@ -148,9 +151,9 @@ public class ArmorStandManager {
 		} else if(VersionSupport.getMinorVersion() > 12) {
 			item = new ItemStack(Material.PLAYER_HEAD, 1);
 		}
-		pl.getLogger().info("item");
+		//pl.getLogger().info("item");
 		if(item == null) return;
-		pl.getLogger().info("item not null");
+		//pl.getLogger().info("item not null");
 		SkullMeta meta = (SkullMeta) item.getItemMeta();
 		if(VersionSupport.getMinorVersion() > 9) {
 			meta.setOwningPlayer(player);
