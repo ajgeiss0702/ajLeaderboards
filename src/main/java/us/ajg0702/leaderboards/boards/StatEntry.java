@@ -50,7 +50,7 @@ public class StatEntry {
 		DecimalFormat df = new DecimalFormat("#");
 		df.setMaximumFractionDigits(0);
 		String ns = df.format(number);
-		int ic = 0;
+		int ic = 2;
 		for(int i = ns.length(); i > 0; i--) {
 			//System.out.println("i: "+i+" ic: "+ic + " c: " + ns.charAt(i-1));
 			if(ns.contains(".") && i >= ns.indexOf(".")) continue;
@@ -61,6 +61,10 @@ public class StatEntry {
 		
 		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0' && ns.length() >= 3) {
 			ns = ns.substring(0, ns.length()-2);
+		}
+		
+		if(ns.charAt(ns.length()-1) == ',') {
+			ns = ns.substring(0, ns.length()-1);
 		}
 		
 		//Bukkit.getLogger().info("after: "+ns);
