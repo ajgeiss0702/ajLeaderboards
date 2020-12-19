@@ -10,6 +10,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -46,8 +49,21 @@ public class ArmorStandManager {
 	public void search(BoardSign sign, OfflinePlayer player) { 
 		if(!sign.getLocation().getBlock().getType().toString().contains("SIGN")) return;
 		Sign ss = sign.getSign();
-		org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
-		BlockFace face = bs.getFacing();
+		BlockFace face;
+		if(VersionSupport.getMinorVersion() > 12) {
+			BlockData bd = ss.getBlockData();
+			if(bd instanceof org.bukkit.block.data.type.Sign) {
+				org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
+				face = bs.getRotation();
+			} else {
+				WallSign bs = (WallSign) bd;
+				face = bs.getFacing();
+			}
+		} else {
+			org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
+			face = bs.getFacing();
+		}
+		
 		Location sl = sign.getLocation();
 		
 		//pl.getLogger().info(face.toString());
@@ -144,7 +160,9 @@ public class ArmorStandManager {
 	@SuppressWarnings("deprecation")
 	private void setArmorstandHead(ArmorStand stand, OfflinePlayer player) {
 		//pl.getLogger().info("in armorstand");
-		stand.setSilent(true);
+		if(VersionSupport.getMinorVersion() >= 10) {
+			stand.setSilent(true);
+		}
 		ItemStack item = null;
 		if(VersionSupport.getMinorVersion() <= 12) {
 			item = new ItemStack(Material.valueOf("SKULL_ITEM"), 1 , (short) 3);
