@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 3
+config-version: 4
 
 # What should we display for the name when there is no data available?
 #  Default: ---
