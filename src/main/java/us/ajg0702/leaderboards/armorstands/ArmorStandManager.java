@@ -1,6 +1,13 @@
 package us.ajg0702.leaderboards.armorstands;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,6 +25,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import us.ajg0702.leaderboards.Main;
 import us.ajg0702.leaderboards.signs.BoardSign;
@@ -184,20 +196,72 @@ public class ArmorStandManager {
 	
 	
 	private void checkHead(Location loc, OfflinePlayer player) {
+		if (loc.getBlock().getType() != Material.PLAYER_HEAD) return;
 		Bukkit.getScheduler().runTask(pl, new Runnable() {
-			@SuppressWarnings("deprecation")
 			public void run() {
+				
 				BlockState bs = loc.getBlock().getState();
 				if(!(bs instanceof Skull)) return;
 				Skull skull = (Skull) bs;
-				if(VersionSupport.getMinorVersion() > 9) {
-					skull.setOwningPlayer(player);
-				} else {
-					skull.setOwner(player.getName());
-				}
-				skull.update();
+				
+				Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+					public void run() {
+						
+						String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + player.getName());
+						Gson g = new Gson();
+					    JsonObject obj = g.fromJson(result, JsonObject.class);
+					    String uid = obj.get("id").toString().replace("\"","");
+					    String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uid);
+					    obj = g.fromJson(signature, JsonObject.class);
+					    String value = obj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
+					    
+					    Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+							public void run() {
+							    
+						        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+						        profile.getProperties().put("textures", new Property("textures",value));
+						        try {
+						            Field profileField = skull.getClass().getDeclaredField("profile");
+						            profileField.setAccessible(true);
+						            profileField.set(skull, profile);
+						        }catch (NoSuchFieldException | IllegalAccessException e) { e.printStackTrace(); }
+						        skull.update(); // so that the result can be seen
+								/*if(VersionSupport.getMinorVersion() > 9) {
+									skull.setOwningPlayer(player);
+								} else {
+									skull.setOwner(player.getName());
+								}
+								skull.update();*/
+							}
+						});
+					}
+				});
+				
+				
 			}
 		});
 	}
+	
+	private static String getURLContent(String urlStr) {
+        URL url;
+        BufferedReader in = null;
+        StringBuilder sb = new StringBuilder();
+        try{
+            url = new URL(urlStr);
+            in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8) );
+            String str;
+            while((str = in.readLine()) != null) {
+                sb.append( str );
+            }
+        } catch (Exception ignored) { }
+        finally{
+            try{
+                if(in!=null) {
+                    in.close();
+                }
+            }catch(IOException ignored) { }
+        }
+        return sb.toString();
+    }
 	
 }
