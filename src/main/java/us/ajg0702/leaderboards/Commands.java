@@ -182,8 +182,12 @@ public class Commands implements CommandExecutor, TabCompleter {
 					sender.sendMessage(color("&cThe block you are looking at is not a sign! Please look at a sign to remove."));
 					return true;
 				}
-				SignManager.getInstance().removeSign(target1.getLocation());
-				sender.sendMessage(color("&aSign removed!"));
+				if(SignManager.getInstance().removeSign(target1.getLocation())) {
+					sender.sendMessage(color("&aSign removed!"));
+				} else {
+					sender.sendMessage(color("&cThat is not an ajLeaderboards sign!"));
+				}
+				
 				return true;
 			}
 			return true;

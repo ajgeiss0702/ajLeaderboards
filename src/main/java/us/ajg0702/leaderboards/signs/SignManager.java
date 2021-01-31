@@ -75,7 +75,7 @@ public class SignManager {
 		return signs;
 	}
 	
-	public void removeSign(Location l) {
+	public boolean removeSign(Location l) {
 		boolean save = false;
 		Iterator<BoardSign> i = signs.iterator();
 		while(i.hasNext()) {
@@ -83,10 +83,12 @@ public class SignManager {
 			if(l.equals(s.getLocation())) {
 				i.remove();
 				save = true;
+				s.setText("", "", "", "");
 				break;
 			}
 		}
 		if(save) saveFile();
+		return save;
 	}
 	
 	
@@ -152,15 +154,14 @@ public class SignManager {
 			
 		}
 		lines = null;
+		@SuppressWarnings("deprecation")
+		OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
 		Bukkit.getScheduler().runTask(pl, new Runnable() {
 			public void run() {
-				sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
-				
-				@SuppressWarnings("deprecation")
-				OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
 				if(op != null) {
 					ArmorStandManager.getInstance().search(sign, op);
 				}
+				sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
 			}
 		});
 		
