@@ -126,8 +126,9 @@ public class Cache {
 		final List<String> l = new ArrayList<>();
         try {
             final ResultSet r = conn.createStatement().executeQuery("select id,value from '" + board + "' order by value desc");
-            while (r.next())
+            while (r.next()) {
                 l.add(r.getString(1));
+            }
             r.close();
         } catch (SQLException e) {
             e.printStackTrace();
