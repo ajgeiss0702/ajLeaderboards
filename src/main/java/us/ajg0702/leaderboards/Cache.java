@@ -113,8 +113,7 @@ public class Cache {
 			r.close();
 			if(name == null) name = "-Unknown";
 			if(uuidraw == null) return new StatEntry("", pl.config.getString("no-data-name"), "", 0);
-			OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(uuidraw));
-			return new StatEntry(prefix, p.getName() == null ? name : p.getName(), suffix, value);
+			return new StatEntry(prefix, name, suffix, value);
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to stat of player:");
 			e.printStackTrace();
@@ -189,16 +188,17 @@ public class Cache {
 	}
 	
 	
-	public void updatePlayerStats(Player player) {
+	public void updatePlayerStats(OfflinePlayer player) {
 		for(String b : getBoards()) {
 			updateStat(b, player);
 		}
 	}
 	
-	public void updateStat(String board, Player player) {
-		String outputraw = PlaceholderAPI.setPlaceholders(player, "%"+board+"%");
+	public void updateStat(String board, OfflinePlayer player) {
+		String outputraw;
 		Double output;
 		try {
+			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+board+"%");
 			output = Double.valueOf(outputraw);
 		} catch(NumberFormatException e) {
 			return;
@@ -207,11 +207,12 @@ public class Cache {
 			e.printStackTrace();
 			return;
 		}
+		//pl.getLogger().info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 		String prefix = "";
 		String suffix = "";
-		if(pl.vault) {
-			prefix = pl.vaultChat.getPlayerPrefix(player);
-			suffix = pl.vaultChat.getPlayerSuffix(player);
+		if(pl.vault && player instanceof Player) {
+			prefix = pl.vaultChat.getPlayerPrefix((Player)player);
+			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
 		try {
 			

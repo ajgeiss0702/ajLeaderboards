@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -71,23 +72,45 @@ public class Commands implements CommandExecutor, TabCompleter {
 			pl.reloadInterval();
 			sender.sendMessage(color("&aConfig reloaded!"));
 			return true;
+		case "update":
+			if(args.length <= 2) {
+				sender.sendMessage(color("&cPlease provide a board and player to update"));
+				return true;
+			}
+			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+				public void run() {
+					String board = args[1];
+					if(!cache.getBoards().contains(board)) {
+						sender.sendMessage(color("&cThe board '"+board+"' does not exist."));
+						return;
+					}
+					@SuppressWarnings("deprecation")
+					OfflinePlayer p = Bukkit.getOfflinePlayer(args[2]);
+					cache.updateStat(args[1], p);
+					if(!p.isOnline()) {
+						sender.sendMessage(color("&6Warning: &7The player you requested to update appears to be offline. Not all placeholders support this. I'll still try, but if there is an error or nothing is updated, the placeholder probably doesn't support it."));
+					}
+					sender.sendMessage(color("&aAttempted to update stat for "+p.getName()+" on board "+args[1]));
+				}
+			});
+			return true;
 		case "remove":
 			if(args.length <= 1) {
 				sender.sendMessage(color("&cPlease provide a placeholder to remove."));
 				return true;
 			}
-			String board = args[1];
-			if(!cache.getBoards().contains(board)) {
-				sender.sendMessage(color("&cthe board '"+board+"' does not exist."));
+			String board1 = args[1];
+			if(!cache.getBoards().contains(board1)) {
+				sender.sendMessage(color("&cThe board '"+board1+"' does not exist."));
 				return true;
 			}
-			if(!confirmDeletes.containsKey(sender) || (confirmDeletes.containsKey(sender) && !confirmDeletes.get(sender).equals(board))) {
+			if(!confirmDeletes.containsKey(sender) || (confirmDeletes.containsKey(sender) && !confirmDeletes.get(sender).equals(board1))) {
 				sender.sendMessage(color("&cThis action will delete data! If you add back the board, the top players will have to join again to show up.\n"
 						+ "&7Repeat the command within 30 seconds to confirm this action"));
-				confirmDeletes.put(sender, board);
+				confirmDeletes.put(sender, board1);
 				Bukkit.getScheduler().runTaskLater(pl, new Runnable() {
 					public void run() {
-						if(confirmDeletes.containsKey(sender) && confirmDeletes.get(sender).equals(board)) {
+						if(confirmDeletes.containsKey(sender) && confirmDeletes.get(sender).equals(board1)) {
 							confirmDeletes.remove(sender);
 						}
 					}
@@ -95,7 +118,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				return true;
 			} else {
 				confirmDeletes.remove(sender);
-				cache.removeBoard(board);
+				cache.removeBoard(board1);
 				sender.sendMessage(color("&aThe board has been removed!"));
 				return true;
 			}
@@ -207,9 +230,10 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return new ArrayList<>();
 		}
 		if(args.length <= 1) {
-			return Arrays.asList("add", "list", "reload", "remove", "signs");
+			return Arrays.asList("add", "list", "reload", "remove", "signs", "update");
 		} else if(args.length == 2) {
 			switch(args[0]) {
+			case "update":
 			case "list":
 			case "remove":
 				return Cache.getInstance().getBoards();
@@ -220,6 +244,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 			}
 		} else if(args.length == 3) {
 			switch(args[0]) {
+			case "update":
+				return null;
 			case "signs":
 				switch(args[1]) {
 				case "add":
