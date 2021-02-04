@@ -9,6 +9,11 @@ cache:
 
 pages:
   script:
+  - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+  - mkdir buildtools
+  - cd buildtools
+  - mv ../BuildTools.jar bt.jar
+  - java -jar bt.jar
   - mvn javadoc:javadoc
   - ls target
   - mv target/site/apidocs public
@@ -19,6 +24,11 @@ pages:
 deploy:
   image: maven:3.6-jdk-11
   script:
+    - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+    - mkdir buildtools
+    - cd buildtools
+    - mv ../BuildTools.jar bt.jar
+    - java -jar bt.jar
     - 'mvn deploy -s settings.xml'
   only:
     - master
