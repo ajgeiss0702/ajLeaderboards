@@ -14,6 +14,7 @@ pages:
   - cd buildtools
   - mv ../BuildTools.jar bt.jar
   - java -jar bt.jar
+  - cd ..
   - mvn javadoc:javadoc
   - ls target
   - mv target/site/apidocs public
@@ -29,6 +30,7 @@ deploy:
     - cd buildtools
     - mv ../BuildTools.jar bt.jar
     - java -jar bt.jar
+    - cd ..
     - 'mvn deploy -s settings.xml'
   only:
     - master
