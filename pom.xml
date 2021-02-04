@@ -82,6 +82,19 @@
 	        <scope>provided</scope>
    		</dependency>-->
   </dependencies>
+
+
+  <distributionManagement>
+	  <repository>
+	    <id>gitlab-maven</id>
+	    <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+	  </repository>
+	  <snapshotRepository>
+	    <id>gitlab-maven</id>
+	    <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+	  </snapshotRepository>
+	</distributionManagement>
+
   
   
 	<properties>
