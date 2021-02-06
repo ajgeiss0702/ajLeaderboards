@@ -14,13 +14,16 @@ pages:
   - cd buildtools
   - mv ../BuildTools.jar bt.jar
   - java -jar bt.jar
-  - cd ..
+  - cd CraftBukkit
+  - mvn install
+  - cd ../../
   - mvn javadoc:javadoc
   - ls target
   - mv target/site/apidocs public
   artifacts:
     paths:
     - public
+    - target
 
 deploy:
   image: maven:3.6-jdk-11
@@ -30,7 +33,9 @@ deploy:
     - cd buildtools
     - mv ../BuildTools.jar bt.jar
     - java -jar bt.jar
-    - cd ..
+    - cd CraftBukkit
+    - mvn install
+    - cd ../../
     - 'mvn deploy -s settings.xml'
   only:
     - master
