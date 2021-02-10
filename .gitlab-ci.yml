@@ -14,6 +14,7 @@ pages:
   - cd buildtools
   - mv ../BuildTools.jar bt.jar
   - java -jar bt.jar
+  - ls ~/.m2/repository/org/bukkit/craftbukkit/
 #  - cd CraftBukkit
 #  - mvn install
 #  - cd ../../
@@ -34,6 +35,7 @@ deploy:
     - cd buildtools
     - mv ../BuildTools.jar bt.jar
     - java -jar bt.jar
+    - ls ~/.m2/repository/org/bukkit/craftbukkit/
 #    - cd CraftBukkit
  #   - mvn install
  #   - cd ../../
