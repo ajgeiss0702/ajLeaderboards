@@ -12,7 +12,7 @@ pages:
   - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
   - mkdir buildtools
   - cd buildtools
-  - mv ../BuildTools.jar bt.jar
+  - mv ../BuildTools.jar bt.jar --compile CRAFTBUKKIT
   - java -jar bt.jar
   - ls ~/.m2
   - ls ~/.m2/repository
@@ -38,8 +38,7 @@ deploy:
     - mkdir buildtools
     - cd buildtools
     - mv ../BuildTools.jar bt.jar
-    - java -jar bt.jar
-    - ls ~/.m2/repository/org/bukkit/craftbukkit/
+    - java -jar bt.jar --compile CRAFTBUKKIT
 #    - cd CraftBukkit
  #   - mvn install
  #   - cd ../../
