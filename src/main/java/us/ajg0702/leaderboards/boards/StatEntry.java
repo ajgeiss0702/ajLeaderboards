@@ -11,13 +11,19 @@ public class StatEntry {
 	String prefix;
 	String suffix;
 	
+	int position;
+	String board;
+	
 	
 	double score;
-	public StatEntry(String prefix, String player, String suffix, double score) {
+	public StatEntry(int position, String board, String prefix, String player, String suffix, double score) {
 		this.player = player;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+		
+		this.position = position;
+		this.board = board;
 	}
 	
 	public String getPrefix() {
@@ -30,6 +36,15 @@ public class StatEntry {
 	public String getPlayer() {
 		return player;
 	}
+	
+	
+	public int getPosition() {
+		return position;
+	}
+	public String getBoard() {
+		return board;
+	}
+	
 	
 	public double getScore() {
 		return score;

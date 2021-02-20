@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public class Cache {
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException e) {
 			if(retry && e.getMessage().indexOf("No suitable driver found for jdbc:sqlite:") != -1) {
+				pl.getLogger().info("Downloading sqlite drivers..");
 				Downloader.getInstance().downloadAndLoad();
 				init(false);
 				return;
@@ -64,20 +66,21 @@ public class Cache {
 			e.printStackTrace();
 			return;
 		}
-		
-		 try(ResultSet rs = conn.createStatement().executeQuery("PRAGMA user_version;")) {
+		 try(Statement statement = conn.createStatement()) {
+			 ResultSet rs = statement.executeQuery("PRAGMA user_version;");
              int version = rs.getInt(1);
              rs.close();
              
              if(version == 0) {
             	 pl.getLogger().info("Running table updater. (pv"+version+")");
             	 for(String b : getBoards()) {
-            		 conn.createStatement().executeUpdate("alter table '"+b+"' add column namecache TEXT;");
-            		 conn.createStatement().executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
-            		 conn.createStatement().executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
+            		 statement.executeUpdate("alter table '"+b+"' add column namecache TEXT;");
+            		 statement.executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
+            		 statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
             	 }
-            	 conn.createStatement().executeUpdate("PRAGMA user_version = 1;");
+            	 statement.executeUpdate("PRAGMA user_version = 1;");
              }
+             statement.close();
          } catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,14 +88,20 @@ public class Cache {
 		
 	}
 	
-	
+	StatEntry lastStatEntry = null;
 	
 	public StatEntry getStat(int position, String board) {
+		if(lastStatEntry != null && lastStatEntry.getBoard().equals(board) && lastStatEntry.getPosition() == position) {
+			return lastStatEntry;
+		}
 		if(!boardExists(board)) {
-			return new StatEntry("", "Board does not exist", "", 0);
+			StatEntry se = new StatEntry(position, board, "", "Board does not exist", "", 0);
+			lastStatEntry = se;
+			return se;
 		}
 		try {
-			ResultSet r = conn.createStatement().executeQuery("select id,value,namecache,prefixcache,suffixcache from '"+board+"' order by value desc limit "+(position-1)+","+position);
+			Statement statement = conn.createStatement();
+			ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from '"+board+"' order by value desc limit "+(position-1)+","+position);
 			String uuidraw = null;
 			double value = -1;
 			String name = "-Unknown-";
@@ -111,24 +120,34 @@ public class Cache {
 				}
 			}
 			r.close();
+			statement.close();
 			if(name == null) name = "-Unknown";
-			if(uuidraw == null) return new StatEntry("", pl.config.getString("no-data-name"), "", 0);
-			return new StatEntry(prefix, name, suffix, value);
+			if(uuidraw == null) {
+				StatEntry se = new StatEntry(position, board, "", pl.config.getString("no-data-name"), "", 0);
+				lastStatEntry = se;
+				return se;
+			} else {
+				StatEntry se = new StatEntry(position, board, prefix, name, suffix, value);
+				lastStatEntry = se;
+				return se;
+			}
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to stat of player:");
 			e.printStackTrace();
-			return new StatEntry("", "An error occured", "", 0);
+			return new StatEntry(position, board, "", "An error occured", "", 0);
 		}
 	}
 	
 	public int getPlace(OfflinePlayer player, String board) {
-		final List<String> l = new ArrayList<>();
+		List<String> l = new ArrayList<>();
         try {
-            final ResultSet r = conn.createStatement().executeQuery("select id,value from '" + board + "' order by value desc");
+        	Statement statement = conn.createStatement();
+            ResultSet r = statement.executeQuery("select id,value from '" + board + "' order by value desc");
             while (r.next()) {
                 l.add(r.getString(1));
             }
             r.close();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -138,7 +157,9 @@ public class Cache {
 	
 	public boolean createBoard(String name) {
 		try {
-			conn.createStatement().executeUpdate("create table if not exists '"+name+"' (id TEXT PRIMARY KEY, value NUMERIC, namecache TEXT, prefixcache TEXT, suffixcache TEXT)");
+			Statement statement = conn.createStatement();
+			statement.executeUpdate("create table if not exists '"+name+"' (id TEXT PRIMARY KEY, value NUMERIC, namecache TEXT, prefixcache TEXT, suffixcache TEXT)");
+			statement.close();
 			return true;
 		} catch (SQLException e) {
 			pl.getLogger().severe("Unable to create board:");
@@ -156,17 +177,18 @@ public class Cache {
 		List<String> o = new ArrayList<>();
 		ResultSet r;
 		try {
-			r = conn.createStatement().executeQuery("SELECT \n" + 
+			Statement statement = conn.createStatement();
+			r = statement.executeQuery("SELECT \n" + 
 					"    name\n" + 
 					"FROM \n" + 
 					"    sqlite_master \n" + 
 					"WHERE \n" + 
 					"    type ='table' AND \n" + 
 					"    name NOT LIKE 'sqlite_%';");
-		
 			while(r.next()) {
 				o.add(r.getString(1));
 			}
+			statement.close();
 			r.close();
 		} catch (SQLException e) {
 			pl.getLogger().severe("Unable to get list of tables:");
@@ -178,7 +200,9 @@ public class Cache {
 	public boolean removeBoard(String board) {
 		if(!getBoards().contains(board)) return true;
 		try {
-			conn.createStatement().executeUpdate("drop table '"+board+"';");
+			Statement statement = conn.createStatement();
+			statement.executeUpdate("drop table '"+board+"';");
+			statement.close();
 			return true;
 		} catch (SQLException e) {
 			pl.getLogger().warning("An error occurred while trying to remove a board:");
@@ -215,12 +239,13 @@ public class Cache {
 			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
 		try {
-			
+			Statement statement = conn.createStatement();
 			try {
-				conn.createStatement().executeUpdate("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values ('"+player.getUniqueId()+"', "+output+", '"+player.getName()+"', '"+prefix+"', '"+suffix+"')");
+				statement.executeUpdate("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values ('"+player.getUniqueId()+"', "+output+", '"+player.getName()+"', '"+prefix+"', '"+suffix+"')");
 			} catch(SQLException e) {
-				conn.createStatement().executeUpdate("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache='"+prefix+"', suffixcache='"+suffix+"' where id='"+player.getUniqueId()+"'");
+				statement.executeUpdate("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache='"+prefix+"', suffixcache='"+suffix+"' where id='"+player.getUniqueId()+"'");
 			}
+			statement.close();
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
