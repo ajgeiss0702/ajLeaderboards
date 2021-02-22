@@ -23,6 +23,7 @@ build:
 #  - mvn install
 #  - cd ../../
   - cd ..
+  - mvn install
   - 'mvn deploy -s settings.xml'
   - mvn javadoc:javadoc
   - ls target
