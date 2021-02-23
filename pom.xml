@@ -12,6 +12,10 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
+		<repository>
+			<id>gitlab-maven</id>
+			<url>https://gitlab.com/api/v4/projects/19978391/packages/maven</url>
+		</repository>
         <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -118,9 +122,25 @@
 	        <configuration>
 	          <source>1.8</source>
 	          <target>1.8</target>
+			  <sourcepath>src/main/java</sourcepath>
 	        </configuration>
 	      </plugin>
-	       <plugin>
+		   		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>attach-javadocs</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+			<configuration>
+              <sourcepath>src/main/java</sourcepath>
+			</configuration>
+		</plugin>
+		<plugin>
 			      <groupId>org.apache.maven.plugins</groupId>
 			      <artifactId>maven-shade-plugin</artifactId>
 			      <version>3.1.0</version>

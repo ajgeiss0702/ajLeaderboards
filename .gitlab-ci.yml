@@ -7,16 +7,24 @@ cache:
     - .m2/repository
 
 
-pages:
+build:
   script:
   - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
   - mkdir buildtools
   - cd buildtools
-  - mv ../BuildTools.jar bt.jar
-  - java -jar bt.jar
-  - cd CraftBukkit
+  - mv ../BuildTools.jar bt.jar 
+  - java -jar bt.jar --compile CRAFTBUKKIT
+  - ls ~/.m2
+  - ls ~/.m2/repository
+  - ls ~/.m2/repository/org
+  - ls ~/.m2/repository/org/bukkit
+  - ls ~/.m2/repository/org/bukkit/craftbukkit/
+#  - cd CraftBukkit
+#  - mvn install
+#  - cd ../../
+  - cd ..
   - mvn install
-  - cd ../../
+  - 'mvn deploy -s settings.xml'
   - mvn javadoc:javadoc
   - ls target
   - mv target/site/apidocs public
@@ -25,17 +33,17 @@ pages:
     - public
     - target
 
-deploy:
-  image: maven:3.6-jdk-11
-  script:
-    - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-    - mkdir buildtools
-    - cd buildtools
-    - mv ../BuildTools.jar bt.jar
-    - java -jar bt.jar
-    - cd CraftBukkit
-    - mvn install
-    - cd ../../
-    - 'mvn deploy -s settings.xml'
-  only:
-    - master
+#deploy:
+#  image: maven:3.6-jdk-11
+#  script:
+#    - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+#    - mkdir buildtools
+#    - cd buildtools
+#    - mv ../BuildTools.jar bt.jar
+#    - java -jar bt.jar --compile CRAFTBUKKIT
+#    - cd CraftBukkit
+#   - mvn install
+#   - cd ../../
+#    - cd ..    
+#  only:
+#    - master
