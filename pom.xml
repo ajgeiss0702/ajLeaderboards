@@ -4,80 +4,80 @@
   <artifactId>ajLeaderboards</artifactId>
   <version>1.2.0</version>
   <name>ajLeaderboards</name>
-  
-  
-  
-    <repositories>
-	    <repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-		<repository>
-			<id>gitlab-maven</id>
-			<url>https://gitlab.com/api/v4/projects/19978391/packages/maven</url>
-		</repository>
-        <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>placeholderapi</id>
-            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-        </repository>
-        <repository>
-		  <id>CodeMC</id>
-		  <url>https://repo.codemc.org/repository/maven-public</url>
-		</repository>
-	    <repository>
-	        <id>everything</id>
-	        <url>https://repo.citizensnpcs.co/</url>
-	    </repository>
-  </repositories>
 
 
 
-  <dependencies>
-  	<dependency>
+  <repositories>
+      <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+      </repository>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.com/api/v4/projects/19978391/packages/maven</url>
+      </repository>
+      <repository>
+        <id>spigotmc-repo</id>
+        <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+      </repository>
+      <repository>
+        <id>placeholderapi</id>
+        <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+      </repository>
+      <repository>
+        <id>CodeMC</id>
+        <url>https://repo.codemc.org/repository/maven-public</url>
+      </repository>
+      <repository>
+        <id>everything</id>
+        <url>https://repo.citizensnpcs.co/</url>
+      </repository>
+    </repositories>
+
+
+
+    <dependencies>
+      <dependency>
         <groupId>com.github.MilkBowl</groupId>
         <artifactId>VaultAPI</artifactId>
         <version>1.7</version>
         <scope>provided</scope>
-    </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId> <!-- If this is missing, run BuildTools -->
-            <version>1.16.5-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>me.clip</groupId>
-          <artifactId>placeholderapi</artifactId>
-          <version>2.10.4</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-        	<groupId>us.ajg0702</groupId>
-        	<artifactId>ajUtils</artifactId>
-        	<version>1.0.0</version>
-        </dependency>
-        <dependency>
-		    <groupId>org.xerial</groupId>
-		    <artifactId>sqlite-jdbc</artifactId>
-		    <version>3.32.3.2</version>
-		    <scope>provided</scope>
-		</dependency>
-		<dependency>
-		  <groupId>org.bstats</groupId>
-		  <artifactId>bstats-bukkit</artifactId>
-		  <version>1.7</version>
-		  <scope>compile</scope>
-		</dependency>
+      </dependency>
+      <dependency>
+        <groupId>org.spigotmc</groupId>
+        <artifactId>spigot-api</artifactId>
+        <version>1.16.2-R0.1-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.bukkit</groupId>
+        <artifactId>craftbukkit</artifactId> <!-- If this is missing, run BuildTools -->
+        <version>1.16.5-R0.1-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>me.clip</groupId>
+        <artifactId>placeholderapi</artifactId>
+        <version>2.10.4</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>us.ajg0702</groupId>
+        <artifactId>ajUtils</artifactId>
+        <version>1.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial</groupId>
+        <artifactId>sqlite-jdbc</artifactId>
+        <version>3.32.3.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.bstats</groupId>
+        <artifactId>bstats-bukkit</artifactId>
+        <version>1.7</version>
+        <scope>compile</scope>
+      </dependency>
 	    <!--<dependency>
 	        <groupId>net.citizensnpcs</groupId>
 	        <artifactId>citizens</artifactId>
@@ -85,87 +85,94 @@
 	        <type>jar</type>
 	        <scope>provided</scope>
    		</dependency>-->
-  </dependencies>
+    </dependencies>
 
 
-  <distributionManagement>
-	  <repository>
-	    <id>gitlab-maven</id>
-	    <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
-	  </repository>
-	  <snapshotRepository>
-	    <id>gitlab-maven</id>
-	    <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
-	  </snapshotRepository>
-	</distributionManagement>
+    <distributionManagement>
+      <repository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+      </repository>
+      <snapshotRepository>
+        <id>gitlab-maven</id>
+        <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+      </snapshotRepository>
+    </distributionManagement>
 
-  
-  
-	<properties>
-		<java.version>1.8</java.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-    
-    
+
+
+    <properties>
+      <java.version>1.8</java.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+
     <build>
-		<resources>
-        	<resource>
-            	<directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-	    <sourceDirectory>src</sourceDirectory>
-	    <plugins>
-	      <plugin>
-	        <artifactId>maven-compiler-plugin</artifactId>
-	        <version>3.8.0</version>
-	        <configuration>
-	          <source>1.8</source>
-	          <target>1.8</target>
-			  <sourcepath>src/main/java</sourcepath>
-	        </configuration>
-	      </plugin>
-		   		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<executions>
-				<execution>
-					<id>attach-javadocs</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
-			<configuration>
-              <sourcepath>src/main/java</sourcepath>
-			</configuration>
-		</plugin>
-		<plugin>
-			      <groupId>org.apache.maven.plugins</groupId>
-			      <artifactId>maven-shade-plugin</artifactId>
-			      <version>3.1.0</version>
-			      <configuration>
-			        <relocations>
-			          <relocation>
-			            <pattern>us.ajg0702.utils</pattern>
-			            <shadedPattern>us.ajg0702.leaderboards.utils</shadedPattern>
-			          </relocation>
-			          <relocation>
-			          	<pattern>org.bstats</pattern>
-			          	<shadedPattern>us.ajg0702.leaderboards.bstats</shadedPattern>
-			          </relocation>
-			        </relocations>
-			      </configuration>
-			      <executions>
-			        <execution>
-			          <phase>package</phase>
-			          <goals>
-			            <goal>shade</goal>
-			          </goals>
-			        </execution>
-			      </executions>
-			    </plugin>
-	    </plugins>
-  </build>
-    
+
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+        </resource>
+      </resources>
+
+      <sourceDirectory>src</sourceDirectory>
+
+      <plugins>
+
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+            <sourcepath>src/main/java</sourcepath>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <sourcepath>src/main/java</sourcepath>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.1.0</version>
+          <configuration>
+            <relocations>
+              <relocation>
+                <pattern>us.ajg0702.utils</pattern>
+                <shadedPattern>us.ajg0702.leaderboards.utils</shadedPattern>
+              </relocation>
+              <relocation>
+                <pattern>org.bstats</pattern>
+                <shadedPattern>us.ajg0702.leaderboards.bstats</shadedPattern>
+              </relocation>
+            </relocations>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+    </build>
+
 </project>
