@@ -136,6 +136,9 @@
 					</goals>
 				</execution>
 			</executions>
+			<configuration>
+              <sourcepath>src/main/java</sourcepath>
+			</configuration>
 		</plugin>
 		<plugin>
 			      <groupId>org.apache.maven.plugins</groupId>
