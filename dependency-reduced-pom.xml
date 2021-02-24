@@ -4,7 +4,7 @@
   <groupId>us.ajg0702</groupId>
   <artifactId>ajLeaderboards</artifactId>
   <name>ajLeaderboards</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -20,6 +20,20 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sourcepath>src/main/java</sourcepath>
         </configuration>
       </plugin>
       <plugin>
@@ -52,6 +66,10 @@
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+    </repository>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/19978391/packages/maven</url>
     </repository>
     <repository>
       <id>spigotmc-repo</id>
@@ -130,6 +148,16 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+    </repository>
+    <snapshotRepository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/22934088/packages/maven</url>
+    </snapshotRepository>
+  </distributionManagement>
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
