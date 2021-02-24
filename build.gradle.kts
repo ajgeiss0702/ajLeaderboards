@@ -33,6 +33,7 @@ dependencies {
 tasks.shadowJar {
     relocate("org.bstats", "us.ajg0702.leaderboards.libs")
     relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs")
+    archiveFileName.set("${baseName}-${version}.${extension}")
 }
 
 java {
