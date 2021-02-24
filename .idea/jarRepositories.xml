@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteRepositoriesConfiguration">
+    <remote-repository>
+      <option name="id" value="gitlab-maven" />
+      <option name="name" value="gitlab-maven" />
+      <option name="url" value="https://gitlab.com/api/v4/projects/19978391/packages/maven" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Central Repository" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jitpack.io" />
+      <option name="name" value="jitpack.io" />
+      <option name="url" value="https://jitpack.io" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="spigotmc-repo" />
+      <option name="name" value="spigotmc-repo" />
+      <option name="url" value="https://hub.spigotmc.org/nexus/content/repositories/snapshots/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Maven Central repository" />
+      <option name="url" value="https://repo1.maven.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="placeholderapi" />
+      <option name="name" value="placeholderapi" />
+      <option name="url" value="http://repo.extendedclip.com/content/repositories/placeholderapi/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="everything" />
+      <option name="name" value="everything" />
+      <option name="url" value="https://repo.citizensnpcs.co/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="CodeMC" />
+      <option name="name" value="CodeMC" />
+      <option name="url" value="https://repo.codemc.org/repository/maven-public" />
+    </remote-repository>
+  </component>
+</project>
