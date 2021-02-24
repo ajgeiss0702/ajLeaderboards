@@ -2,10 +2,7 @@ package us.ajg0702.leaderboards.armorstands;
 
 import java.util.Collection;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -75,36 +72,31 @@ public class ArmorStandManager {
 		case NORTH_NORTH_EAST:
 		case NORTH_NORTH_WEST:
 		case NORTH_WEST:
+
+			for(int z = sl.getBlockZ()+1;z > sl.getBlockZ()-1;z--) {
+				for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+					Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
+					debugParticles(curloc);
+
+					checkHead(curloc, player);
+					checkArmorstand(curloc, player);
+				}
+			}
+			break;
+
 		case SOUTH:
 		case SOUTH_EAST:
 		case SOUTH_SOUTH_EAST:
 		case SOUTH_SOUTH_WEST:
 		case SOUTH_WEST:
 			
-			for(int z = sl.getBlockZ()+1;z > sl.getBlockZ()-1;z--) {
+			for(int z = sl.getBlockZ();z > sl.getBlockZ()-2;z--) {
 				for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
 					Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
-					/*if(!curloc.getBlock().getType().toString().contains("SIGN")) {
-						curloc.getBlock().setType(Material.STONE);
-					}
-					//Bukkit.getPlayer("ajgeiss0702").teleport(curloc);*/
+					debugParticles(curloc);
 					
 					checkHead(curloc, player);
-					
-					Collection<Entity> entities = sl.getWorld().getNearbyEntities(curloc, 1, 1, 1);
-					if(entities.size() > 0) {
-						Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
-							public void run() {
-								for(Entity entity : entities) {
-									if(entity instanceof ArmorStand) {
-										Location eloc = entity.getLocation();
-										if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
-										setArmorstandHead((ArmorStand) entity, player);
-									}
-								}
-							}
-						});
-					}
+					checkArmorstand(curloc, player);
 				}
 			}
 			break;
@@ -112,6 +104,18 @@ public class ArmorStandManager {
 		case EAST:
 		case EAST_NORTH_EAST:
 		case EAST_SOUTH_EAST:
+
+			for(int x = sl.getBlockX();x > sl.getBlockX()-2;x--) {
+				for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+					Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
+					debugParticles(curloc);
+
+					checkHead(curloc, player);
+					checkArmorstand(curloc, player);
+				}
+			}
+			break;
+
 		case WEST:
 		case WEST_NORTH_WEST:
 		case WEST_SOUTH_WEST:
@@ -120,30 +124,10 @@ public class ArmorStandManager {
 			for(int x = sl.getBlockX()+1;x > sl.getBlockX()-1;x--) {
 				for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
 					Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
-					/*if(!curloc.getBlock().getType().toString().contains("SIGN")) {
-						curloc.getBlock().setType(Material.STONE);
-					}
-					//Bukkit.getPlayer("ajgeiss0702").teleport(curloc);*/
-					
+					debugParticles(curloc);
+
 					checkHead(curloc, player);
-					
-					Collection<Entity> entities = sl.getWorld().getNearbyEntities(curloc, 1, 1, 1);
-					if(entities.size() > 0) {
-						Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
-							public void run() {
-								for(Entity entity : entities) {
-									if(entity instanceof ArmorStand) {
-										Location eloc = entity.getLocation();
-										if(eloc.getBlockZ() != curloc.getBlockZ()) {
-											//pl.getLogger().info("Skipping east-facing sign bc of wrong block ("+eloc.getBlockX()+" != "+curloc.getBlockX()+", "+eloc.getBlockZ()+" != "+curloc.getBlockZ());
-											continue;
-										}
-										setArmorstandHead((ArmorStand) entity, player);
-									}
-								}
-							}
-						});
-					}
+					checkArmorstand(curloc, player);
 				}
 			}
 			break;
@@ -156,7 +140,7 @@ public class ArmorStandManager {
 		
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private void setArmorstandHead(ArmorStand stand, OfflinePlayer player) {
 		//pl.getLogger().info("in armorstand");
@@ -181,6 +165,10 @@ public class ArmorStandManager {
 		item.setItemMeta(meta);
 		stand.setHelmet(item);
 	}
+
+	private void debugParticles(Location curloc) {
+		//curloc.getWorld().spawnParticle(Particle.FLAME, curloc.add(0.5, 0.5, 0.5).toVector().toLocation(curloc.getWorld()), 20, 0.25, 0.25, 0.25, 0);
+	}
 	
 	
 	private void checkHead(Location loc, OfflinePlayer player) {
@@ -198,6 +186,23 @@ public class ArmorStandManager {
 				skull.update();
 			}
 		});
+	}
+
+	private void checkArmorstand(Location curloc, OfflinePlayer player) {
+		Collection<Entity> entities = curloc.getWorld().getNearbyEntities(curloc, 1, 1, 1);
+		if(entities.size() > 0) {
+			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+				public void run() {
+					for(Entity entity : entities) {
+						if(entity instanceof ArmorStand) {
+							Location eloc = entity.getLocation();
+							if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
+							setArmorstandHead((ArmorStand) entity, player);
+						}
+					}
+				}
+			});
+		}
 	}
 	
 }

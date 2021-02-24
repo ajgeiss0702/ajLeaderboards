@@ -1,25 +1,23 @@
 package us.ajg0702.leaderboards;
 
-import java.util.LinkedHashMap;
-
+import net.milkbowl.vault.chat.Chat;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.milkbowl.vault.chat.Chat;
 import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.utils.spigot.Messages;
 
+import java.util.LinkedHashMap;
+
 public class Main extends JavaPlugin {
 	
 	Config config;
 	Metrics metrics;
-	
-	Placeholders placeholders;
+
 	Commands commands;
 	
 	Messages msgs;
@@ -37,8 +35,8 @@ public class Main extends JavaPlugin {
 		getCommand("ajleaderboards").setTabCompleter(commands);
 		
 		config = new Config(this);
-		
-		placeholders = new Placeholders(this);
+
+		Placeholders placeholders = new Placeholders(this);
 		placeholders.register();
 		
 		
