@@ -9,7 +9,7 @@ cache:
 
 build:
   script:
-  - ./gradlew shadowJar
+  - gradle shadowJar
 #  - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
 #  - mkdir buildtools
 #  - cd buildtools
