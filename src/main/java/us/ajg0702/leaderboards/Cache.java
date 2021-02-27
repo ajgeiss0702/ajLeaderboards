@@ -1,11 +1,7 @@
 package us.ajg0702.leaderboards;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -239,11 +235,23 @@ public class Cache {
 			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
 		try {
-			Statement statement = conn.createStatement();
+			PreparedStatement statement = null;
 			try {
-				statement.executeUpdate("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values ('"+player.getUniqueId()+"', "+output+", '"+player.getName()+"', '"+prefix+"', '"+suffix+"')");
+				statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
+				statement.setString(1, player.getUniqueId().toString());
+				statement.setDouble(2, output);
+				statement.setString(3, player.getName());
+				statement.setString(4, prefix);
+				statement.setString(5, suffix);
+				statement.executeUpdate();
 			} catch(SQLException e) {
-				statement.executeUpdate("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache='"+prefix+"', suffixcache='"+suffix+"' where id='"+player.getUniqueId()+"'");
+				if(statement != null && !statement.isClosed()) {
+					statement.close();
+				}
+				statement = conn.prepareStatement("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache=?, suffixcache=? where id='"+player.getUniqueId()+"'");
+				statement.setString(1, prefix);
+				statement.setString(2, suffix);
+				statement.executeUpdate();
 			}
 			statement.close();
 		} catch(SQLException e) {
