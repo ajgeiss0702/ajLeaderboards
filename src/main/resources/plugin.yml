@@ -1,5 +1,5 @@
 name: ajLeaderboards
-version: ${project.version}
+version: "@VERSION@"
 main: us.ajg0702.leaderboards.Main
 author: ajgeiss0702
 depend: [PlaceholderAPI]
