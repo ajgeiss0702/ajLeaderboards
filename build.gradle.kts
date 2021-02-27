@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "1.2.1"
+version = "1.2.2"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,15 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:1.7")
     implementation("us.ajg0702:ajUtils:1.0.0")
+}
+
+tasks.withType<ProcessResources> {
+    include("**/*.yml")
+    filter<org.apache.tools.ant.filters.ReplaceTokens>(
+            "tokens" to mapOf(
+                    "VERSION" to project.version.toString()
+            )
+    )
 }
 
 tasks.shadowJar {
