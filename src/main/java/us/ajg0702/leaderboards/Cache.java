@@ -235,25 +235,22 @@ public class Cache {
 			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
 		try {
-			PreparedStatement statement = null;
 			try {
-				statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
+				PreparedStatement statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
 				statement.setString(4, prefix);
 				statement.setString(5, suffix);
 				statement.executeUpdate();
+				statement.close();
 			} catch(SQLException e) {
-				if(statement != null && !statement.isClosed()) {
-					statement.close();
-				}
-				statement = conn.prepareStatement("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache=?, suffixcache=? where id='"+player.getUniqueId()+"'");
+				PreparedStatement statement = conn.prepareStatement("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache=?, suffixcache=? where id='"+player.getUniqueId()+"'");
 				statement.setString(1, prefix);
 				statement.setString(2, suffix);
 				statement.executeUpdate();
+				statement.close();
 			}
-			statement.close();
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
