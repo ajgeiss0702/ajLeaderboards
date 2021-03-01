@@ -81,11 +81,12 @@ public class Placeholders extends PlaceholderExpansion {
     public String getVersion(){
         return pl.getDescription().getVersion();
     }
-    
-    Pattern highPrefixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_prefix");
+
     Pattern highNamePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_name");
     Pattern highValuePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_value");
     Pattern highSuffixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_suffix");
+    Pattern highPrefixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_prefix");
+    Pattern highColorPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_color");
     Pattern positionPattern = Pattern.compile("position_(.*)");
     /**
      * This is the method called when a placeholder with our identifier 
@@ -101,7 +102,7 @@ public class Placeholders extends PlaceholderExpansion {
      * @return Possibly-null String of the requested identifier.
      */
     @Override
-    public String onRequest(OfflinePlayer player, String identifier){
+    public String onRequest(OfflinePlayer player, String identifier) {
   
     	
     	Matcher highNameMatcher = highNamePattern.matcher(identifier);
@@ -121,6 +122,18 @@ public class Placeholders extends PlaceholderExpansion {
         	String board = highSuffixMatcher.group(1);
         	StatEntry r = Cache.getInstance().getStat(Integer.valueOf(highSuffixMatcher.group(2)), board);
         	return r.getSuffix();
+        }
+        Matcher highColorMatcher = highColorPattern.matcher(identifier);
+        if(highColorMatcher.find()) {
+            String board = highColorMatcher.group(1);
+            StatEntry r = Cache.getInstance().getStat(Integer.valueOf(highColorMatcher.group(2)), board);
+            if(r.getPrefix().isEmpty()) return "";
+            Matcher colorMatcher = Pattern.compile("&[0-9a-fk-or]").matcher(r.getPrefix());
+            String colors = "";
+            for(int i = 1; i <= colorMatcher.groupCount(); i++) {
+                colors += colorMatcher.group(i);
+            }
+            return colors;
         }
         
         
