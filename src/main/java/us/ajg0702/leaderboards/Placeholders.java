@@ -128,13 +128,18 @@ public class Placeholders extends PlaceholderExpansion {
             String board = highColorMatcher.group(1);
             StatEntry r = Cache.getInstance().getStat(Integer.valueOf(highColorMatcher.group(2)), board);
             if(r.getPrefix().isEmpty()) return "";
-            Matcher colorMatcher = Pattern.compile("(&[0-9a-fk-or]).*").matcher(r.getPrefix());
-            String colors = "";
-            for(int i = 1; i <= colorMatcher.groupCount(); i++) {
-                colors += colorMatcher.group(i);
+            String prefix = r.getPrefix();
+            StringBuilder colors = new StringBuilder();
+            int i = 0;
+            for(char c : prefix.toCharArray()) {
+                if(i == prefix.length()-1) break;
+                if(c == '&') {
+                    colors.append(c);
+                    colors.append(prefix.charAt(i+1));
+                }
+                i++;
             }
-            System.out.println("Colors ("+colorMatcher.groupCount()+"): "+colors);
-            return colors;
+            return colors.toString();
         }
         
         
