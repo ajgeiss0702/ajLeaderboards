@@ -81,11 +81,12 @@ public class Placeholders extends PlaceholderExpansion {
     public String getVersion(){
         return pl.getDescription().getVersion();
     }
-    
-    Pattern highPrefixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_prefix");
+
     Pattern highNamePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_name");
     Pattern highValuePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_value");
     Pattern highSuffixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_suffix");
+    Pattern highPrefixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_prefix");
+    Pattern highColorPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_color");
     Pattern positionPattern = Pattern.compile("position_(.*)");
     /**
      * This is the method called when a placeholder with our identifier 
@@ -101,7 +102,7 @@ public class Placeholders extends PlaceholderExpansion {
      * @return Possibly-null String of the requested identifier.
      */
     @Override
-    public String onRequest(OfflinePlayer player, String identifier){
+    public String onRequest(OfflinePlayer player, String identifier) {
   
     	
     	Matcher highNameMatcher = highNamePattern.matcher(identifier);
@@ -121,6 +122,24 @@ public class Placeholders extends PlaceholderExpansion {
         	String board = highSuffixMatcher.group(1);
         	StatEntry r = Cache.getInstance().getStat(Integer.valueOf(highSuffixMatcher.group(2)), board);
         	return r.getSuffix();
+        }
+        Matcher highColorMatcher = highColorPattern.matcher(identifier);
+        if(highColorMatcher.find()) {
+            String board = highColorMatcher.group(1);
+            StatEntry r = Cache.getInstance().getStat(Integer.valueOf(highColorMatcher.group(2)), board);
+            if(r.getPrefix().isEmpty()) return "";
+            String prefix = r.getPrefix();
+            StringBuilder colors = new StringBuilder();
+            int i = 0;
+            for(char c : prefix.toCharArray()) {
+                if(i == prefix.length()-1) break;
+                if(c == '&') {
+                    colors.append(c);
+                    colors.append(prefix.charAt(i+1));
+                }
+                i++;
+            }
+            return colors.toString();
         }
         
         
