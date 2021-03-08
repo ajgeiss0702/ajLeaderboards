@@ -133,7 +133,7 @@ public class Placeholders extends PlaceholderExpansion {
             int i = 0;
             for(char c : prefix.toCharArray()) {
                 if(i == prefix.length()-1) break;
-                if(c == '&' || c == '\u0xA7') {
+                if(c == '&' || c == '\u00A7') {
     	            colors.append(c);
                     colors.append(prefix.charAt(i+1));
                 }
