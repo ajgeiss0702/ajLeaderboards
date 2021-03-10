@@ -43,11 +43,7 @@ public class SignManager {
 		msgs = Messages.getInstance();
 		reload();
 		
-		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
-			public void run() {
-				updateSigns();
-			}
-		}, 10*20, 20);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, () -> updateSigns(), 10*20, 20);
 	}
 	
 	List<BoardSign> signs = new ArrayList<>();
@@ -153,16 +149,13 @@ public class SignManager {
 			plines.add(pline);
 			
 		}
-		lines = null;
 		@SuppressWarnings("deprecation")
 		OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
-		Bukkit.getScheduler().runTask(pl, new Runnable() {
-			public void run() {
-				if(op != null) {
-					ArmorStandManager.getInstance().search(sign, op);
-				}
-				sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
+		Bukkit.getScheduler().runTask(pl, () -> {
+			if(op != null && !r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
+				ArmorStandManager.getInstance().search(sign, op);
 			}
+			sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
 		});
 		
 		
