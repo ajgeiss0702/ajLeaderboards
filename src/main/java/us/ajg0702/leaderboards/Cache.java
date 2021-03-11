@@ -218,7 +218,7 @@ public class Cache {
 		String outputraw;
 		Double output;
 		try {
-			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+board+"%");
+			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+board+"%").replaceAll(",", "");
 			output = Double.valueOf(outputraw);
 		} catch(NumberFormatException e) {
 			return;

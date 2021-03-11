@@ -57,7 +57,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			String placeholder = args[1];
 			placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
 			if(!validatePlaceholder(placeholder)) {
-				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that does not have any commas."));
+				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
 				return true;
 			}
 			boolean r = cache.createBoard(placeholder);
@@ -273,7 +273,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		Player vp = Bukkit.getOnlinePlayers().iterator().next();
-		String out = PlaceholderAPI.setPlaceholders(vp, "%"+placeholder+"%");
+		String out = PlaceholderAPI.setPlaceholders(vp, "%"+placeholder+"%").replaceAll(",", "");
 		try {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
