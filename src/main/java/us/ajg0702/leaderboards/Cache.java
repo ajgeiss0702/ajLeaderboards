@@ -258,7 +258,7 @@ public class Cache {
 		}
 	}
 
-	private static final HashMap<String, String> altPlaceholders = new HashMap<>() {{
+	private static final HashMap<String, String> altPlaceholders = new HashMap<String, String>() {{
 		put("ajpk_stats_highscore", "ajpk_stats_highscore_nocache");
 		put("ajtr_stats_wins", "ajtr_stats_wins_nocache");
 		put("ajtr_stats_losses", "ajtr_stats_losses_nocache");
