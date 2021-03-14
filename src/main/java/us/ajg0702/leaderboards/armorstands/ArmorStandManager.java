@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.armorstands;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -178,12 +179,19 @@ public class ArmorStandManager {
 				BlockState bs = loc.getBlock().getState();
 				if(!(bs instanceof Skull)) return;
 				Skull skull = (Skull) bs;
+				boolean update = false;
 				if(VersionSupport.getMinorVersion() > 9) {
-					skull.setOwningPlayer(player);
+					if(!Objects.equals(skull.getOwningPlayer(), player)) {
+						skull.setOwningPlayer(player);
+						update = true;
+					}
 				} else {
-					skull.setOwner(player.getName());
+					if(!Objects.equals(skull.getOwner(), player.getName())) {
+						skull.setOwner(player.getName());
+						update = true;
+					}
 				}
-				skull.update();
+				if(update) skull.update();
 			}
 		});
 	}

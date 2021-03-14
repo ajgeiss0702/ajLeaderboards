@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards;
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -218,7 +219,7 @@ public class Cache {
 		String outputraw;
 		Double output;
 		try {
-			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+board+"%").replaceAll(",", "");
+			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%").replaceAll(",", "");
 			output = Double.valueOf(outputraw);
 		} catch(NumberFormatException e) {
 			return;
@@ -255,7 +256,16 @@ public class Cache {
 			pl.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
 		}
-		
-		
+	}
+
+	private static final HashMap<String, String> altPlaceholders = new HashMap<String, String>() {{
+		put("ajpk_stats_highscore", "ajpk_stats_highscore_nocache");
+		put("ajtr_stats_wins", "ajtr_stats_wins_nocache");
+		put("ajtr_stats_losses", "ajtr_stats_losses_nocache");
+		put("ajtr_stats_gamesplayed", "ajtr_stats_gamesplayer_nocache");
+	}};
+	public static String alternatePlaceholders(String board) {
+		if(!altPlaceholders.containsKey(board)) return board;
+		return altPlaceholders.get(board);
 	}
 }

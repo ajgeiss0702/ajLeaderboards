@@ -273,7 +273,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		Player vp = Bukkit.getOnlinePlayers().iterator().next();
-		String out = PlaceholderAPI.setPlaceholders(vp, "%"+placeholder+"%").replaceAll(",", "");
+		String out = PlaceholderAPI.setPlaceholders(vp, "%"+Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
 		try {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
