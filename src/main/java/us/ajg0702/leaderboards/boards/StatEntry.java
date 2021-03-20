@@ -13,6 +13,8 @@ public class StatEntry {
 	
 	int position;
 	String board;
+
+	private Cache cache;
 	
 	
 	double score;
@@ -21,6 +23,8 @@ public class StatEntry {
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+
+		this.cache = Cache.getInstance();
 		
 		this.position = position;
 		this.board = board;
@@ -51,9 +55,15 @@ public class StatEntry {
 	}
 	
 	public String getScorePretty() {
-		Config config = Cache.getInstance().getPlugin().getAConfig();
-		if(score == 0 && player.equals(config.getString("no-data-name"))) {
-			return config.getString("no-data-score");
+		if(cache != null) {
+			Config config = cache.getPlugin().getAConfig();
+			if(score == 0 && player.equals(config.getString("no-data-name"))) {
+				return config.getString("no-data-score");
+			}
+		} else {
+			if(score == 0 && player.equals("---")) {
+				return "---";
+			}
 		}
 		//Bukkit.getLogger().info("before: "+score);
 		return addCommas(score);
@@ -61,21 +71,28 @@ public class StatEntry {
 	
 	
 	private String addCommas(double number) {
-		Config config = Cache.getInstance().getPlugin().getAConfig();
-		DecimalFormat df = new DecimalFormat("#");
-		df.setMaximumFractionDigits(0);
+		String comma;
+		if(cache != null) {
+			comma = Cache.getInstance().getPlugin().getAConfig().getString("comma");
+		} else { comma = ","; }
+		DecimalFormat df = new DecimalFormat("#.##");
+		//df.setMaximumFractionDigits(0);
 		String ns = df.format(number);
-		int ic = 2;
-		for(int i = ns.length(); i > 0; i--) {
-			//System.out.println("i: "+i+" ic: "+ic + " c: " + ns.charAt(i-1));
-			if(ns.contains(".") && i >= ns.indexOf(".")) continue;
-			ic++;
-			if(ic % 3 != 0) continue;
-			ns = ns.substring(0, i)+config.getString("comma")+ns.substring(i, ns.length());
-		}
-		
+		int ic = 0;
 		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0' && ns.length() >= 3) {
 			ns = ns.substring(0, ns.length()-2);
+		}
+		String mn = ns.contains(".") ? ns.substring(0, ns.indexOf(".")) : ns;
+		for(int i = mn.length()-1; i > 0; i--) {
+			//System.out.println("i: "+i+" ic: "+ic + " c: " + ns.charAt(i-1));
+			ic++;
+			if(ic % 3 != 0) continue;
+			mn = mn.substring(0, i)+comma+mn.substring(i);
+		}
+		if(ns.contains(".")) {
+			ns = mn+ns.substring(ns.indexOf("."));
+		} else {
+			ns = mn;
 		}
 		
 		if(ns.charAt(ns.length()-1) == ',') {
