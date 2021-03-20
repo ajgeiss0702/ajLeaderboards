@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("junit:junit:4.12")
+    implementation("junit:junit:4.12")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.10.4")
@@ -44,6 +44,10 @@ tasks.shadowJar {
     relocate("org.bstats", "us.ajg0702.leaderboards.libs")
     relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs")
     archiveFileName.set("${baseName}-${version}.${extension}")
+    exclude("junit/**/*")
+    exclude("org/junit/**/*")
+    exclude("org/hamcrest/**/*")
+    exclude("LICENSE-junit.txt")
 }
 
 java {
