@@ -12,30 +12,18 @@ cache:
 build:
   script:
   - gradle shadowJar
-#  - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-#  - mkdir buildtools
-#  - cd buildtools
-#  - mv ../BuildTools.jar bt.jar 
-#  - java -jar bt.jar --compile CRAFTBUKKIT
-#  - ls ~/.m2
-#  - ls ~/.m2/repository
-#  - ls ~/.m2/repository/org
-#  - ls ~/.m2/repository/org/bukkit
-#  - ls ~/.m2/repository/org/bukkit/craftbukkit/
-#  - cd CraftBukkit
-#  - mvn install
-#  - cd ../../
-#  - cd ..
-#  - mvn install
-#  - 'mvn deploy -s settings.xml'
-#  - mvn javadoc:javadoc
-#  - ls target
-#  - mv target/site/apidocs public
   artifacts:
     paths:
     - public
     - build/libs
-#    - target
+
+pages:
+  script:
+  - gradle javadoc
+  - mv build/docs/javadoc public
+  artifacts:
+    paths:
+    - public
 
 #deploy:
 #  image: maven:3.6-jdk-11
@@ -48,6 +36,6 @@ build:
 #    - cd CraftBukkit
 #   - mvn install
 #   - cd ../../
-#    - cd ..    
+#    - cd ..
 #  only:
 #    - master
