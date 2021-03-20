@@ -14,7 +14,6 @@ build:
   - gradle shadowJar
   artifacts:
     paths:
-    - public
     - build/libs
 
 pages:
