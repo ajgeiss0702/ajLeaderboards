@@ -25,6 +25,11 @@ pages:
     paths:
     - public
 
+upload to updater:
+  script:
+  - gradle shadowJar
+  - curl -F "secret=$UPLOAD_SECRET" -F "fileToUpload=@build/libs/*.jar" https://ajg0702.us/pl/updater/upload.php
+
 #deploy:
 #  image: maven:3.6-jdk-11
 #  script:
