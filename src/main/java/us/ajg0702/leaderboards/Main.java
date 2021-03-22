@@ -36,6 +36,9 @@ public class Main extends JavaPlugin {
 		
 		config = new Config(this);
 
+		OldPlaceholders oldPlaceholders = new OldPlaceholders(this);
+		oldPlaceholders.register();
+
 		Placeholders placeholders = new Placeholders(this);
 		placeholders.register();
 		
