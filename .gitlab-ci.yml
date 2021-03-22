@@ -28,6 +28,7 @@ pages:
 
 upload to updater:
   stage: deploy
+  only: masters
   dependencies:
   - build
   script:
