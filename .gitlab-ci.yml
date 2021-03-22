@@ -25,8 +25,9 @@ pages:
     - public
 
 upload to updater:
+  dependencies:
+  - build
   script:
-  - gradle shadowJar
   - cd build/libs
   - files=(*)
   - curl -i -F "submit=true" -F "secret=$UPLOAD_SECRET" -F "file=@${files[0]}" https://ajg0702.us/pl/updater/upload.php
