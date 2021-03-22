@@ -9,6 +9,7 @@ cache:
 
 
 build:
+  stage: build
   script:
   - gradle shadowJar
   artifacts:
@@ -16,6 +17,7 @@ build:
     - build/libs
 
 pages:
+  stage: build
   image: gradle:6.8.3-jdk15
   script:
   - gradle javadoc
@@ -25,6 +27,7 @@ pages:
     - public
 
 upload to updater:
+  stage: deploy
   dependencies:
   - build
   script:
