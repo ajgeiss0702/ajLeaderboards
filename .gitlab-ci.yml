@@ -29,7 +29,7 @@ upload to updater:
   - gradle shadowJar
   - cd build/libs
   - files=(*)
-  - curl -F "secret=$UPLOAD_SECRET" -F "fileToUpload=@${files[0]}" https://ajg0702.us/pl/updater/upload.php
+  - curl -o - -F "secret=$UPLOAD_SECRET" -F "fileToUpload=@${files[0]}" https://ajg0702.us/pl/updater/upload.php
 
 #deploy:
 #  image: maven:3.6-jdk-11
