@@ -8,20 +8,20 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import us.ajg0702.leaderboards.boards.StatEntry;
 
 /**
- * This class will automatically register as a placeholder expansion
- * when a jar including this class is added to the directory
+ * This class will automatically register as a placeholder expansion 
+ * when a jar including this class is added to the directory 
  * {@code /plugins/PlaceholderAPI/expansions} on your server.
  * <br>
  * <br>If you create such a class inside your own plugin, you have to
- * register it manually in your plugins {@code onEnable()} by using
+ * register it manually in your plugins {@code onEnable()} by using 
  * {@code new YourExpansionClass().register();}
  */
-public class Placeholders extends PlaceholderExpansion {
-
-    Main pl;
-    public Placeholders(Main pl) {
-        this.pl = pl;
-    }
+public class OldPlaceholders extends PlaceholderExpansion {
+	
+	Main pl;
+	public OldPlaceholders(Main pl) {
+		this.pl = pl;
+	}
 
     /**
      * This method should always return true unless we
@@ -37,14 +37,14 @@ public class Placeholders extends PlaceholderExpansion {
 
     /**
      * The name of the person who created this expansion should go here.
-     *
+     * 
      * @return The name of the author as a String.
      */
     @Override
     public String getAuthor(){
         return "ajgeiss0702";
     }
-
+    
     /**
      * Because this is an internal class,
      * you must override this method to let PlaceholderAPI know to not unregister your expansion class when
@@ -59,8 +59,8 @@ public class Placeholders extends PlaceholderExpansion {
 
     /**
      * The placeholder identifier should go here.
-     * <br>This is what tells PlaceholderAPI to call our onRequest
-     * method to obtain a value if a placeholder starts with our
+     * <br>This is what tells PlaceholderAPI to call our onRequest 
+     * method to obtain a value if a placeholder starts with our 
      * identifier.
      * <br>The identifier has to be lowercase and can't contain _ or %
      *
@@ -68,7 +68,7 @@ public class Placeholders extends PlaceholderExpansion {
      */
     @Override
     public String getIdentifier(){
-        return "ajlb";
+        return "ajleaderboards";
     }
 
     /**
@@ -82,14 +82,16 @@ public class Placeholders extends PlaceholderExpansion {
         return pl.getDescription().getVersion();
     }
 
-    Pattern highNamePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_name");
-    Pattern highValuePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value");
-    Pattern highSuffixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_suffix");
-    Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_prefix");
-    Pattern highColorPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_color");
+    Pattern highNamePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_name");
+    Pattern highValuePattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_value");
+    Pattern highSuffixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_suffix");
+    Pattern highPrefixPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_prefix");
+    Pattern highColorPattern = Pattern.compile("board_(.*)_([1-9][0-9]*)_color");
     Pattern positionPattern = Pattern.compile("position_(.*)");
+
+    long lastNotify = 0;
     /**
-     * This is the method called when a placeholder with our identifier
+     * This is the method called when a placeholder with our identifier 
      * is found and needs a value.
      * <br>We specify the value identifier in this method.
      * <br>Since version 2.9.1 can you use OfflinePlayers in your requests.
@@ -103,25 +105,28 @@ public class Placeholders extends PlaceholderExpansion {
      */
     @Override
     public String onRequest(OfflinePlayer player, String identifier) {
-
-
-        Matcher highNameMatcher = highNamePattern.matcher(identifier);
+        if(System.currentTimeMillis() - lastNotify > 60e3*15) {
+            pl.getLogger().warning("You are using the old placeholders! Please change to the new placeholders. You can see the new placeholders here: https://wiki.ajg0702.us/ajleaderboards/setup/placeholders");
+            lastNotify = System.currentTimeMillis();
+        }
+    	
+    	Matcher highNameMatcher = highNamePattern.matcher(identifier);
         if(highNameMatcher.find()) {
-            String board = highNameMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highNameMatcher.group(2)), board);
-            return r.getPlayer();
+        	String board = highNameMatcher.group(1);
+        	StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highNameMatcher.group(2)), board);
+        	return r.getPlayer();
         }
         Matcher highPrefixMatcher = highPrefixPattern.matcher(identifier);
         if(highPrefixMatcher.find()) {
-            String board = highPrefixMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board);
-            return r.getPrefix();
+        	String board = highPrefixMatcher.group(1);
+        	StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board);
+        	return r.getPrefix();
         }
         Matcher highSuffixMatcher = highSuffixPattern.matcher(identifier);
         if(highSuffixMatcher.find()) {
-            String board = highSuffixMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board);
-            return r.getSuffix();
+        	String board = highSuffixMatcher.group(1);
+        	StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board);
+        	return r.getSuffix();
         }
         Matcher highColorMatcher = highColorPattern.matcher(identifier);
         if(highColorMatcher.find()) {
@@ -134,28 +139,28 @@ public class Placeholders extends PlaceholderExpansion {
             for(char c : prefix.toCharArray()) {
                 if(i == prefix.length()-1) break;
                 if(c == '&' || c == '\u00A7') {
-                    colors.append(c);
+    	            colors.append(c);
                     colors.append(prefix.charAt(i+1));
                 }
                 i++;
             }
             return colors.toString();
         }
-
-
+        
+        
         Matcher highValueMatcher = highValuePattern.matcher(identifier);
         if(highValueMatcher.find()) {
-            String board = highValueMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
-            return r.getScorePretty();
+        	String board = highValueMatcher.group(1);
+        	StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
+        	return r.getScorePretty();
         }
-
+        
         Matcher positionMatcher = positionPattern.matcher(identifier);
         if(positionMatcher.find()) {
-            String board = positionMatcher.group(1);
-            return Cache.getInstance().getPlace(player, board)+"";
+        	String board = positionMatcher.group(1);
+        	return Cache.getInstance().getPlace(player, board)+"";
         }
-
+        	
         return null;
     }
 }
