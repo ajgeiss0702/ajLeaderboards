@@ -19,6 +19,7 @@ build:
 pages:
   stage: build
   image: gradle:6.8.3-jdk15
+  only: master
   script:
   - gradle javadoc
   - mv build/docs/javadoc public
@@ -28,7 +29,7 @@ pages:
 
 upload to updater:
   stage: deploy
-  only: masters
+  only: master
   dependencies:
   - build
   script:
