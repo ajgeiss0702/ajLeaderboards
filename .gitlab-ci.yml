@@ -27,6 +27,13 @@ pages:
     paths:
     - public
 
+test:
+  stage: test
+  dependencies:
+  - build
+  script:
+  - gradle test
+
 upload to updater:
   stage: deploy
   only:
