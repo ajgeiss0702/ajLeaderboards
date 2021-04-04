@@ -37,6 +37,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			sender.sendMessage(color("&cYou do not have permission to use this!"));
 			return true;
 		}
+		Player sply = sender instanceof Player ? (Player) sender : null;
 		if(args.length == 0) {
 			sender.sendMessage(color(
 					"&6ajLeaderboards v"+pl.getDescription().getVersion()+" by ajgeiss0702\n"
@@ -56,8 +57,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 			}
 			String placeholder = args[1];
 			placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
-			if(!validatePlaceholder(placeholder)) {
-				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted.\n&7Returned: "+PlaceholderAPI.setPlaceholders(vp, "%"+Cache.alternatePlaceholders(placeholder)+"%")));
+			if(!validatePlaceholder(placeholder, sply)) {
+				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
 				return true;
 			}
 			boolean r = cache.createBoard(placeholder);
@@ -266,7 +267,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		return ChatColor.translateAlternateColorCodes('&', s);
 	}
 	
-	public boolean validatePlaceholder(String placeholder) {
+	public boolean validatePlaceholder(String placeholder, Player sayOutput) {
 		if(Bukkit.getOnlinePlayers().size() == 0) {
 			pl.getLogger().warning("Unable to validate placeholder because no players are online.");
 			return true;
@@ -276,6 +277,9 @@ public class Commands implements CommandExecutor, TabCompleter {
 		try {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
+			if(sayOutput != null) {
+				sayOutput.sendMessage("&7Returned: "+out);
+			}
 			return false;
 		}
 		return true;
