@@ -51,13 +51,13 @@ public class Commands implements CommandExecutor, TabCompleter {
 		switch(args[0].toLowerCase()) {
 		case "add":
 			if(args.length <= 1) {
-				sender.sendMessage(color("&cPlease provide a placeholder to track."));
+				sender.sendMessage(color("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
 				return true;
 			}
 			String placeholder = args[1];
 			placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
 			if(!validatePlaceholder(placeholder)) {
-				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
+				sender.sendMessage(color("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted.\n&7Returned: "+PlaceholderAPI.setPlaceholders(vp, "%"+Cache.alternatePlaceholders(placeholder)+"%")));
 				return true;
 			}
 			boolean r = cache.createBoard(placeholder);
@@ -74,7 +74,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "update":
 			if(args.length <= 2) {
-				sender.sendMessage(color("&cPlease provide a board and player to update"));
+				sender.sendMessage(color("&cPlease provide a board and player to update\n&7Usage: /"+label+" update <player> <board>"));
 				return true;
 			}
 			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
@@ -96,7 +96,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "remove":
 			if(args.length <= 1) {
-				sender.sendMessage(color("&cPlease provide a placeholder to remove."));
+				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" update <player> <board>"));
 				return true;
 			}
 			String board1 = args[1];
@@ -156,11 +156,11 @@ public class Commands implements CommandExecutor, TabCompleter {
 			switch(args[1].toLowerCase()) {
 			case "add":
 				if(args.length < 3) {
-					sender.sendMessage(color("&cPlease provide a board and a position for the sign!"));
+					sender.sendMessage(color("&cPlease provide a board and a position for the sign!\n&7Usage: /"+label+" signs add <board> <position>"));
 					return true;
 				}
 				if(args.length < 4) {
-					sender.sendMessage(color("&cPlease provide a position for the sign"));
+					sender.sendMessage(color("&cPlease provide a position for the sign\n&7Usage: /"+label+" signs add <board> <position>"));
 					return true;
 				}
 				if(!(sender instanceof Player)) {
@@ -172,7 +172,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 				try {
 					pos = Integer.valueOf(args[3]);
 				} catch(NumberFormatException e) {
-					sender.sendMessage(color("&cInvalid number! Please enter a real number for the position."));
+					sender.sendMessage(color("&cInvalid number! Please enter a real number for the position.\n&7Usage: /"+label+" signs add <board> <position>"));
 					return true;
 				}
 				Block target = p.getTargetBlock(null, 10);
