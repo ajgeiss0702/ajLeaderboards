@@ -228,13 +228,14 @@ public class Cache {
 			e.printStackTrace();
 			return;
 		}
-		//pl.getLogger().info("Placeholder "+board+" for "+player.getName()+" returned "+output);
+		Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 		String prefix = "";
 		String suffix = "";
 		if(pl.vault && player instanceof Player) {
 			prefix = pl.vaultChat.getPlayerPrefix((Player)player);
 			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
+		pl.getLogger().info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
 			try {
 				PreparedStatement statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");

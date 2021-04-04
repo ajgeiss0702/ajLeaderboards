@@ -4,11 +4,11 @@ image: gradle:6.8.2-jdk8
 # To keep cache across branches add 'key: "$CI_JOB_NAME"'
 cache:
   paths:
-    - .gradle/wrapper
-    - .gradle/caches
+    - .gradle
 
 
 build:
+  stage: build
   script:
   - gradle shadowJar
   artifacts:
@@ -16,7 +16,10 @@ build:
     - build/libs
 
 pages:
+  stage: build
   image: gradle:6.8.3-jdk15
+  only:
+  - master
   script:
   - gradle javadoc
   - mv build/docs/javadoc public
@@ -24,24 +27,20 @@ pages:
     paths:
     - public
 
-upload to updater:
+test:
+  stage: test
+  dependencies:
+  - build
   script:
-  - gradle shadowJar
+  - gradle test
+
+upload to updater:
+  stage: deploy
+  only:
+  - master
+  dependencies:
+  - build
+  script:
   - cd build/libs
   - files=(*)
   - curl -i -F "submit=true" -F "secret=$UPLOAD_SECRET" -F "file=@${files[0]}" https://ajg0702.us/pl/updater/upload.php
-
-#deploy:
-#  image: maven:3.6-jdk-11
-#  script:
-#    - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-#    - mkdir buildtools
-#    - cd buildtools
-#    - mv ../BuildTools.jar bt.jar
-#    - java -jar bt.jar --compile CRAFTBUKKIT
-#    - cd CraftBukkit
-#   - mvn install
-#   - cd ../../
-#    - cd ..
-#  only:
-#    - master
