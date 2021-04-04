@@ -226,7 +226,6 @@ public class Commands implements CommandExecutor, TabCompleter {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
 		if(!sender.hasPermission("ajleaderboards.use")) {
-			sender.sendMessage(color("&cYou do not have permission to use this!"));
 			return new ArrayList<>();
 		}
 		if(args.length <= 1) {
