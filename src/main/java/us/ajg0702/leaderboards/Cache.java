@@ -235,7 +235,7 @@ public class Cache {
 			prefix = pl.vaultChat.getPlayerPrefix((Player)player);
 			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
 		}
-		pl.getLogger().info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
+		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
 			try {
 				PreparedStatement statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
