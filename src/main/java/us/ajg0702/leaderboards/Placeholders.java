@@ -84,6 +84,7 @@ public class Placeholders extends PlaceholderExpansion {
 
     Pattern highNamePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_name");
     Pattern highValuePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value");
+    Pattern highValueRawPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_rawvalue");
     Pattern highSuffixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_suffix");
     Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_prefix");
     Pattern highColorPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_color");
@@ -148,6 +149,12 @@ public class Placeholders extends PlaceholderExpansion {
             String board = highValueMatcher.group(1);
             StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
             return r.getScorePretty();
+        }
+        Matcher highValueRawMatcher = highValueRawPattern.matcher(identifier);
+        if(highValueRawMatcher.find()) {
+            String board = highValueRawMatcher.group(1);
+            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board);
+            return r.getScore()+"";
         }
 
         Matcher positionMatcher = positionPattern.matcher(identifier);
