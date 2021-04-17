@@ -97,7 +97,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "remove":
 			if(args.length <= 1) {
-				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" update <player> <board>"));
+				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" remove <board>"));
 				return true;
 			}
 			String board1 = args[1];
