@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards;
 
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -147,7 +148,8 @@ public class Placeholders extends PlaceholderExpansion {
         if(highValueRawMatcher.find()) {
             String board = highValueRawMatcher.group(1);
             StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board);
-            return r.getScore()+"";
+            DecimalFormat df = new DecimalFormat("#.##");
+            return df.format(r.getScore());
         }
         Matcher highValueMatcher = highValuePattern.matcher(identifier);
         if(highValueMatcher.find()) {
