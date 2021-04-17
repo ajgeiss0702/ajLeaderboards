@@ -143,19 +143,19 @@ public class Placeholders extends PlaceholderExpansion {
             return colors.toString();
         }
 
-
-        Matcher highValueMatcher = highValuePattern.matcher(identifier);
-        if(highValueMatcher.find()) {
-            String board = highValueMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
-            return r.getScorePretty();
-        }
         Matcher highValueRawMatcher = highValueRawPattern.matcher(identifier);
         if(highValueRawMatcher.find()) {
             String board = highValueRawMatcher.group(1);
             StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board);
             return r.getScore()+"";
         }
+        Matcher highValueMatcher = highValuePattern.matcher(identifier);
+        if(highValueMatcher.find()) {
+            String board = highValueMatcher.group(1);
+            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
+            return r.getScorePretty();
+        }
+
 
         Matcher positionMatcher = positionPattern.matcher(identifier);
         if(positionMatcher.find()) {
