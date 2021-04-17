@@ -21,6 +21,7 @@ import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.signs.BoardSign;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.LocUtils;
+import us.ajg0702.utils.spigot.Messages;
 
 public class Commands implements CommandExecutor, TabCompleter {
 	
@@ -278,7 +279,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
 			if(sayOutput != null) {
-				sayOutput.sendMessage("&7Returned: "+out);
+				sayOutput.sendMessage(Messages.getInstance().color("&7Returned: "+out));
 			}
 			return false;
 		}
