@@ -1,25 +1,25 @@
 package us.ajg0702.leaderboards.armorstands;
 
-import java.util.Collection;
-import java.util.Objects;
-
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Rotatable;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-
 import us.ajg0702.leaderboards.Main;
 import us.ajg0702.leaderboards.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 
 public class ArmorStandManager {
 	static ArmorStandManager instance;
@@ -44,7 +44,7 @@ public class ArmorStandManager {
 	// E/W = +/- x
 	// N/S = +/- z
 	
-	public void search(BoardSign sign, OfflinePlayer player) { 
+	public void search(BoardSign sign, String name, UUID id) {
 		if(!sign.getLocation().getBlock().getType().toString().contains("SIGN")) return;
 		Sign ss = sign.getSign();
 		BlockFace face;
@@ -79,8 +79,8 @@ public class ArmorStandManager {
 					Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
 					debugParticles(curloc);
 
-					checkHead(curloc, player);
-					checkArmorstand(curloc, player);
+					checkHead(curloc, name, id);
+					checkArmorstand(curloc, name, id);
 				}
 			}
 			break;
@@ -96,8 +96,8 @@ public class ArmorStandManager {
 					Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
 					debugParticles(curloc);
 					
-					checkHead(curloc, player);
-					checkArmorstand(curloc, player);
+					checkHead(curloc, name, id);
+					checkArmorstand(curloc, name, id);
 				}
 			}
 			break;
@@ -111,8 +111,8 @@ public class ArmorStandManager {
 					Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
 					debugParticles(curloc);
 
-					checkHead(curloc, player);
-					checkArmorstand(curloc, player);
+					checkHead(curloc, name, id);
+					checkArmorstand(curloc, name, id);
 				}
 			}
 			break;
@@ -127,8 +127,8 @@ public class ArmorStandManager {
 					Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
 					debugParticles(curloc);
 
-					checkHead(curloc, player);
-					checkArmorstand(curloc, player);
+					checkHead(curloc, name, id);
+					checkArmorstand(curloc, name, id);
 				}
 			}
 			break;
@@ -143,7 +143,7 @@ public class ArmorStandManager {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void setArmorstandHead(ArmorStand stand, OfflinePlayer player) {
+	private void setArmorstandHead(ArmorStand stand, String name, UUID id) {
 		//pl.getLogger().info("in armorstand");
 		if(VersionSupport.getMinorVersion() >= 10) {
 			stand.setSilent(true);
@@ -159,9 +159,9 @@ public class ArmorStandManager {
 		//pl.getLogger().info("item not null");
 		SkullMeta meta = (SkullMeta) item.getItemMeta();
 		if(VersionSupport.getMinorVersion() > 9) {
-			meta.setOwningPlayer(player);
+			meta.setOwningPlayer(Bukkit.getOfflinePlayer(id));
 		} else {
-			meta.setOwner(player.getName());
+			meta.setOwner(name);
 		}
 		item.setItemMeta(meta);
 		stand.setHelmet(item);
@@ -172,7 +172,7 @@ public class ArmorStandManager {
 	}
 	
 	
-	private void checkHead(Location loc, OfflinePlayer player) {
+	private void checkHead(Location loc, String name, UUID id) {
 		Bukkit.getScheduler().runTask(pl, new Runnable() {
 			@SuppressWarnings("deprecation")
 			public void run() {
@@ -181,13 +181,13 @@ public class ArmorStandManager {
 				Skull skull = (Skull) bs;
 				boolean update = false;
 				if(VersionSupport.getMinorVersion() > 9) {
-					if(!Objects.equals(skull.getOwningPlayer(), player)) {
-						skull.setOwningPlayer(player);
+					if(!Objects.equals(skull.getOwningPlayer().getUniqueId(), id)) {
+						skull.setOwningPlayer(Bukkit.getOfflinePlayer(id));
 						update = true;
 					}
 				} else {
-					if(!Objects.equals(skull.getOwner(), player.getName())) {
-						skull.setOwner(player.getName());
+					if(!Objects.equals(skull.getOwner(), name)) {
+						skull.setOwner(name);
 						update = true;
 					}
 				}
@@ -196,7 +196,7 @@ public class ArmorStandManager {
 		});
 	}
 
-	private void checkArmorstand(Location curloc, OfflinePlayer player) {
+	private void checkArmorstand(Location curloc, String name, UUID id) {
 		Collection<Entity> entities = curloc.getWorld().getNearbyEntities(curloc, 1, 1, 1);
 		if(entities.size() > 0) {
 			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
@@ -205,7 +205,7 @@ public class ArmorStandManager {
 						if(entity instanceof ArmorStand) {
 							Location eloc = entity.getLocation();
 							if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
-							setArmorstandHead((ArmorStand) entity, player);
+							setArmorstandHead((ArmorStand) entity, name, id);
 						}
 					}
 				}

@@ -35,7 +35,7 @@ public class Cache {
 	Connection conn;
 	private Cache(Main pl) {
 		this.pl = pl;
-		
+
 		pl.getDataFolder().mkdirs();
 		
 		init(true);
@@ -53,7 +53,7 @@ public class Cache {
 		try {
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException e) {
-			if(retry && e.getMessage().indexOf("No suitable driver found for jdbc:sqlite:") != -1) {
+			if(retry && e.getMessage().contains("No suitable driver found for jdbc:sqlite:")) {
 				pl.getLogger().info("Downloading sqlite drivers..");
 				Downloader.getInstance().downloadAndLoad();
 				init(false);
@@ -112,7 +112,7 @@ public class Cache {
 				suffix = r.getString("suffixcache");
 				
 			} catch(SQLException e) {
-				if(e.getMessage().indexOf("ResultSet closed") == -1) {
+				if(!e.getMessage().contains("ResultSet closed")) {
 					throw e;
 				}
 			}
@@ -120,11 +120,9 @@ public class Cache {
 			statement.close();
 			if(name == null) name = "-Unknown";
 			if(uuidraw == null) {
-				StatEntry se = new StatEntry(position, board, "", pl.config.getString("no-data-name"), null, "", 0);
-				return se;
+				return new StatEntry(position, board, "", pl.config.getString("no-data-name"), null, "", 0);
 			} else {
-				StatEntry se = new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
-				return se;
+				return new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
 			}
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to stat of player:");
@@ -215,10 +213,10 @@ public class Cache {
 	
 	public void updateStat(String board, OfflinePlayer player) {
 		String outputraw;
-		Double output;
+		double output;
 		try {
 			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%").replaceAll(",", "");
-			output = Double.valueOf(outputraw);
+			output = Double.parseDouble(outputraw);
 		} catch(NumberFormatException e) {
 			return;
 		} catch(Exception e) {

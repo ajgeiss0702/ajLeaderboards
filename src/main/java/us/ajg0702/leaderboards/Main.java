@@ -67,17 +67,15 @@ public class Main extends JavaPlugin {
 		
 		SignManager.getInstance(this);
 		
-		Bukkit.getScheduler().runTask(this, new Runnable() {
-			public void run() {
-				if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-					RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
-			        if(rsp == null) {
-			        	vault = false;
-			        	getLogger().warning("Vault prefix hook failed! Make sure you have a plugin that implements chat (e.g. Luckperms)");
-			        } else {
-			        	vaultChat = rsp.getProvider();
-				        vault = vaultChat != null;	
-			        }
+		Bukkit.getScheduler().runTask(this, () -> {
+			if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+				RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+				if(rsp == null) {
+					vault = false;
+					getLogger().warning("Vault prefix hook failed! Make sure you have a plugin that implements chat (e.g. Luckperms)");
+				} else {
+					vaultChat = rsp.getProvider();
+					vault = vaultChat != null;
 				}
 			}
 		});
@@ -90,14 +88,12 @@ public class Main extends JavaPlugin {
 		if(updateTaskId != -1) {
 			try {
 				Bukkit.getScheduler().cancelTask(updateTaskId);
-			} catch(IllegalArgumentException e) {}
+			} catch(IllegalArgumentException ignored) {}
 			updateTaskId = -1;
 		}
-		updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-			public void run() {
-				for(Player p : Bukkit.getOnlinePlayers()) {
-					Cache.getInstance().updatePlayerStats(p);
-				}
+		updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+			for(Player p : Bukkit.getOnlinePlayers()) {
+				Cache.getInstance().updatePlayerStats(p);
 			}
 		}, 10*20, config.getInt("stat-refresh")).getTaskId();
 	}

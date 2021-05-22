@@ -44,7 +44,7 @@ public class SignManager {
 		msgs = Messages.getInstance();
 		reload();
 		
-		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, () -> updateSigns(), 10*20, 20);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, this::updateSigns, 10*20, 20);
 	}
 	
 	List<BoardSign> signs = new ArrayList<>();
@@ -142,19 +142,17 @@ public class SignManager {
 		List<String> plines = new ArrayList<>();
 		for(String l : lines) {
 			String pline = l
-					.replaceAll("\\{POSITION\\}", sign.getPosition()+"")
-					.replaceAll("\\{NAME\\}", r.getPlayer())
-					.replaceAll("\\{VALUE\\}", r.getScorePretty())
-					.replaceAll("\\{VALUENAME\\}", name)
+					.replaceAll("\\{POSITION}", sign.getPosition()+"")
+					.replaceAll("\\{NAME}", r.getPlayer())
+					.replaceAll("\\{VALUE}", r.getScorePretty())
+					.replaceAll("\\{VALUENAME}", name)
 					;
 			plines.add(pline);
 			
 		}
-		@SuppressWarnings("deprecation")
-		OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
 		Bukkit.getScheduler().runTask(pl, () -> {
-			if(op != null && !r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
-				ArmorStandManager.getInstance().search(sign, op);
+			if(!r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
+				ArmorStandManager.getInstance().search(sign, r.getPlayer(), r.getPlayerID());
 			}
 			sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
 		});
