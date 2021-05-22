@@ -3,9 +3,11 @@ package us.ajg0702.leaderboards;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.utils.spigot.Messages;
 
 /**
  * This class will automatically register as a placeholder expansion 
@@ -106,7 +108,15 @@ public class OldPlaceholders extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, String identifier) {
         if(System.currentTimeMillis() - lastNotify > 60e3*15) {
-            pl.getLogger().warning("You are using the old placeholders! Please change to the new placeholders. You can see the new placeholders here: https://wiki.ajg0702.us/ajleaderboards/setup/placeholders");
+            Bukkit.broadcast(
+                    Messages.getInstance().color(
+                            "&6ajLeaderboards &lATTENTION&r&7: &eYou are using the old placeholders! Please change to the new placeholders.\n&7You can see the new placeholders here: https://wiki.ajg0702.us/ajleaderboards/setup/placeholders"
+                    ),
+                    "ajleaderboards.use"
+            );
+            pl.getLogger().warning(
+                    "You are using the old placeholders! Please change to the new placeholders. You can see the new placeholders here: https://wiki.ajg0702.us/ajleaderboards/setup/placeholders"
+            );
             lastNotify = System.currentTimeMillis();
         }
     	
