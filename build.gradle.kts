@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "1.2.6"
+version = "1.2.9"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.12")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.10.4")

@@ -42,7 +42,8 @@ public class SignManager {
 	private SignManager(Main pl) {
 		this.pl = pl;
 		msgs = Messages.getInstance();
-		reload();
+
+		Bukkit.getScheduler().runTaskLater(pl, () -> reload(), 1);
 		
 		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, this::updateSigns, 10*20, 20);
 	}
