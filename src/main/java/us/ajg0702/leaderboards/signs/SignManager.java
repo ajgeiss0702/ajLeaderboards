@@ -17,6 +17,7 @@ import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.leaderboards.Main;
 import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.utils.spigot.Messages;
 
 public class SignManager {
@@ -131,7 +132,7 @@ public class SignManager {
 			name = names.get(sign.getBoard());
 		}
 		
-		StatEntry r = Cache.getInstance().getStat(sign.getPosition(), sign.getBoard());
+		StatEntry r = TopManager.getInstance().getStat(sign.getPosition(), sign.getBoard());
 		
 		List<String> lines = Arrays.asList(
 				msgs.get("signs.top.1"), 

@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 import java.text.DecimalFormat;
+import java.util.UUID;
 
 import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.utils.spigot.Config;
@@ -10,6 +11,8 @@ public class StatEntry {
 	String player;
 	String prefix;
 	String suffix;
+
+	UUID playerID;
 	
 	int position;
 	String board;
@@ -18,11 +21,13 @@ public class StatEntry {
 	
 	
 	double score;
-	public StatEntry(int position, String board, String prefix, String player, String suffix, double score) {
+	public StatEntry(int position, String board, String prefix, String player, UUID playerID, String suffix, double score) {
 		this.player = player;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+
+		this.playerID = playerID;
 
 		this.cache = Cache.getInstance();
 		
@@ -40,8 +45,11 @@ public class StatEntry {
 	public String getPlayer() {
 		return player;
 	}
-	
-	
+
+	public UUID getPlayerID() {
+		return playerID;
+	}
+
 	public int getPosition() {
 		return position;
 	}

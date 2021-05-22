@@ -84,17 +84,17 @@ public class Cache {
 		}
 		
 	}
-	
-	StatEntry lastStatEntry = null;
-	
+
+	/**
+	 * Get a stat. It is reccomended you use TopManager#getStat instead of this,
+	 * unless it is of absolute importance that you have the most up-to-date information
+	 * @param position The position to get
+	 * @param board The board
+	 * @return The StatEntry representing the position of the board
+	 */
 	public StatEntry getStat(int position, String board) {
-		if(lastStatEntry != null && lastStatEntry.getBoard().equals(board) && lastStatEntry.getPosition() == position) {
-			return lastStatEntry;
-		}
 		if(!boardExists(board)) {
-			StatEntry se = new StatEntry(position, board, "", "Board does not exist", "", 0);
-			lastStatEntry = se;
-			return se;
+			return new StatEntry(position, board, "", "Board does not exist", null, "", 0);
 		}
 		try {
 			Statement statement = conn.createStatement();
@@ -120,18 +120,16 @@ public class Cache {
 			statement.close();
 			if(name == null) name = "-Unknown";
 			if(uuidraw == null) {
-				StatEntry se = new StatEntry(position, board, "", pl.config.getString("no-data-name"), "", 0);
-				lastStatEntry = se;
+				StatEntry se = new StatEntry(position, board, "", pl.config.getString("no-data-name"), null, "", 0);
 				return se;
 			} else {
-				StatEntry se = new StatEntry(position, board, prefix, name, suffix, value);
-				lastStatEntry = se;
+				StatEntry se = new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
 				return se;
 			}
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to stat of player:");
 			e.printStackTrace();
-			return new StatEntry(position, board, "", "An error occured", "", 0);
+			return new StatEntry(position, board, "", "An error occured", null, "", 0);
 		}
 	}
 	

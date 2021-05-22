@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
+import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.utils.spigot.Messages;
@@ -41,6 +42,8 @@ public class Main extends JavaPlugin {
 
 		Placeholders placeholders = new Placeholders(this);
 		placeholders.register();
+
+		TopManager.getInstance(this);
 		
 		
 		LinkedHashMap<String, String> dmsgs = new LinkedHashMap<>();
