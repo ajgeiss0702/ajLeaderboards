@@ -10,12 +10,10 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.leaderboards.Main;
-import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
+import us.ajg0702.leaderboards.heads.HeadManager;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.utils.spigot.Messages;
@@ -127,6 +125,7 @@ public class SignManager {
 	}
 	
 	public void updateSign(BoardSign sign) {
+		if(!isSignChunkLoaded(sign)) return;
 		
 		String name = "";
 		if(names.containsKey(sign.getBoard())) {
@@ -159,6 +158,11 @@ public class SignManager {
 		});
 		
 		
+	}
+
+
+	public boolean isSignChunkLoaded(BoardSign sign) {
+		return sign.getWorld().isChunkLoaded(sign.getX(), sign.getZ());
 	}
 	
 }
