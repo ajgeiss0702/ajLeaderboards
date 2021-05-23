@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
+import us.ajg0702.leaderboards.heads.HeadManager;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.Config;
@@ -56,7 +56,7 @@ public class Main extends JavaPlugin {
 		
 		msgs = Messages.getInstance(this, dmsgs);
 		
-		ArmorStandManager.getInstance(this);
+		HeadManager.getInstance(this);
 		
 		
 		reloadInterval();

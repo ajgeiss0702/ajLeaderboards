@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.armorstands;
+package us.ajg0702.leaderboards.heads;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,14 +21,14 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ArmorStandManager {
-	static ArmorStandManager instance;
-	public static ArmorStandManager getInstance() {
+public class HeadManager {
+	static HeadManager instance;
+	public static HeadManager getInstance() {
 		return instance;
 	}
-	public static ArmorStandManager getInstance(Main pl) {
+	public static HeadManager getInstance(Main pl) {
 		if(instance == null) {
-			instance = new ArmorStandManager(pl);
+			instance = new HeadManager(pl);
 		}
 		return instance;
 	}
@@ -36,7 +36,7 @@ public class ArmorStandManager {
 	
 	Main pl;
 	
-	private ArmorStandManager(Main pl) {
+	private HeadManager(Main pl) {
 		this.pl = pl;
 	}
 	
@@ -148,22 +148,7 @@ public class ArmorStandManager {
 		if(VersionSupport.getMinorVersion() >= 10) {
 			stand.setSilent(true);
 		}
-		ItemStack item = null;
-		if(VersionSupport.getMinorVersion() <= 12) {
-			item = new ItemStack(Material.valueOf("SKULL_ITEM"), 1 , (short) 3);
-		} else if(VersionSupport.getMinorVersion() > 12) {
-			item = new ItemStack(Material.PLAYER_HEAD, 1);
-		}
-		//pl.getLogger().info("item");
-		if(item == null) return;
-		//pl.getLogger().info("item not null");
-		SkullMeta meta = (SkullMeta) item.getItemMeta();
-		if(VersionSupport.getMinorVersion() > 9) {
-			meta.setOwningPlayer(Bukkit.getOfflinePlayer(id));
-		} else {
-			meta.setOwner(name);
-		}
-		item.setItemMeta(meta);
+		ItemStack item = HeadUtils.getInstance().getHeadItem(name);
 		stand.setHelmet(item);
 	}
 
@@ -181,7 +166,12 @@ public class ArmorStandManager {
 				Skull skull = (Skull) bs;
 				boolean update = false;
 				if(VersionSupport.getMinorVersion() > 9) {
-					if(!Objects.equals(skull.getOwningPlayer().getUniqueId(), id)) {
+					if(skull.hasOwner()) {
+						if(Objects.equals(skull.getOwningPlayer().getUniqueId(), id)) {
+							skull.setOwningPlayer(Bukkit.getOfflinePlayer(id));
+							update = true;
+						}
+					} else {
 						skull.setOwningPlayer(Bukkit.getOfflinePlayer(id));
 						update = true;
 					}
@@ -195,6 +185,7 @@ public class ArmorStandManager {
 			}
 		});
 	}
+
 
 	private void checkArmorstand(Location curloc, String name, UUID id) {
 		Collection<Entity> entities = curloc.getWorld().getNearbyEntities(curloc, 1, 1, 1);

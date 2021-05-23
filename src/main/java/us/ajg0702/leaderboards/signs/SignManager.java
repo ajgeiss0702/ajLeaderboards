@@ -41,7 +41,7 @@ public class SignManager {
 		this.pl = pl;
 		msgs = Messages.getInstance();
 
-		Bukkit.getScheduler().runTaskLater(pl, () -> reload(), 1);
+		Bukkit.getScheduler().runTaskLater(pl, this::reload, 1);
 		
 		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, this::updateSigns, 10*20, 20);
 	}
@@ -152,7 +152,7 @@ public class SignManager {
 		}
 		Bukkit.getScheduler().runTask(pl, () -> {
 			if(!r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
-				ArmorStandManager.getInstance().search(sign, r.getPlayer(), r.getPlayerID());
+				HeadManager.getInstance().search(sign, r.getPlayer(), r.getPlayerID());
 			}
 			sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
 		});

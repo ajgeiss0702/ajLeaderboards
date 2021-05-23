@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class Listeners implements Listener {
@@ -23,9 +24,9 @@ public class Listeners implements Listener {
 		});
 	}
 	
-	/*@EventHandler
-	public void onSign(SignChangeEvent e) {
+	/**@EventHandler
+	public void onSignBreak(BlockBreakEvent e) {
 		Player player = e.getPlayer();
-		
+		if(e.getBlock().getType())
 	}*/
 }
