@@ -3,9 +3,11 @@ package us.ajg0702.leaderboards;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import us.ajg0702.leaderboards.signs.SignManager;
 
 public class Listeners implements Listener {
 	
@@ -24,9 +26,14 @@ public class Listeners implements Listener {
 		});
 	}
 	
-	/**@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSignBreak(BlockBreakEvent e) {
+		if(!e.getBlock().getType().toString().contains("SIGN")) return;
 		Player player = e.getPlayer();
-		if(e.getBlock().getType())
-	}*/
+		if(SignManager.getInstance().removeSign(e.getBlock().getLocation())) {
+			player.sendMessage(pl.msgs.color(
+					"&aSuccessfully un-registered the ajLeaderboards sign you just broke"
+			));
+		}
+	}
 }

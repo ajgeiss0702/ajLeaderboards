@@ -86,9 +86,21 @@ public class SignManager {
 		if(save) saveFile();
 		return save;
 	}
+
+	public BoardSign findSign(Location l) {
+		Iterator<BoardSign> i = signs.iterator();
+		while(i.hasNext()) {
+			BoardSign s = i.next();
+			if(l.equals(s.getLocation())) {
+				return s;
+			}
+		}
+		return null;
+	}
 	
 	
 	public void addSign(Location loc, String board, int pos) {
+		if(findSign(loc) != null) return;
 		signs.add(new BoardSign(loc, board, pos));
 		saveFile();
 	}
