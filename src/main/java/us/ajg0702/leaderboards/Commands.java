@@ -75,7 +75,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "update":
 			if(args.length <= 2) {
-				sender.sendMessage(color("&cPlease provide a board and player to update\n&7Usage: /"+label+" update <player> <board>"));
+				sender.sendMessage(color("&cPlease provide a board and player to update\n&7Usage: /"+label+" update <board> <player>"));
 				return true;
 			}
 			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
