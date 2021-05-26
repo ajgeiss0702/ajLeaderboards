@@ -11,3 +11,7 @@ commands:
       aliases: [ajlb, lb, alb]
       description: Commands for ajLeaderBoards
       permission: ajleaderboards.use
+permissions:
+   ajleaderboards.use:
+      description: Allows you to set up the plugin
+      default: op
