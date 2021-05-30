@@ -47,6 +47,7 @@ public class HeadUtils {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
         }
         String value = getHeadValue(name);
+        if(value.equals("")) return skull;
         UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
         return Bukkit.getUnsafe().modifyItemStack(
                 skull,
@@ -60,6 +61,7 @@ public class HeadUtils {
 
         Gson g = new Gson();
         JsonObject jObj = g.fromJson(result, JsonObject.class);
+        if(jObj.get("id") == null) return "";
         String uuid = jObj.get("id").toString().replace("\"","");
         String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
         jObj = g.fromJson(signature, JsonObject.class);
