@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 import java.text.DecimalFormat;
+import java.util.UUID;
 
 import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.utils.spigot.Config;
@@ -10,6 +11,8 @@ public class StatEntry {
 	String player;
 	String prefix;
 	String suffix;
+
+	UUID playerID;
 	
 	int position;
 	String board;
@@ -18,11 +21,13 @@ public class StatEntry {
 	
 	
 	double score;
-	public StatEntry(int position, String board, String prefix, String player, String suffix, double score) {
+	public StatEntry(int position, String board, String prefix, String player, UUID playerID, String suffix, double score) {
 		this.player = player;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+
+		this.playerID = playerID;
 
 		this.cache = Cache.getInstance();
 		
@@ -40,8 +45,11 @@ public class StatEntry {
 	public String getPlayer() {
 		return player;
 	}
-	
-	
+
+	public UUID getPlayerID() {
+		return playerID;
+	}
+
 	public int getPosition() {
 		return position;
 	}
@@ -65,7 +73,6 @@ public class StatEntry {
 				return "---";
 			}
 		}
-		//Bukkit.getLogger().info("before: "+score);
 		return addCommas(score);
 	}
 	
@@ -76,7 +83,6 @@ public class StatEntry {
 			comma = Cache.getInstance().getPlugin().getAConfig().getString("comma");
 		} else { comma = ","; }
 		DecimalFormat df = new DecimalFormat("#.##");
-		//df.setMaximumFractionDigits(0);
 		String ns = df.format(number);
 		int ic = 0;
 		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0' && ns.length() >= 3) {
@@ -84,7 +90,6 @@ public class StatEntry {
 		}
 		String mn = ns.contains(".") ? ns.substring(0, ns.indexOf(".")) : ns;
 		for(int i = mn.length()-1; i > 0; i--) {
-			//System.out.println("i: "+i+" ic: "+ic + " c: " + ns.charAt(i-1));
 			ic++;
 			if(ic % 3 != 0) continue;
 			mn = mn.substring(0, i)+comma+mn.substring(i);
@@ -98,14 +103,7 @@ public class StatEntry {
 		if(ns.charAt(ns.length()-1) == ',') {
 			ns = ns.substring(0, ns.length()-1);
 		}
-		
-		//Bukkit.getLogger().info("after: "+ns);
+
 		return ns;
-		
-		
-		/*DecimalFormat df = new DecimalFormat("#.##");
-		df.setGroupingUsed(true);
-		df.setGroupingSize(3);
-		return df.format(number);*/
 	}
 }

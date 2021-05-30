@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TopManager;
 
 /**
  * This class will automatically register as a placeholder expansion
@@ -110,25 +111,25 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highNameMatcher = highNamePattern.matcher(identifier);
         if(highNameMatcher.find()) {
             String board = highNameMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highNameMatcher.group(2)), board);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highNameMatcher.group(2)), board);
             return r.getPlayer();
         }
         Matcher highPrefixMatcher = highPrefixPattern.matcher(identifier);
         if(highPrefixMatcher.find()) {
             String board = highPrefixMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board);
             return r.getPrefix();
         }
         Matcher highSuffixMatcher = highSuffixPattern.matcher(identifier);
         if(highSuffixMatcher.find()) {
             String board = highSuffixMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board);
             return r.getSuffix();
         }
         Matcher highColorMatcher = highColorPattern.matcher(identifier);
         if(highColorMatcher.find()) {
             String board = highColorMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highColorMatcher.group(2)), board);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highColorMatcher.group(2)), board);
             if(r.getPrefix().isEmpty()) return "";
             String prefix = r.getPrefix();
             StringBuilder colors = new StringBuilder();
@@ -154,7 +155,7 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highValueMatcher = highValuePattern.matcher(identifier);
         if(highValueMatcher.find()) {
             String board = highValueMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
             return r.getScorePretty();
         }
 

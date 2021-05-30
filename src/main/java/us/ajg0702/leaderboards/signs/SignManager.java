@@ -10,13 +10,12 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.leaderboards.Main;
-import us.ajg0702.leaderboards.armorstands.ArmorStandManager;
+import us.ajg0702.leaderboards.heads.HeadManager;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.utils.spigot.Messages;
 
 public class SignManager {
@@ -42,9 +41,9 @@ public class SignManager {
 		this.pl = pl;
 		msgs = Messages.getInstance();
 
-		Bukkit.getScheduler().runTaskLater(pl, () -> reload(), 1);
+		Bukkit.getScheduler().runTaskLater(pl, this::reload, 1);
 		
-		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, () -> updateSigns(), 10*20, 20);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, this::updateSigns, 10*20, 20);
 	}
 	
 	List<BoardSign> signs = new ArrayList<>();
@@ -87,9 +86,21 @@ public class SignManager {
 		if(save) saveFile();
 		return save;
 	}
+
+	public BoardSign findSign(Location l) {
+		Iterator<BoardSign> i = signs.iterator();
+		while(i.hasNext()) {
+			BoardSign s = i.next();
+			if(l.equals(s.getLocation())) {
+				return s;
+			}
+		}
+		return null;
+	}
 	
 	
 	public void addSign(Location loc, String board, int pos) {
+		if(findSign(loc) != null) return;
 		signs.add(new BoardSign(loc, board, pos));
 		saveFile();
 	}
@@ -126,13 +137,14 @@ public class SignManager {
 	}
 	
 	public void updateSign(BoardSign sign) {
+		if(!isSignChunkLoaded(sign)) return;
 		
 		String name = "";
 		if(names.containsKey(sign.getBoard())) {
 			name = names.get(sign.getBoard());
 		}
 		
-		StatEntry r = Cache.getInstance().getStat(sign.getPosition(), sign.getBoard());
+		StatEntry r = TopManager.getInstance().getStat(sign.getPosition(), sign.getBoard());
 		
 		List<String> lines = Arrays.asList(
 				msgs.get("signs.top.1"), 
@@ -142,24 +154,27 @@ public class SignManager {
 		List<String> plines = new ArrayList<>();
 		for(String l : lines) {
 			String pline = l
-					.replaceAll("\\{POSITION\\}", sign.getPosition()+"")
-					.replaceAll("\\{NAME\\}", r.getPlayer())
-					.replaceAll("\\{VALUE\\}", r.getScorePretty())
-					.replaceAll("\\{VALUENAME\\}", name)
+					.replaceAll("\\{POSITION}", sign.getPosition()+"")
+					.replaceAll("\\{NAME}", r.getPlayer())
+					.replaceAll("\\{VALUE}", r.getScorePretty())
+					.replaceAll("\\{VALUENAME}", name)
 					;
 			plines.add(pline);
 			
 		}
-		@SuppressWarnings("deprecation")
-		OfflinePlayer op = Bukkit.getOfflinePlayer(r.getPlayer());
 		Bukkit.getScheduler().runTask(pl, () -> {
-			if(op != null && !r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
-				ArmorStandManager.getInstance().search(sign, op);
+			if(!r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
+				HeadManager.getInstance().search(sign, r.getPlayer(), r.getPlayerID());
 			}
 			sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
 		});
 		
 		
+	}
+
+
+	public boolean isSignChunkLoaded(BoardSign sign) {
+		return sign.getWorld().isChunkLoaded(sign.getX(), sign.getZ());
 	}
 	
 }
