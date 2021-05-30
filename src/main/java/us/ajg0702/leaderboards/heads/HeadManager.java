@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.heads;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -61,7 +62,7 @@ public class HeadManager {
 			org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
 			face = bs.getFacing();
 		}
-		
+
 		Location sl = sign.getLocation();
 		
 		//pl.getLogger().info(face.toString());
@@ -158,31 +159,36 @@ public class HeadManager {
 	
 	
 	private void checkHead(Location loc, String name, UUID id) {
-		Bukkit.getScheduler().runTask(pl, new Runnable() {
-			@SuppressWarnings("deprecation")
-			public void run() {
-				BlockState bs = loc.getBlock().getState();
-				if(!(bs instanceof Skull)) return;
-				Skull skull = (Skull) bs;
-				boolean update = false;
-				if(VersionSupport.getMinorVersion() > 9) {
-					if(skull.hasOwner()) {
-						if(Objects.equals(skull.getOwningPlayer().getUniqueId(), id)) {
-							skull.setOwningPlayer(Bukkit.getOfflinePlayer(id));
+		Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
+			OfflinePlayer op = Bukkit.getOfflinePlayer(id);
+			Bukkit.getScheduler().runTask(pl, new Runnable() {
+				@SuppressWarnings("deprecation")
+				public void run() {
+					BlockState bs = loc.getBlock().getState();
+					if(!(bs instanceof Skull)) return;
+					pl.getLogger().info("Updating head with name "+name+" and id "+ id);
+					if(HeadUtils.getInstance().getHeadValue(name).equals("")) return; //Return if the player doesnt have a skin, otherwise it will lag the client
+					Skull skull = (Skull) bs;
+					boolean update = false;
+					if(VersionSupport.getMinorVersion() > 9) {
+						if(skull.hasOwner()) {
+							if(Objects.equals(skull.getOwningPlayer().getUniqueId(), id)) {
+								skull.setOwningPlayer(op);
+								update = true;
+							}
+						} else {
+							skull.setOwningPlayer(op);
 							update = true;
 						}
 					} else {
-						skull.setOwningPlayer(Bukkit.getOfflinePlayer(id));
-						update = true;
+						if(!Objects.equals(skull.getOwner(), name)) {
+							skull.setOwner(name);
+							update = true;
+						}
 					}
-				} else {
-					if(!Objects.equals(skull.getOwner(), name)) {
-						skull.setOwner(name);
-						update = true;
-					}
+					if(update) skull.update();
 				}
-				if(update) skull.update();
-			}
+			});
 		});
 	}
 
