@@ -96,6 +96,21 @@ public class Commands implements CommandExecutor, TabCompleter {
 				}
 			});
 			return true;
+		case "removeplayer":
+			if(args.length <= 1) {
+				sender.sendMessage(color("&cPlease provide a board and a player.\n&7Usage: /"+label+" removeplayer <player> <board>"));
+				return true;
+			}
+			if(args.length <= 2) {
+				sender.sendMessage(color("&cPlease provide a board.\n&7Usage: /"+label+" removeplayer <player> <board>"));
+				return true;
+			}
+			String playername = args[1];
+			if(!cache.getBoards().contains(board0)) {
+				sender.sendMessage(color("&cThe board '"+board0+"' does not exist."));
+				return true;
+			}
+			break;
 		case "remove":
 			if(args.length <= 1) {
 				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" remove <board>"));
