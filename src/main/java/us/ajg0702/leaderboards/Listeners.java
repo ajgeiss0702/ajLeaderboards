@@ -21,7 +21,6 @@ public class Listeners implements Listener {
 		Player p = e.getPlayer();
 		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
 			public void run() {
-				if(p.hasPermission(""))
 				Cache.getInstance().updatePlayerStats(p);
 			}
 		});

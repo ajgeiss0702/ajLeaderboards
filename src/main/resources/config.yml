@@ -23,10 +23,6 @@ value-names:
 #  Default: 1200 (60 seconds)
 stat-refresh: 1200
 
-# Should we ignore players with the permission ajleaderboards.bypass-lb
-# If enabled, players with this permission will not be added to the leaderboard
-#  If they are already on the leaderboard,
-
 # Debug option to print stuff that could be usefull to the developer.
 # You should probably keep this disabled unless you know what you are doing or are told to turn it on.
 #  Default: false
