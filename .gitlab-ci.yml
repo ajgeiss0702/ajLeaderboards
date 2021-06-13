@@ -15,6 +15,16 @@ build:
     paths:
     - build/libs
 
+deploy to maven repo:
+  stage: deploy
+  only:
+    - master
+  dependencies:
+    - build
+  script:
+    - ./gradlew publish --stacktrace
+
+
 pages:
   stage: build
   image: gradle:6.8.3-jdk15
