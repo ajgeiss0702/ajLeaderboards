@@ -106,10 +106,15 @@ public class Commands implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			String playername = args[1];
+			String board0 = args[2];
 			if(!cache.getBoards().contains(board0)) {
 				sender.sendMessage(color("&cThe board '"+board0+"' does not exist."));
 				return true;
 			}
+			Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
+				Cache.getInstance().removePlayer(board0, Bukkit.getOfflinePlayer(playername).getUniqueId());
+				sender.sendMessage(Messages.getInstance().color("&aRemoved "+playername+" from "+board0+"!"));
+			});
 			break;
 		case "remove":
 			if(args.length <= 1) {
@@ -246,7 +251,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return new ArrayList<>();
 		}
 		if(args.length <= 1) {
-			return Arrays.asList("add", "list", "reload", "remove", "signs", "update");
+			return Arrays.asList("add", "list", "reload", "remove", "signs", "update", "removeplayer");
 		} else if(args.length == 2) {
 			switch(args[0]) {
 			case "update":
@@ -255,6 +260,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 				return Cache.getInstance().getBoards();
 			case "signs":
 				return Arrays.asList("add", "list", "remove");
+			case "removeplayer":
+				return null;
 			default:
 				return new ArrayList<>();
 			}
@@ -270,6 +277,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 				case "remove":
 					return new ArrayList<>();
 				}
+			case "removeplayer":
+				return Cache.getInstance().getBoards();
 			default:
 				return new ArrayList<>();
 			}

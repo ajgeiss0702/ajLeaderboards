@@ -160,6 +160,15 @@ public class Cache {
 			return false;
 		}
 	}
+
+	public void removePlayer(String board, UUID player) {
+			try {
+				conn.createStatement().executeUpdate("delete from `"+board+"` where id='"+player+"'");
+			} catch (SQLException e) {
+				pl.getLogger().severe("Unable to remove player from board:");
+				e.printStackTrace();
+			}
+	}
 	
 	
 	public boolean boardExists(String board) {
