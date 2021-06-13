@@ -1,10 +1,11 @@
 plugins {
     java
     id("com.github.johnrengelman.shadow").version("6.1.0")
+    `maven-publish`
 }
 
 group = "us.ajg0702"
-version = "1.2.9"
+version = "1.2.11"
 
 repositories {
     mavenCentral()
@@ -49,6 +50,32 @@ tasks.shadowJar {
     exclude("org/hamcrest/**/*")
     exclude("LICENSE-junit.txt")
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifact(tasks["jar"])
+        }
+    }
+
+    repositories {
+
+        val mavenUrl = "https://repo.ajg0702.us/releases"
+
+        if(!System.getenv("REPO_TOKEN").isNullOrEmpty()) {
+            maven {
+                url = uri(mavenUrl)
+                name = "ajRepo"
+
+                credentials {
+                    username = "plugins"
+                    password = System.getenv("REPO_TOKEN")
+                }
+            }
+        }
+    }
+}
+
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

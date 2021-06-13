@@ -21,6 +21,7 @@ import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.signs.BoardSign;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.LocUtils;
+import us.ajg0702.utils.spigot.Messages;
 
 public class Commands implements CommandExecutor, TabCompleter {
 	
@@ -75,7 +76,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "update":
 			if(args.length <= 2) {
-				sender.sendMessage(color("&cPlease provide a board and player to update\n&7Usage: /"+label+" update <player> <board>"));
+				sender.sendMessage(color("&cPlease provide a board and player to update\n&7Usage: /"+label+" update <board> <player>"));
 				return true;
 			}
 			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
@@ -95,9 +96,29 @@ public class Commands implements CommandExecutor, TabCompleter {
 				}
 			});
 			return true;
+		case "removeplayer":
+			if(args.length <= 1) {
+				sender.sendMessage(color("&cPlease provide a board and a player.\n&7Usage: /"+label+" removeplayer <player> <board>"));
+				return true;
+			}
+			if(args.length <= 2) {
+				sender.sendMessage(color("&cPlease provide a board.\n&7Usage: /"+label+" removeplayer <player> <board>"));
+				return true;
+			}
+			String playername = args[1];
+			String board0 = args[2];
+			if(!cache.getBoards().contains(board0)) {
+				sender.sendMessage(color("&cThe board '"+board0+"' does not exist."));
+				return true;
+			}
+			Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
+				Cache.getInstance().removePlayer(board0, Bukkit.getOfflinePlayer(playername).getUniqueId());
+				sender.sendMessage(Messages.getInstance().color("&aRemoved "+playername+" from "+board0+"!"));
+			});
+			break;
 		case "remove":
 			if(args.length <= 1) {
-				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" update <player> <board>"));
+				sender.sendMessage(color("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" remove <board>"));
 				return true;
 			}
 			String board1 = args[1];
@@ -230,7 +251,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return new ArrayList<>();
 		}
 		if(args.length <= 1) {
-			return Arrays.asList("add", "list", "reload", "remove", "signs", "update");
+			return Arrays.asList("add", "list", "reload", "remove", "signs", "update", "removeplayer");
 		} else if(args.length == 2) {
 			switch(args[0]) {
 			case "update":
@@ -239,6 +260,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 				return Cache.getInstance().getBoards();
 			case "signs":
 				return Arrays.asList("add", "list", "remove");
+			case "removeplayer":
+				return null;
 			default:
 				return new ArrayList<>();
 			}
@@ -254,6 +277,8 @@ public class Commands implements CommandExecutor, TabCompleter {
 				case "remove":
 					return new ArrayList<>();
 				}
+			case "removeplayer":
+				return Cache.getInstance().getBoards();
 			default:
 				return new ArrayList<>();
 			}
@@ -278,7 +303,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
 			if(sayOutput != null) {
-				sayOutput.sendMessage("&7Returned: "+out);
+				sayOutput.sendMessage(Messages.getInstance().color("&7Returned: "+out));
 			}
 			return false;
 		}

@@ -1,22 +1,41 @@
 package us.ajg0702.leaderboards.signs;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 
 import us.ajg0702.utils.spigot.LocUtils;
 
 public class BoardSign {
-	public Location location;
-	public String board;
-	public int position;
+	private Location location;
+	private String board;
+	private int position;
+
+	private int x;
+	private int z;
+	private World world;
 	
 	public BoardSign(Location location, String board, int position) {
 		this.location = location;
 		this.board = board;
 		this.position = position;
+
+		this.x = location.getChunk().getX();
+		this.z = location.getChunk().getZ();
+		this.world = location.getWorld();
 	}
-	
+
+	public int getX() {
+		return x;
+	}
+	public int getZ() {
+		return z;
+	}
+	public World getWorld() {
+		return world;
+	}
+
 	public Location getLocation() {
 		return location;
 	}
