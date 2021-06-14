@@ -166,7 +166,7 @@ public class HeadManager {
 				public void run() {
 					BlockState bs = loc.getBlock().getState();
 					if(!(bs instanceof Skull)) return;
-					pl.getLogger().info("Updating head with name "+name+" and id "+ id);
+					//pl.getLogger().info("Updating head with name "+name+" and id "+ id);
 					if(HeadUtils.getInstance().getHeadValue(name).equals("")) return; //Return if the player doesnt have a skin, otherwise it will lag the client
 					Skull skull = (Skull) bs;
 					boolean update = false;
