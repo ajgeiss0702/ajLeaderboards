@@ -28,6 +28,7 @@ public class Listeners implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSignBreak(BlockBreakEvent e) {
+		if(e.isCancelled()) return;
 		if(!e.getBlock().getType().toString().contains("SIGN")) return;
 		Player player = e.getPlayer();
 		if(SignManager.getInstance().removeSign(e.getBlock().getLocation())) {
