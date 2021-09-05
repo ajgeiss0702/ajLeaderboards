@@ -1,11 +1,7 @@
 package us.ajg0702.leaderboards;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -14,14 +10,18 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-
-import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.signs.BoardSign;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.LocUtils;
 import us.ajg0702.utils.spigot.Messages;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
 
 public class Commands implements CommandExecutor, TabCompleter {
 	
@@ -140,8 +140,12 @@ public class Commands implements CommandExecutor, TabCompleter {
 				return true;
 			} else {
 				confirmDeletes.remove(sender);
-				cache.removeBoard(board1);
-				sender.sendMessage(color("&aThe board has been removed!"));
+				if(cache.removeBoard(board1)) {
+					sender.sendMessage(color("&aThe board has been removed!"));
+				} else {
+					sender.sendMessage(color("&cSomething went wrong. Check the console for more info."));
+				}
+
 				return true;
 			}
 		case "list":
@@ -298,7 +302,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		Player vp = Bukkit.getOnlinePlayers().iterator().next();
-		String out = PlaceholderAPI.setPlaceholders(vp, "%"+Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
+		String out = PlaceholderAPI.setPlaceholders(vp, "%"+ Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
 		try {
 			Double.valueOf(out);
 		} catch(NumberFormatException e) {
