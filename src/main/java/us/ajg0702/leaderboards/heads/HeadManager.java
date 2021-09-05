@@ -159,6 +159,8 @@ public class HeadManager {
 	
 	
 	private void checkHead(Location loc, String name, UUID id) {
+		assert loc != null;
+		assert id != null;
 		Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
 			OfflinePlayer op = Bukkit.getOfflinePlayer(id);
 			Bukkit.getScheduler().runTask(pl, new Runnable() {
