@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+import us.ajg0702.leaderboards.Utils.CachedData;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class HeadUtils {

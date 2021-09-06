@@ -6,8 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import us.ajg0702.leaderboards.heads.HeadManager;
 import us.ajg0702.leaderboards.boards.TopManager;
+import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.heads.HeadManager;
 import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.utils.spigot.Messages;
@@ -77,7 +78,7 @@ public class Main extends JavaPlugin {
 			}
 		});
 		
-		getLogger().info("Plugin enabled! "+Cache.getInstance().getBoards().size()+" leaderboards loaded.");
+		getLogger().info("Plugin enabled! "+ Cache.getInstance().getBoards().size()+" leaderboards loaded.");
 	}
 	
 	int updateTaskId = -1;
@@ -97,5 +98,13 @@ public class Main extends JavaPlugin {
 	
 	public Config getAConfig() {
 		return config;
+	}
+
+	public boolean hasVault() {
+		return vault;
+	}
+
+	public Chat getVaultChat() {
+		return vaultChat;
 	}
 }

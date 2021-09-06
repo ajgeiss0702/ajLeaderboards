@@ -27,7 +27,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.10.4")
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
 
-
+    implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.bstats:bstats-bukkit:1.7")
     implementation("us.ajg0702:ajUtils:1.0.0")
 }
@@ -44,6 +44,7 @@ tasks.withType<ProcessResources> {
 tasks.shadowJar {
     relocate("org.bstats", "us.ajg0702.leaderboards.libs")
     relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs")
+    relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
     archiveFileName.set("${baseName}-${version}.${extension}")
     exclude("junit/**/*")
     exclude("org/junit/**/*")

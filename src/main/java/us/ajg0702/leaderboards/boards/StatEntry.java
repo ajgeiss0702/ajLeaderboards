@@ -1,10 +1,10 @@
 package us.ajg0702.leaderboards.boards;
 
+import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.utils.spigot.Config;
+
 import java.text.DecimalFormat;
 import java.util.UUID;
-
-import us.ajg0702.leaderboards.Cache;
-import us.ajg0702.utils.spigot.Config;
 
 public class StatEntry {
 	
