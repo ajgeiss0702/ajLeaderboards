@@ -15,6 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
 
@@ -47,6 +48,8 @@ public class HeadManager {
 	
 	public void search(BoardSign sign, String name, UUID id) {
 		if(!sign.getLocation().getBlock().getType().toString().contains("SIGN")) return;
+		if(!Cache.getInstance().boardExists(sign.getBoard())) return;
+		assert id != null;
 		Sign ss = sign.getSign();
 		BlockFace face;
 		if(VersionSupport.getMinorVersion() > 12) {
@@ -159,6 +162,9 @@ public class HeadManager {
 	
 	
 	private void checkHead(Location loc, String name, UUID id) {
+		assert loc != null;
+		assert id != null;
+
 		Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
 			OfflinePlayer op = Bukkit.getOfflinePlayer(id);
 			Bukkit.getScheduler().runTask(pl, new Runnable() {

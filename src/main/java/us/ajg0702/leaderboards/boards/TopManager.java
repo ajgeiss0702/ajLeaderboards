@@ -1,9 +1,8 @@
 package us.ajg0702.leaderboards.boards;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import us.ajg0702.leaderboards.Cache;
 import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.cache.Cache;
 
 import java.util.HashMap;
 

@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+import us.ajg0702.leaderboards.Utils.CachedData;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class HeadUtils {
@@ -56,7 +58,18 @@ public class HeadUtils {
     }
 
 
-    public String getHeadValue(String name){
+    Map<String, CachedData<String>> skinCache = new HashMap<>();
+    long lastClear = System.currentTimeMillis();
+
+    public String getHeadValue(String name) {
+        if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
+            skinCache = new HashMap<>();
+        }
+
+        if(skinCache.containsKey(name) && skinCache.get(name).getTimeSince() < 300e3) {
+            return skinCache.get(name).getData();
+        }
+
         String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
 
         Gson g = new Gson();
@@ -65,12 +78,15 @@ public class HeadUtils {
         String uuid = jObj.get("id").toString().replace("\"","");
         String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
         jObj = g.fromJson(signature, JsonObject.class);
+        if(jObj == null || jObj.get("id") == null) return "";
         String value = jObj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
         String decoded = new String(Base64.getDecoder().decode(value));
         jObj = g.fromJson(decoded, JsonObject.class);
         String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
         byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skin + "\"}}}").getBytes();
-        return new String(Base64.getEncoder().encode(skinByte));
+        String finalSkin = new String(Base64.getEncoder().encode(skinByte));
+        skinCache.put(name, new CachedData<>(finalSkin));
+        return finalSkin;
     }
 
 

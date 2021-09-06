@@ -1,7 +1,6 @@
 package us.ajg0702.leaderboards;
 
-import us.ajg0702.leaderboards.Cache;
-import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.cache.Cache;
 
 public class Debug {
     public static void info(String message) {

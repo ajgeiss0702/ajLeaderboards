@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.signs.SignManager;
 
 public class Listeners implements Listener {

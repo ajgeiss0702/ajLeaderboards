@@ -1,18 +1,20 @@
-package us.ajg0702.leaderboards;
+package us.ajg0702.leaderboards.cache;
 
-import java.io.File;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import us.ajg0702.leaderboards.Debug;
+import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
+import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
+import us.ajg0702.utils.spigot.ConfigFile;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-
-import me.clip.placeholderapi.PlaceholderAPI;
-import us.ajg0702.leaderboards.boards.StatEntry;
 
 public class Cache {
 	static Cache INSTANCE;
@@ -29,61 +31,34 @@ public class Cache {
 	public Main getPlugin() {
 		return pl;
 	}
-	
-	
+
+	ConfigFile storageConfig;
 	Main pl;
-	Connection conn;
+	CacheMethod method;
+
+	String tablePrefix;
+
 	private Cache(Main pl) {
 		this.pl = pl;
 
 		pl.getDataFolder().mkdirs();
-		
-		init(true);
-		
+
+		storageConfig = new ConfigFile(pl, "cache_storage.yml");
+
+		if(storageConfig.getString("method").equalsIgnoreCase("mysql")) {
+			pl.getLogger().info("Using MySQL for board cache. ("+storageConfig.getString("method")+")");
+			method = new MysqlMethod();
+			tablePrefix = storageConfig.getString("table_prefix");
+		} else {
+			pl.getLogger().info("Using SQLite for board cache. ("+storageConfig.getString("method")+")");
+			method = new SqliteMethod();
+			tablePrefix = "";
+		}
+		method.init(pl, storageConfig);
+
+
 	}
-	
-	private void init(boolean retry) {
-		try {
-			Class.forName("org.sqlite.JDBC");
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String url = "jdbc:sqlite:"+pl.getDataFolder().getAbsolutePath()+File.separator+"cache.db";
-		try {
-			conn = DriverManager.getConnection(url);
-		} catch (SQLException e) {
-			if(retry && e.getMessage().contains("No suitable driver found for jdbc:sqlite:")) {
-				pl.getLogger().info("Downloading sqlite drivers..");
-				Downloader.getInstance().downloadAndLoad();
-				init(false);
-				return;
-			}
-			pl.getLogger().severe("Unnable to create cache file! The plugin will not work correctly!");
-			e.printStackTrace();
-			return;
-		}
-		 try(Statement statement = conn.createStatement()) {
-			 ResultSet rs = statement.executeQuery("PRAGMA user_version;");
-             int version = rs.getInt(1);
-             rs.close();
-             
-             if(version == 0) {
-            	 pl.getLogger().info("Running table updater. (pv"+version+")");
-            	 for(String b : getBoards()) {
-            		 statement.executeUpdate("alter table '"+b+"' add column namecache TEXT;");
-            		 statement.executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
-            		 statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
-            	 }
-            	 statement.executeUpdate("PRAGMA user_version = 1;");
-             }
-             statement.close();
-         } catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+
 
 	/**
 	 * Get a stat. It is reccomended you use TopManager#getStat instead of this,
@@ -97,13 +72,17 @@ public class Cache {
 			return new StatEntry(position, board, "", "Board does not exist", null, "", 0);
 		}
 		try {
+			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
-			ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from '"+board+"' order by value desc limit "+(position-1)+","+position);
+			ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
 			String uuidraw = null;
 			double value = -1;
 			String name = "-Unknown-";
 			String prefix = "";
 			String suffix = "";
+			if(method instanceof MysqlMethod) {
+				r.first();
+			}
 			try {
 				uuidraw = r.getString("id");
 				value = r.getDouble("value");
@@ -112,15 +91,16 @@ public class Cache {
 				suffix = r.getString("suffixcache");
 				
 			} catch(SQLException e) {
-				if(!e.getMessage().contains("ResultSet closed")) {
+				if(!e.getMessage().contains("ResultSet closed") && !e.getMessage().contains("empty result set")) {
 					throw e;
 				}
 			}
 			r.close();
 			statement.close();
+			method.close(conn);
 			if(name == null) name = "-Unknown";
 			if(uuidraw == null) {
-				return new StatEntry(position, board, "", pl.config.getString("no-data-name"), null, "", 0);
+				return new StatEntry(position, board, "", pl.getAConfig().getString("no-data-name"), null, "", 0);
 			} else {
 				return new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
 			}
@@ -130,29 +110,38 @@ public class Cache {
 			return new StatEntry(position, board, "", "An error occured", null, "", 0);
 		}
 	}
-	
+
 	public int getPlace(OfflinePlayer player, String board) {
 		List<String> l = new ArrayList<>();
         try {
+			Connection conn = method.getConnection();
         	Statement statement = conn.createStatement();
-            ResultSet r = statement.executeQuery("select id,value from '" + board + "' order by value desc");
+            ResultSet r = statement.executeQuery("select id,value from `" + tablePrefix+board + "` order by value desc");
             while (r.next()) {
                 l.add(r.getString(1));
             }
             r.close();
             statement.close();
+			method.close(conn);
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
         }
         return l.indexOf(player.getUniqueId().toString()) + 1;
 	}
-	
+
 	public boolean createBoard(String name) {
 		try {
+			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
-			statement.executeUpdate("create table if not exists '"+name+"' (id TEXT PRIMARY KEY, value NUMERIC, namecache TEXT, prefixcache TEXT, suffixcache TEXT)");
+			if(method instanceof SqliteMethod) {
+				statement.executeUpdate("create table if not exists `"+tablePrefix+name+"` (id TEXT PRIMARY KEY, value NUMERIC, namecache TEXT, prefixcache TEXT, suffixcache TEXT)");
+			} else {
+				statement.executeUpdate("create table if not exists \n`"+tablePrefix+name+"`\n (\nid VARCHAR(36) PRIMARY KEY,\n value BIGINT,\n namecache VARCHAR(16),\n prefixcache TINYTEXT, suffixcache TINYTEXT)");
+
+			}
 			statement.close();
+			method.close(conn);
 			return true;
 		} catch (SQLException e) {
 			pl.getLogger().severe("Unable to create board:");
@@ -163,48 +152,60 @@ public class Cache {
 
 	public void removePlayer(String board, UUID player) {
 			try {
-				conn.createStatement().executeUpdate("delete from `"+board+"` where id='"+player+"'");
+				Connection conn = method.getConnection();
+				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where id=`"+player+"`");
+				method.close(conn);
 			} catch (SQLException e) {
 				pl.getLogger().severe("Unable to remove player from board:");
 				e.printStackTrace();
 			}
 	}
 	
-	
+
 	public boolean boardExists(String board) {
 		return getBoards().contains(board);
 	}
-	
+
 	public List<String> getBoards() {
 		List<String> o = new ArrayList<>();
 		ResultSet r;
 		try {
+			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
-			r = statement.executeQuery("SELECT \n" + 
-					"    name\n" + 
-					"FROM \n" + 
-					"    sqlite_master \n" + 
-					"WHERE \n" + 
-					"    type ='table' AND \n" + 
-					"    name NOT LIKE 'sqlite_%';");
+			if(method instanceof SqliteMethod) {
+				r = statement.executeQuery("SELECT \n" +
+						"    name\n" +
+						"FROM \n" +
+						"    sqlite_master \n" +
+						"WHERE \n" +
+						"    type ='table' AND \n" +
+						"    name NOT LIKE 'sqlite_%';");
+			} else {
+				r = statement.executeQuery("show tables;");
+			}
 			while(r.next()) {
-				o.add(r.getString(1));
+				String b = r.getString(1);
+				if(b.indexOf(tablePrefix) != 0) continue;
+				o.add(b.substring(tablePrefix.length()));
 			}
 			statement.close();
 			r.close();
+			method.close(conn);
 		} catch (SQLException e) {
 			pl.getLogger().severe("Unable to get list of tables:");
 			e.printStackTrace();
 		}
 		return o;
 	}
-	
+
 	public boolean removeBoard(String board) {
 		if(!getBoards().contains(board)) return true;
 		try {
+			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
-			statement.executeUpdate("drop table '"+board+"';");
+			statement.executeUpdate("drop table `"+tablePrefix+board+"`;");
 			statement.close();
+			method.close(conn);
 			return true;
 		} catch (SQLException e) {
 			pl.getLogger().warning("An error occurred while trying to remove a board:");
@@ -213,13 +214,13 @@ public class Cache {
 		}
 	}
 	
-	
+
 	public void updatePlayerStats(OfflinePlayer player) {
 		for(String b : getBoards()) {
 			updateStat(b, player);
 		}
 	}
-	
+
 	public void updateStat(String board, OfflinePlayer player) {
 		String outputraw;
 		double output;
@@ -236,14 +237,16 @@ public class Cache {
 		Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 		String prefix = "";
 		String suffix = "";
-		if(pl.vault && player instanceof Player) {
-			prefix = pl.vaultChat.getPlayerPrefix((Player)player);
-			suffix = pl.vaultChat.getPlayerSuffix((Player)player);
+		if(pl.hasVault() && player instanceof Player) {
+			prefix = pl.getVaultChat().getPlayerPrefix((Player)player);
+			suffix = pl.getVaultChat().getPlayerSuffix((Player)player);
 		}
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
+			Connection conn = method.getConnection();
 			try {
-				PreparedStatement statement = conn.prepareStatement("insert into '"+board+"' (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
+				Debug.info("in try");
+				PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
@@ -252,12 +255,16 @@ public class Cache {
 				statement.executeUpdate();
 				statement.close();
 			} catch(SQLException e) {
-				PreparedStatement statement = conn.prepareStatement("update '"+board+"' set value="+output+", namecache='"+player.getName()+"', prefixcache=?, suffixcache=? where id='"+player.getUniqueId()+"'");
-				statement.setString(1, prefix);
-				statement.setString(2, suffix);
+				Debug.info("in catch");
+				PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?");
+				statement.setString(2, prefix);
+				statement.setString(3, suffix);
+				statement.setString(1, player.getName());
+				statement.setString(4, player.getUniqueId().toString());
 				statement.executeUpdate();
 				statement.close();
 			}
+			method.close(conn);
 		} catch(SQLException e) {
 			pl.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();

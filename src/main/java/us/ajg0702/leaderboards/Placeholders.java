@@ -1,13 +1,14 @@
 package us.ajg0702.leaderboards;
 
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.OfflinePlayer;
+import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TopManager;
+import us.ajg0702.leaderboards.cache.Cache;
+
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.bukkit.OfflinePlayer;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import us.ajg0702.leaderboards.boards.StatEntry;
-import us.ajg0702.leaderboards.boards.TopManager;
 
 /**
  * This class will automatically register as a placeholder expansion
