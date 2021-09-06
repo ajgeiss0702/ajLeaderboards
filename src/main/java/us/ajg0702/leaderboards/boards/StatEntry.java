@@ -29,7 +29,9 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		this.cache = Cache.getInstance();
+		try {
+			this.cache = Cache.getInstance();
+		} catch(NoClassDefFoundError ignored) {}
 		
 		this.position = position;
 		this.board = board;
