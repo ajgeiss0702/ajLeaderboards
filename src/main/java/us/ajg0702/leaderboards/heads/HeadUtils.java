@@ -56,7 +56,18 @@ public class HeadUtils {
     }
 
 
-    public String getHeadValue(String name){
+    Map<String, CachedData<String>> skinCache = new HashMap<>();
+    long lastClear = System.currentTimeMillis();
+
+    public String getHeadValue(String name) {
+        if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
+            skinCache = new HashMap<>();
+        }
+
+        if(skinCache.containsKey(name) && skinCache.get(name).getTimeSince() < 300e3) {
+            return skinCache.get(name).getData();
+        }
+
         String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
 
         Gson g = new Gson();
@@ -65,12 +76,15 @@ public class HeadUtils {
         String uuid = jObj.get("id").toString().replace("\"","");
         String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
         jObj = g.fromJson(signature, JsonObject.class);
+        if(jObj == null || jObj.get("id") == null) return "";
         String value = jObj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
         String decoded = new String(Base64.getDecoder().decode(value));
         jObj = g.fromJson(decoded, JsonObject.class);
         String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
         byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skin + "\"}}}").getBytes();
-        return new String(Base64.getEncoder().encode(skinByte));
+        String finalSkin = new String(Base64.getEncoder().encode(skinByte));
+        skinCache.put(name, new CachedData<>(finalSkin));
+        return finalSkin;
     }
 
 
