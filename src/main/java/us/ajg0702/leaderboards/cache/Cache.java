@@ -54,7 +54,7 @@ public class Cache {
 			method = new SqliteMethod();
 			tablePrefix = "";
 		}
-		method.init(pl, storageConfig);
+		method.init(pl, storageConfig, this);
 
 
 	}

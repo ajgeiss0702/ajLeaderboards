@@ -8,6 +8,6 @@ import java.sql.SQLException;
 
 public interface CacheMethod {
     Connection getConnection() throws SQLException;
-    void init(Main plugin, ConfigFile config);
+    void init(Main plugin, ConfigFile config, Cache cacheInstance);
     void close(Connection connection) throws SQLException;
 }
