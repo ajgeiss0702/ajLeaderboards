@@ -5,11 +5,10 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "1.3.0"
+version = "1.3.1"
 
 repositories {
     mavenCentral()
-    //testImplementation("junit:junit:4.12")
 
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://gitlab.com/api/v4/projects/19978391/packages/maven") }

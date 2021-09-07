@@ -16,7 +16,7 @@ public class SqliteMethod implements CacheMethod {
     }
 
     @Override
-    public void init(Main plugin, ConfigFile config) {
+    public void init(Main plugin, ConfigFile config, Cache cacheInstance) {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e1) {
@@ -37,7 +37,7 @@ public class SqliteMethod implements CacheMethod {
 
             if(version == 0) {
                 plugin.getLogger().info("Running table updater. (pv"+version+")");
-                for(String b : Cache.getInstance().getBoards()) {
+                for(String b : cacheInstance.getBoards()) {
                     statement.executeUpdate("alter table '"+b+"' add column namecache TEXT;");
                     statement.executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
                     statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");

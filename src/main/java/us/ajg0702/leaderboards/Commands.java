@@ -71,6 +71,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			return true;
 		case "reload":
 			pl.config.reload();
+			pl.msgs.reload();
 			pl.reloadInterval();
 			sender.sendMessage(color("&aConfig reloaded!"));
 			return true;
