@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.heads;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -162,8 +163,8 @@ public class HeadManager {
 	
 	
 	private void checkHead(Location loc, String name, UUID id) {
-		assert loc != null;
-		assert id != null;
+		Validate.notNull(loc);
+		Validate.notNull(id, "UUID is null!");
 
 		Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
 			OfflinePlayer op = Bukkit.getOfflinePlayer(id);
