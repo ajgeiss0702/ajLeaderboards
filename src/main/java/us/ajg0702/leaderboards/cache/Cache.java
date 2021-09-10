@@ -81,7 +81,13 @@ public class Cache {
 			String prefix = "";
 			String suffix = "";
 			if(method instanceof MysqlMethod) {
-				r.first();
+				try {
+					r.first();
+				} catch(SQLException e) {
+					if(!e.getMessage().contains("TYPE_FORWARD_ONLY")) {
+						throw e;
+					}
+				}
 			}
 			try {
 				uuidraw = r.getString("id");
