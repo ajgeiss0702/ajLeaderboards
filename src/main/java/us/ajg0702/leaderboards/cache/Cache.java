@@ -84,7 +84,7 @@ public class Cache {
 				try {
 					r.first();
 				} catch(SQLException e) {
-					if(!e.getMessage().contains("TYPE_FORWARD_ONLY")) {
+					if(!e.getMessage().contains("TYPE_FORWARD_ONLY") && !e.getMessage().contains("Before start")) {
 						throw e;
 					}
 				}
