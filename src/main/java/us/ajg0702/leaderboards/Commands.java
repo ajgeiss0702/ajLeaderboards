@@ -45,6 +45,10 @@ public class Commands implements CommandExecutor, TabCompleter {
 					+ "  &e/"+label+" add &7- &eStart tracking a placeholder for all players.\n"
 					+ "  &e/"+label+" list [board] &7- &eList all boards or list the top 10 for a certain board.\n"
 					+ "  &e/"+label+" reload &7- &eReload the config.\n"
+					+ "  &e/"+label+" remove &7- &eWipes and removes a board.\n"
+					+ "  &e/"+label+" removeplayer &7- &eRemoves a player's data from the board. It will be added back the next time their stats are updated\n"
+					+ "  &e/"+label+" signs &7- &eManage signs.\n"
+					+ "  &e/"+label+" update &7- &eForces an update for a player\n"
 					+ "&7See the wiki for more info."
 					));
 			return true;

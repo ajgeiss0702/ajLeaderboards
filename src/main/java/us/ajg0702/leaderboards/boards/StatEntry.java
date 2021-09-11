@@ -2,8 +2,10 @@ package us.ajg0702.leaderboards.boards;
 
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.utils.spigot.Config;
+import us.ajg0702.utils.spigot.Messages;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.UUID;
 
 public class StatEntry {
@@ -18,7 +20,13 @@ public class StatEntry {
 	String board;
 
 	private Cache cache;
-	
+	private Messages msgs;
+
+	String k = "k";
+	String m = "m";
+	String b = "b";
+	String t = "t";
+	String q = "q";
 	
 	double score;
 	public StatEntry(int position, String board, String prefix, String player, UUID playerID, String suffix, double score) {
@@ -31,6 +39,12 @@ public class StatEntry {
 
 		try {
 			this.cache = Cache.getInstance();
+			msgs = cache.getPlugin().getMessages();
+			k = msgs.get("formatted.k");
+			m = msgs.get("formatted.m");
+			b = msgs.get("formatted.b");
+			t = msgs.get("formatted.t");
+			q = msgs.get("formatted.q");
 		} catch(NoClassDefFoundError ignored) {}
 		
 		this.position = position;
@@ -62,6 +76,47 @@ public class StatEntry {
 	
 	public double getScore() {
 		return score;
+	}
+
+	public String getScoreFormatted() {
+		if(cache != null) {
+			Config config = cache.getPlugin().getAConfig();
+			if(score == 0 && player.equals(config.getString("no-data-name"))) {
+				return config.getString("no-data-score");
+			}
+		} else {
+			if(score == 0 && player.equals("---")) {
+				return "---";
+			}
+		}
+
+		if (score < 1000L) {
+			return formatNumber(score);
+		}
+		if (score < 1000000L) {
+			return formatNumber(score/1000L)+k;
+		}
+		if (score < 1000000000L) {
+			return formatNumber(score/1000000L)+m;
+		}
+		if (score < 1000000000000L) {
+			return formatNumber(score/1000000000L)+b;
+		}
+		if (score < 1000000000000000L) {
+			return formatNumber(score/1000000000000L)+t;
+		}
+		if (score < 1000000000000000000L) {
+			return formatNumber(score/1000000000000000L)+q;
+		}
+
+		return getScorePretty();
+	}
+
+	private String formatNumber(double d) {
+		NumberFormat format = NumberFormat.getInstance();
+		format.setMaximumFractionDigits(2);
+		format.setMinimumFractionDigits(0);
+		return format.format(d);
 	}
 	
 	public String getScorePretty() {

@@ -87,6 +87,7 @@ public class Placeholders extends PlaceholderExpansion {
 
     Pattern highNamePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_name");
     Pattern highValuePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value");
+    Pattern highValueFormattedPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value_formatted");
     Pattern highValueRawPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_rawvalue");
     Pattern highSuffixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_suffix");
     Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_prefix");
@@ -152,6 +153,12 @@ public class Placeholders extends PlaceholderExpansion {
             StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board);
             DecimalFormat df = new DecimalFormat("#.##");
             return df.format(r.getScore());
+        }
+        Matcher highValueFormattedMatcher = highValueFormattedPattern.matcher(identifier);
+        if(highValueFormattedMatcher.find()) {
+            String board = highValueFormattedMatcher.group(1);
+            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highValueFormattedMatcher.group(2)), board);
+            return r.getScoreFormatted();
         }
         Matcher highValueMatcher = highValuePattern.matcher(identifier);
         if(highValueMatcher.find()) {

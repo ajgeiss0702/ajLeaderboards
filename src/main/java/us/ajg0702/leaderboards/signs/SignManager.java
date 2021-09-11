@@ -163,7 +163,7 @@ public class SignManager {
 			
 		}
 		Bukkit.getScheduler().runTask(pl, () -> {
-			if(!r.getPlayer().equals(pl.getAConfig().getString("no-data-name"))) {
+			if(!r.getPlayer().equals(pl.getAConfig().getString("no-data-name")) && r.getPlayerID() != null) {
 				HeadManager.getInstance().search(sign, r.getPlayer(), r.getPlayerID());
 			}
 			sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));

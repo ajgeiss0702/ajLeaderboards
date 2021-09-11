@@ -50,6 +50,12 @@ public class Main extends JavaPlugin {
 		dmsgs.put("signs.top.2", "&6{NAME}");
 		dmsgs.put("signs.top.3", "&e{VALUE} {VALUENAME}");
 		dmsgs.put("signs.top.4", "&7&m                   ");
+
+		dmsgs.put("formatted.k", "k");
+		dmsgs.put("formatted.m", "m");
+		dmsgs.put("formatted.t", "t");
+		dmsgs.put("formatted.b", "b");
+		dmsgs.put("formatted.q", "q");
 		
 		
 		msgs = Messages.getInstance(this, dmsgs);
@@ -80,7 +86,11 @@ public class Main extends JavaPlugin {
 		
 		getLogger().info("Plugin enabled! "+ Cache.getInstance().getBoards().size()+" leaderboards loaded.");
 	}
-	
+
+	public Messages getMessages() {
+		return msgs;
+	}
+
 	int updateTaskId = -1;
 	public void reloadInterval() {
 		if(updateTaskId != -1) {
