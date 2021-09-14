@@ -111,23 +111,17 @@ public class Cache {
 		}
 	}
 
-	public int getPlace(OfflinePlayer player, String board) {
-		List<String> l = new ArrayList<>();
-        try {
-			Connection conn = method.getConnection();
-        	Statement statement = conn.createStatement();
-            ResultSet r = statement.executeQuery("select id,value from `" + tablePrefix+board + "` order by value desc");
-            while (r.next()) {
-                l.add(r.getString(1));
-            }
-            r.close();
-            statement.close();
-			method.close(conn);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }
-        return l.indexOf(player.getUniqueId().toString()) + 1;
+	public StatEntry getStatEntry(OfflinePlayer player, String board) {
+		StatEntry r = null;
+		int i = 1;
+		while(i < 10000000 && r == null) {
+			StatEntry rt = getStat(i, board);
+			i++;
+			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
+				r = rt;
+			}
+		}
+		return r;
 	}
 
 	public boolean createBoard(String name) {
