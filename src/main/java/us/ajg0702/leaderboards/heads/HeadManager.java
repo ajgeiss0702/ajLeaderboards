@@ -50,7 +50,7 @@ public class HeadManager {
 	public void search(BoardSign sign, String name, UUID id) {
 		if(!sign.getLocation().getBlock().getType().toString().contains("SIGN")) return;
 		if(!Cache.getInstance().boardExists(sign.getBoard())) return;
-		assert id != null;
+		if(id == null) return;
 		Sign ss = sign.getSign();
 		BlockFace face;
 		if(VersionSupport.getMinorVersion() > 12) {
