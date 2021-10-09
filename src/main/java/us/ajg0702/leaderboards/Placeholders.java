@@ -93,6 +93,8 @@ public class Placeholders extends PlaceholderExpansion {
     Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_prefix");
     Pattern highColorPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_color");
     Pattern positionPattern = Pattern.compile("position_(.*)");
+    Pattern valuePattern = Pattern.compile("value_(.*)");
+    Pattern valueFormattedPattern = Pattern.compile("value_(.*)_formatted");
     /**
      * This is the method called when a placeholder with our identifier
      * is found and needs a value.
@@ -171,7 +173,18 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher positionMatcher = positionPattern.matcher(identifier);
         if(positionMatcher.find()) {
             String board = positionMatcher.group(1);
-            return Cache.getInstance().getPlace(player, board)+"";
+            return Cache.getInstance().getStatEntry(player, board).getPosition()+"";
+        }
+
+        Matcher valueMatcher = valuePattern.matcher(identifier);
+        if(valueMatcher.find()) {
+            String board = valueMatcher.group(1);
+            return Cache.getInstance().getStatEntry(player, board).getScorePretty();
+        }
+        Matcher valueFormattedMatcher = valueFormattedPattern.matcher(identifier);
+        if(valueFormattedMatcher.find()) {
+            String board = valueFormattedMatcher.group(1);
+            return Cache.getInstance().getStatEntry(player, board).getScoreFormatted();
         }
 
         return null;
