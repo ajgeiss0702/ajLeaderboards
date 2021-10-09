@@ -250,25 +250,24 @@ public class Cache {
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
 			Connection conn = method.getConnection();
-			try {
+			try(PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");) {
 				Debug.info("in try");
-				PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
 				statement.setString(4, prefix);
 				statement.setString(5, suffix);
 				statement.executeUpdate();
-				statement.close();
 			} catch(SQLException e) {
 				Debug.info("in catch");
-				PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?");
-				statement.setString(2, prefix);
-				statement.setString(3, suffix);
-				statement.setString(1, player.getName());
-				statement.setString(4, player.getUniqueId().toString());
-				statement.executeUpdate();
-				statement.close();
+				try(PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?")) {
+					statement.setString(2, prefix);
+					statement.setString(3, suffix);
+					statement.setString(1, player.getName());
+					statement.setString(4, player.getUniqueId().toString());
+					statement.executeUpdate();
+				}
+
 			}
 			method.close(conn);
 		} catch(SQLException e) {
