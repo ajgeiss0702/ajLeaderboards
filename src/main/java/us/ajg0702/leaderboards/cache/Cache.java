@@ -81,13 +81,7 @@ public class Cache {
 			String prefix = "";
 			String suffix = "";
 			if(method instanceof MysqlMethod) {
-				try {
-					r.first();
-				} catch(SQLException e) {
-					if(!e.getMessage().contains("TYPE_FORWARD_ONLY") && !e.getMessage().contains("Before start")) {
-						throw e;
-					}
-				}
+				r.next();
 			}
 			try {
 				uuidraw = r.getString("id");
@@ -97,7 +91,10 @@ public class Cache {
 				suffix = r.getString("suffixcache");
 				
 			} catch(SQLException e) {
-				if(!e.getMessage().contains("ResultSet closed") && !e.getMessage().contains("empty result set")) {
+				if(
+						!e.getMessage().contains("ResultSet closed") &&
+						!e.getMessage().contains("empty result set")
+				) {
 					throw e;
 				}
 			}
@@ -111,29 +108,23 @@ public class Cache {
 				return new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
 			}
 		} catch(SQLException e) {
-			pl.getLogger().severe("Unable to stat of player:");
+			pl.getLogger().severe("Unable to get stat of player:");
 			e.printStackTrace();
 			return new StatEntry(position, board, "", "An error occured", null, "", 0);
 		}
 	}
 
-	public int getPlace(OfflinePlayer player, String board) {
-		List<String> l = new ArrayList<>();
-        try {
-			Connection conn = method.getConnection();
-        	Statement statement = conn.createStatement();
-            ResultSet r = statement.executeQuery("select id,value from `" + tablePrefix+board + "` order by value desc");
-            while (r.next()) {
-                l.add(r.getString(1));
-            }
-            r.close();
-            statement.close();
-			method.close(conn);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return -1;
-        }
-        return l.indexOf(player.getUniqueId().toString()) + 1;
+	public StatEntry getStatEntry(OfflinePlayer player, String board) {
+		StatEntry r = null;
+		int i = 1;
+		while(i < 10000000 && r == null) {
+			StatEntry rt = getStat(i, board);
+			i++;
+			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
+				r = rt;
+			}
+		}
+		return r;
 	}
 
 	public boolean createBoard(String name) {
@@ -250,25 +241,24 @@ public class Cache {
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
 			Connection conn = method.getConnection();
-			try {
+			try(PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");) {
 				Debug.info("in try");
-				PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
 				statement.setString(4, prefix);
 				statement.setString(5, suffix);
 				statement.executeUpdate();
-				statement.close();
 			} catch(SQLException e) {
 				Debug.info("in catch");
-				PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?");
-				statement.setString(2, prefix);
-				statement.setString(3, suffix);
-				statement.setString(1, player.getName());
-				statement.setString(4, player.getUniqueId().toString());
-				statement.executeUpdate();
-				statement.close();
+				try(PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?")) {
+					statement.setString(2, prefix);
+					statement.setString(3, suffix);
+					statement.setString(1, player.getName());
+					statement.setString(4, player.getUniqueId().toString());
+					statement.executeUpdate();
+				}
+
 			}
 			method.close(conn);
 		} catch(SQLException e) {
