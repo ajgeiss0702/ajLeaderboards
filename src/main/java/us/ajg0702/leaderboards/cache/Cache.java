@@ -81,13 +81,7 @@ public class Cache {
 			String prefix = "";
 			String suffix = "";
 			if(method instanceof MysqlMethod) {
-				try {
-					r.first();
-				} catch(SQLException e) {
-					if(!e.getMessage().contains("TYPE_FORWARD_ONLY") && !e.getMessage().contains("Before start")) {
-						throw e;
-					}
-				}
+				r.next();
 			}
 			try {
 				uuidraw = r.getString("id");
@@ -97,7 +91,10 @@ public class Cache {
 				suffix = r.getString("suffixcache");
 				
 			} catch(SQLException e) {
-				if(!e.getMessage().contains("ResultSet closed") && !e.getMessage().contains("empty result set")) {
+				if(
+						!e.getMessage().contains("ResultSet closed") &&
+						!e.getMessage().contains("empty result set")
+				) {
 					throw e;
 				}
 			}
@@ -111,7 +108,7 @@ public class Cache {
 				return new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
 			}
 		} catch(SQLException e) {
-			pl.getLogger().severe("Unable to stat of player:");
+			pl.getLogger().severe("Unable to get stat of player:");
 			e.printStackTrace();
 			return new StatEntry(position, board, "", "An error occured", null, "", 0);
 		}
