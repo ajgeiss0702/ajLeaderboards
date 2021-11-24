@@ -1,11 +1,9 @@
 package us.ajg0702.leaderboards.cache.methods;
 
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.Main;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
-import us.ajg0702.utils.spigot.ConfigFile;
 
 import java.io.File;
 import java.sql.*;

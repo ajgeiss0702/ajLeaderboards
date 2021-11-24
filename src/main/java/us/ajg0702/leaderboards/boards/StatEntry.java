@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.boards;
 
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public class StatEntry {
 
-	private LeaderboardPlugin plugin;
+	private final LeaderboardPlugin plugin;
 	
 	String player;
 	String prefix;
@@ -22,7 +23,6 @@ public class StatEntry {
 	String board;
 
 	private Cache cache;
-	private Messages msgs;
 
 	private TimedType type;
 
@@ -45,7 +45,7 @@ public class StatEntry {
 
 		try {
 			this.cache = plugin.getCache();
-			msgs = plugin.getMessages();
+			Messages msgs = plugin.getMessages();
 			k = msgs.getString("formatted.k");
 			m = msgs.getString("formatted.m");
 			b = msgs.getString("formatted.b");
@@ -78,8 +78,11 @@ public class StatEntry {
 	public String getBoard() {
 		return board;
 	}
-	
-	
+
+	public TimedType getType() {
+		return type;
+	}
+
 	public double getScore() {
 		return score;
 	}
@@ -143,7 +146,7 @@ public class StatEntry {
 	private String addCommas(double number) {
 		String comma;
 		if(cache != null) {
-			comma = Cache.getInstance().getPlugin().getAConfig().getString("comma");
+			comma = plugin.getAConfig().getString("comma");
 		} else { comma = ","; }
 		DecimalFormat df = new DecimalFormat("#.##");
 		String ns = df.format(number);

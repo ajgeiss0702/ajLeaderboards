@@ -68,50 +68,67 @@ public class Cache {
 			return new StatEntry(plugin, position, board, "", "Board does not exist", null, "", 0, type);
 		}
 		try {
-			switch(type) {
-				case ALLTIME:
-					Connection conn = method.getConnection();
-					Statement statement = conn.createStatement();
-					ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
-					String uuidraw = null;
-					double value = -1;
-					String name = "-Unknown-";
-					String prefix = "";
-					String suffix = "";
-					if(method instanceof MysqlMethod) {
-						r.next();
-					}
-					try {
-						uuidraw = r.getString("id");
-						value = r.getDouble("value");
-						name = r.getString("namecache");
-						prefix = r.getString("prefixcache");
-						suffix = r.getString("suffixcache");
+			Connection conn = method.getConnection();
+			Statement statement = conn.createStatement();
+			ResultSet r = statement.executeQuery("select id,value,daily_delta,weekly_delta,monthly_delta,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
+			String uuidraw = null;
+			double value = -1;
+			String name = "-Unknown-";
+			String prefix = "";
+			String suffix = "";
+			if(method instanceof MysqlMethod) {
+				r.next();
+			}
+			try {
+				uuidraw = r.getString("id");
+				value = r.getDouble("value");
+				name = r.getString("namecache");
+				prefix = r.getString("prefixcache");
+				suffix = r.getString("suffixcache");
 
-					} catch(SQLException e) {
-						if(
-								!e.getMessage().contains("ResultSet closed") &&
-										!e.getMessage().contains("empty result set")
-						) {
-							throw e;
-						}
-					}
-					r.close();
-					statement.close();
-					method.close(conn);
-					if(name == null) name = "-Unknown";
-					if(uuidraw == null) {
-						return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
-					} else {
-						return new StatEntry(plugin, position, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
-					}
-					break;
-				case DAILY:
-					break;
-				case WEEKLY:
-					break;
-				case MONTHLY:
-					break;
+			} catch(SQLException e) {
+				if(
+						!e.getMessage().contains("ResultSet closed") &&
+								!e.getMessage().contains("empty result set")
+				) {
+					throw e;
+				}
+			}
+			try {
+				uuidraw = r.getString("id");
+				name = r.getString("namecache");
+				prefix = r.getString("prefixcache");
+				suffix = r.getString("suffixcache");
+				switch(type) {
+					case ALLTIME:
+						value = r.getDouble("value");
+						break;
+					case DAILY:
+						value = r.getDouble("daily_delta");
+						break;
+					case WEEKLY:
+						value = r.getDouble("weekly_delta");
+						break;
+					case MONTHLY:
+						value = r.getDouble("monthly_delta");
+						break;
+				}
+			} catch(SQLException e) {
+				if(
+						!e.getMessage().contains("ResultSet closed") &&
+								!e.getMessage().contains("empty result set")
+				) {
+					throw e;
+				}
+			}
+			r.close();
+			statement.close();
+			method.close(conn);
+			if(name == null) name = "-Unknown";
+			if(uuidraw == null) {
+				return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+			} else {
+				return new StatEntry(plugin, position, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
 			}
 		} catch(SQLException e) {
 			plugin.getLogger().severe("Unable to get stat of player:");
@@ -124,7 +141,7 @@ public class Cache {
 		StatEntry r = null;
 		int i = 1;
 		while(i < 10000000 && r == null) {
-			StatEntry rt = plugin.getTopManager().getStat(i, board, type);
+			StatEntry rt = plugin.getTopManager().getStat(i, board, type, type);
 			i++;
 			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
 				r = rt;
@@ -138,9 +155,41 @@ public class Cache {
 			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
 			if(method instanceof SqliteMethod) {
-				statement.executeUpdate("create table if not exists `"+tablePrefix+name+"` (id TEXT PRIMARY KEY, value NUMERIC, namecache TEXT, prefixcache TEXT, suffixcache TEXT)");
+				statement.executeUpdate("create table if not exists `"+tablePrefix+name+"` (" +
+						"id TEXT PRIMARY KEY, " +
+						"value NUMERIC, " +
+						"daily_delta NUMERIC, " +
+						"daily_lasttotal NUMERIC, " +
+						"daily_timestamp DATETIME, " +
+						"weekly_delta NUMERIC, " +
+						"weekly_lasttotal NUMERIC, " +
+						"weekly_timestamp DATETIME, " +
+						"monthly_delta NUMERIC, " +
+						"monthly_lasttotal NUMERIC, " +
+						"monthly_timestamp DATETIME, " +
+						"namecache TEXT, " +
+						"prefixcache TEXT, " +
+						"suffixcache TEXT" +
+						")");
 			} else {
-				statement.executeUpdate("create table if not exists \n`"+tablePrefix+name+"`\n (\nid VARCHAR(36) PRIMARY KEY,\n value BIGINT,\n namecache VARCHAR(16),\n prefixcache TINYTEXT, suffixcache TINYTEXT)");
+				statement.executeUpdate("create table if not exists \n" +
+						"`"+tablePrefix+name+"`\n" +
+						" (\n" +
+						" id VARCHAR(36) PRIMARY KEY,\n" +
+						" value BIGINT,\n" +
+						" daily_delta BIGINT," +
+						" daily_lasttotal BIGINT," +
+						" daily_timestamp TIMESTAMP," +
+						" weekly_delta BIGINT," +
+						" weekly_lasttotal BIGINT," +
+						" weekly_timestamp TIMESTAMP," +
+						" monthly_delta BIGINT," +
+						" monthly_lasttotal BIGINT," +
+						" monthly_timestamp TIMESTAMP" +
+						" namecache VARCHAR(16)," +
+						" prefixcache TINYTEXT," +
+						" suffixcache TINYTEXT" +
+						")");
 
 			}
 			statement.close();
@@ -153,10 +202,10 @@ public class Cache {
 		}
 	}
 
-	public void removePlayer(String board, UUID player) {
+	public void removePlayer(String board, String playerName) {
 			try {
 				Connection conn = method.getConnection();
-				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where id=`"+player+"`");
+				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where namecache=`"+playerName+"`");
 				method.close(conn);
 			} catch (SQLException e) {
 				plugin.getLogger().severe("Unable to remove player from board:");
