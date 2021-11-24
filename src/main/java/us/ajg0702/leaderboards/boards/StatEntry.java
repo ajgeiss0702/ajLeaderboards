@@ -1,14 +1,16 @@
 package us.ajg0702.leaderboards.boards;
 
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.utils.spigot.Config;
-import us.ajg0702.utils.spigot.Messages;
+import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.UUID;
 
 public class StatEntry {
+
+	private LeaderboardPlugin plugin;
 	
 	String player;
 	String prefix;
@@ -22,6 +24,8 @@ public class StatEntry {
 	private Cache cache;
 	private Messages msgs;
 
+	private TimedType type;
+
 	String k = "k";
 	String m = "m";
 	String b = "b";
@@ -29,22 +33,24 @@ public class StatEntry {
 	String q = "q";
 	
 	double score;
-	public StatEntry(int position, String board, String prefix, String player, UUID playerID, String suffix, double score) {
+	public StatEntry(LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
+		this.plugin = plugin;
 		this.player = player;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+		this.type = type;
 
 		this.playerID = playerID;
 
 		try {
-			this.cache = Cache.getInstance();
-			msgs = cache.getPlugin().getMessages();
-			k = msgs.get("formatted.k");
-			m = msgs.get("formatted.m");
-			b = msgs.get("formatted.b");
-			t = msgs.get("formatted.t");
-			q = msgs.get("formatted.q");
+			this.cache = plugin.getCache();
+			msgs = plugin.getMessages();
+			k = msgs.getString("formatted.k");
+			m = msgs.getString("formatted.m");
+			b = msgs.getString("formatted.b");
+			t = msgs.getString("formatted.t");
+			q = msgs.getString("formatted.q");
 		} catch(NoClassDefFoundError ignored) {}
 		
 		this.position = position;

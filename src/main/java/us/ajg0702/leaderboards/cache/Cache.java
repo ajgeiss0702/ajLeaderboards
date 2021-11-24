@@ -3,12 +3,14 @@ package us.ajg0702.leaderboards.cache;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
-import us.ajg0702.leaderboards.Main;
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
-import us.ajg0702.utils.spigot.ConfigFile;
+import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,44 +19,38 @@ import java.util.List;
 import java.util.UUID;
 
 public class Cache {
-	static Cache INSTANCE;
-	public static Cache getInstance() {
-		return INSTANCE;
-	}
-	public static Cache getInstance(Main pl) {
-		if(INSTANCE == null) {
-			INSTANCE = new Cache(pl);
-		}
-		return INSTANCE;
-	}
 	
-	public Main getPlugin() {
-		return pl;
+	public LeaderboardPlugin getPlugin() {
+		return plugin;
 	}
 
 	ConfigFile storageConfig;
-	Main pl;
+	LeaderboardPlugin plugin;
 	CacheMethod method;
 
 	String tablePrefix;
 
-	private Cache(Main pl) {
-		this.pl = pl;
+	public Cache(LeaderboardPlugin plugin) {
+		this.plugin = plugin;
 
-		pl.getDataFolder().mkdirs();
+		plugin.getDataFolder().mkdirs();
 
-		storageConfig = new ConfigFile(pl, "cache_storage.yml");
+		try {
+			storageConfig = new ConfigFile(plugin.getDataFolder(), plugin.getLogger(), "cache_storage.yml");
+		} catch (ConfigurateException e) {
+			e.printStackTrace();
+		}
 
 		if(storageConfig.getString("method").equalsIgnoreCase("mysql")) {
-			pl.getLogger().info("Using MySQL for board cache. ("+storageConfig.getString("method")+")");
+			plugin.getLogger().info("Using MySQL for board cache. ("+storageConfig.getString("method")+")");
 			method = new MysqlMethod();
 			tablePrefix = storageConfig.getString("table_prefix");
 		} else {
-			pl.getLogger().info("Using SQLite for board cache. ("+storageConfig.getString("method")+")");
+			plugin.getLogger().info("Using SQLite for board cache. ("+storageConfig.getString("method")+")");
 			method = new SqliteMethod();
 			tablePrefix = "";
 		}
-		method.init(pl, storageConfig, this);
+		method.init(plugin, storageConfig, this);
 
 
 	}
@@ -67,58 +63,68 @@ public class Cache {
 	 * @param board The board
 	 * @return The StatEntry representing the position of the board
 	 */
-	public StatEntry getStat(int position, String board) {
+	public StatEntry getStat(int position, String board, TimedType type) {
 		if(!boardExists(board)) {
-			return new StatEntry(position, board, "", "Board does not exist", null, "", 0);
+			return new StatEntry(plugin, position, board, "", "Board does not exist", null, "", 0, type);
 		}
 		try {
-			Connection conn = method.getConnection();
-			Statement statement = conn.createStatement();
-			ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
-			String uuidraw = null;
-			double value = -1;
-			String name = "-Unknown-";
-			String prefix = "";
-			String suffix = "";
-			if(method instanceof MysqlMethod) {
-				r.next();
-			}
-			try {
-				uuidraw = r.getString("id");
-				value = r.getDouble("value");
-				name = r.getString("namecache");
-				prefix = r.getString("prefixcache");
-				suffix = r.getString("suffixcache");
-				
-			} catch(SQLException e) {
-				if(
-						!e.getMessage().contains("ResultSet closed") &&
-						!e.getMessage().contains("empty result set")
-				) {
-					throw e;
-				}
-			}
-			r.close();
-			statement.close();
-			method.close(conn);
-			if(name == null) name = "-Unknown";
-			if(uuidraw == null) {
-				return new StatEntry(position, board, "", pl.getAConfig().getString("no-data-name"), null, "", 0);
-			} else {
-				return new StatEntry(position, board, prefix, name, UUID.fromString(uuidraw), suffix, value);
+			switch(type) {
+				case ALLTIME:
+					Connection conn = method.getConnection();
+					Statement statement = conn.createStatement();
+					ResultSet r = statement.executeQuery("select id,value,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
+					String uuidraw = null;
+					double value = -1;
+					String name = "-Unknown-";
+					String prefix = "";
+					String suffix = "";
+					if(method instanceof MysqlMethod) {
+						r.next();
+					}
+					try {
+						uuidraw = r.getString("id");
+						value = r.getDouble("value");
+						name = r.getString("namecache");
+						prefix = r.getString("prefixcache");
+						suffix = r.getString("suffixcache");
+
+					} catch(SQLException e) {
+						if(
+								!e.getMessage().contains("ResultSet closed") &&
+										!e.getMessage().contains("empty result set")
+						) {
+							throw e;
+						}
+					}
+					r.close();
+					statement.close();
+					method.close(conn);
+					if(name == null) name = "-Unknown";
+					if(uuidraw == null) {
+						return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+					} else {
+						return new StatEntry(plugin, position, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
+					}
+					break;
+				case DAILY:
+					break;
+				case WEEKLY:
+					break;
+				case MONTHLY:
+					break;
 			}
 		} catch(SQLException e) {
-			pl.getLogger().severe("Unable to get stat of player:");
+			plugin.getLogger().severe("Unable to get stat of player:");
 			e.printStackTrace();
-			return new StatEntry(position, board, "", "An error occured", null, "", 0);
+			return new StatEntry(plugin, position, board, "", "An error occured", null, "", 0, type);
 		}
 	}
 
-	public StatEntry getStatEntry(OfflinePlayer player, String board) {
+	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		StatEntry r = null;
 		int i = 1;
 		while(i < 10000000 && r == null) {
-			StatEntry rt = getStat(i, board);
+			StatEntry rt = plugin.getTopManager().getStat(i, board, type);
 			i++;
 			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
 				r = rt;
@@ -141,7 +147,7 @@ public class Cache {
 			method.close(conn);
 			return true;
 		} catch (SQLException e) {
-			pl.getLogger().severe("Unable to create board:");
+			plugin.getLogger().severe("Unable to create board:");
 			e.printStackTrace();
 			return false;
 		}
@@ -153,7 +159,7 @@ public class Cache {
 				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where id=`"+player+"`");
 				method.close(conn);
 			} catch (SQLException e) {
-				pl.getLogger().severe("Unable to remove player from board:");
+				plugin.getLogger().severe("Unable to remove player from board:");
 				e.printStackTrace();
 			}
 	}
@@ -189,7 +195,7 @@ public class Cache {
 			r.close();
 			method.close(conn);
 		} catch (SQLException e) {
-			pl.getLogger().severe("Unable to get list of tables:");
+			plugin.getLogger().severe("Unable to get list of tables:");
 			e.printStackTrace();
 		}
 		return o;
@@ -205,7 +211,7 @@ public class Cache {
 			method.close(conn);
 			return true;
 		} catch (SQLException e) {
-			pl.getLogger().warning("An error occurred while trying to remove a board:");
+			plugin.getLogger().warning("An error occurred while trying to remove a board:");
 			e.printStackTrace();
 			return false;
 		}
@@ -227,16 +233,16 @@ public class Cache {
 		} catch(NumberFormatException e) {
 			return;
 		} catch(Exception e) {
-			pl.getLogger().warning("Placeholder %"+board+"% for player "+player.getName()+" threw an error:");
+			plugin.getLogger().warning("Placeholder %"+board+"% for player "+player.getName()+" threw an error:");
 			e.printStackTrace();
 			return;
 		}
 		Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 		String prefix = "";
 		String suffix = "";
-		if(pl.hasVault() && player instanceof Player) {
-			prefix = pl.getVaultChat().getPlayerPrefix((Player)player);
-			suffix = pl.getVaultChat().getPlayerSuffix((Player)player);
+		if(plugin.hasVault() && player instanceof Player) {
+			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
+			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
 		}
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
@@ -262,7 +268,7 @@ public class Cache {
 			}
 			method.close(conn);
 		} catch(SQLException e) {
-			pl.getLogger().severe("Unable to update stat for player:");
+			plugin.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
 		}
 	}

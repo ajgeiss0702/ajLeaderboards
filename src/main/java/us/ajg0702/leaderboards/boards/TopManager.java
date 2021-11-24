@@ -1,30 +1,20 @@
 package us.ajg0702.leaderboards.boards;
 
 import org.bukkit.Bukkit;
-import us.ajg0702.leaderboards.Main;
-import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.util.HashMap;
 
 public class TopManager {
-    private static TopManager instance;
-    public static TopManager getInstance() {
-        return instance;
-    }
-    public static TopManager getInstance(Main pl) {
-        if(instance == null) {
-            instance = new TopManager(pl);
-        }
-        return instance;
-    }
 
-    private final Main plugin;
-    private TopManager(Main pl) {
+
+    private final LeaderboardPlugin plugin;
+    public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
     }
 
-    private HashMap<String, HashMap<Integer, Long>> lastGet = new HashMap<>();
-    private HashMap<String, HashMap<Integer, StatEntry>> cache = new HashMap<>();
+    private final HashMap<String, HashMap<Integer, Long>> lastGet = new HashMap<>();
+    private final HashMap<String, HashMap<Integer, StatEntry>> cache = new HashMap<>();
 
     /**
      * Get a leaderboard position
@@ -56,7 +46,7 @@ public class TopManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchPosition(position, board));
     }
     private StatEntry fetchPosition(int position, String board) {
-        StatEntry te = Cache.getInstance().getStat(position, board);
+        StatEntry te = plugin.getCache().getStat(position, board);
         cache.get(board).put(position, te);
         return te;
     }
