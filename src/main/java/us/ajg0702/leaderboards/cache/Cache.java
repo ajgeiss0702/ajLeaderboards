@@ -141,7 +141,7 @@ public class Cache {
 		StatEntry r = null;
 		int i = 1;
 		while(i < 10000000 && r == null) {
-			StatEntry rt = plugin.getTopManager().getStat(i, board, type, type);
+			StatEntry rt = plugin.getTopManager().getStat(i, board, type);
 			i++;
 			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
 				r = rt;
@@ -329,7 +329,6 @@ public class Cache {
 		put("ajtr_stats_gamesplayed", "ajtr_stats_gamesplayer_nocache");
 	}};
 	public static String alternatePlaceholders(String board) {
-		if(!altPlaceholders.containsKey(board)) return board;
-		return altPlaceholders.get(board);
+		return altPlaceholders.getOrDefault(board, board);
 	}
 }
