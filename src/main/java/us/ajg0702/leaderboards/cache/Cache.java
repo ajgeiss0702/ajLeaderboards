@@ -220,8 +220,20 @@ public class Cache {
 
 	public List<String> getBoards() {
 		List<String> o = new ArrayList<>();
-		ResultSet r;
+
+		for(String table : getDbTableList()) {
+			if(table.indexOf(tablePrefix) != 0) continue;
+			o.add(table.substring(tablePrefix.length()));
+		}
+
+		return o;
+	}
+
+	public List<String> getDbTableList() {
+		List<String> b = new ArrayList<>();
 		try {
+
+			ResultSet r;
 			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
 			if(method instanceof SqliteMethod) {
@@ -235,19 +247,21 @@ public class Cache {
 			} else {
 				r = statement.executeQuery("show tables;");
 			}
+
 			while(r.next()) {
-				String b = r.getString(1);
+				String e = r.getString(1);
 				if(b.indexOf(tablePrefix) != 0) continue;
-				o.add(b.substring(tablePrefix.length()));
+				b.add(e);
 			}
+
 			statement.close();
 			r.close();
 			method.close(conn);
-		} catch (SQLException e) {
+		} catch(SQLException e) {
 			plugin.getLogger().severe("Unable to get list of tables:");
 			e.printStackTrace();
 		}
-		return o;
+		return b;
 	}
 
 	public boolean removeBoard(String board) {
@@ -277,7 +291,8 @@ public class Cache {
 		String outputraw;
 		double output;
 		try {
-			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%").replaceAll(",", "");
+			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%")
+					.replaceAll(",", "");
 			output = Double.parseDouble(outputraw);
 		} catch(NumberFormatException e) {
 			return;
@@ -294,9 +309,11 @@ public class Cache {
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
 		}
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
+		String insertStatment = "insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)";
+		String updateStatement = "update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?";
 		try {
 			Connection conn = method.getConnection();
-			try(PreparedStatement statement = conn.prepareStatement("insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)");) {
+			try(PreparedStatement statement = conn.prepareStatement(insertStatment)) {
 				Debug.info("in try");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
@@ -306,10 +323,10 @@ public class Cache {
 				statement.executeUpdate();
 			} catch(SQLException e) {
 				Debug.info("in catch");
-				try(PreparedStatement statement = conn.prepareStatement("update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?")) {
+				try(PreparedStatement statement = conn.prepareStatement(updateStatement)) {
+					statement.setString(1, player.getName());
 					statement.setString(2, prefix);
 					statement.setString(3, suffix);
-					statement.setString(1, player.getName());
 					statement.setString(4, player.getUniqueId().toString());
 					statement.executeUpdate();
 				}

@@ -8,7 +8,10 @@ import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
 
 public class MysqlMethod implements CacheMethod {
     @Override
@@ -41,6 +44,28 @@ public class MysqlMethod implements CacheMethod {
         hikariConfig.setMinimumIdle(minCount);
         ds = new HikariDataSource(hikariConfig);
         ds.setLeakDetectionThreshold(60 * 1000);
+
+        List<String> tableList = plugin.getCache().getDbTableList();
+
+        try(Statement statement = getConnection().createStatement()) {
+            for(String table : tableList) {
+                ResultSet rs = statement.executeQuery("PRAGMA user_version;");
+                int version = rs.getInt(1);
+                rs.close();
+
+                if(version == 0) {
+                    plugin.getLogger().info("Running table updater. (pv"+version+")");
+                    for(String b : cacheInstance.getBoards()) {
+                        statement.executeUpdate("alter table '"+b+"' add column namecache TEXT;");
+                        statement.executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
+                        statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
+                    }
+                    statement.executeUpdate("PRAGMA user_version = 1;");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
