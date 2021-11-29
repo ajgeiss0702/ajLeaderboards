@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 6
+config-version: 7
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -22,6 +22,12 @@ value-names:
 # this is in ticks, so 20 ticks = 1 second
 #  Default: 1200 (60 seconds)
 stat-refresh: 1200
+
+# Should this server update player stats?
+#  If disabled, stats will not be recorded to the database, and ajleaderboards will basically only read from it.
+#  This can be useful if you have a lobby where you want to display leaderboards, but want to make sure anything in the lobby
+#   doesnt override the stats from other servers
+update-stats: true
 
 # Debug option to print stuff that could be usefull to the developer.
 # You should probably keep this disabled unless you know what you are doing or are told to turn it on.

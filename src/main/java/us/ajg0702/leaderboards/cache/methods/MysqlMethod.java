@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.cache.methods;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
@@ -11,7 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Locale;
 
 public class MysqlMethod implements CacheMethod {
     @Override
@@ -45,24 +46,32 @@ public class MysqlMethod implements CacheMethod {
         ds = new HikariDataSource(hikariConfig);
         ds.setLeakDetectionThreshold(60 * 1000);
 
-        List<String> tableList = plugin.getCache().getDbTableList();
-
-        try(Statement statement = getConnection().createStatement()) {
-            for(String table : tableList) {
-                ResultSet rs = statement.executeQuery("PRAGMA user_version;");
-                int version = rs.getInt(1);
-                rs.close();
+        try(Connection conn = getConnection()) {
+            ResultSet rs = conn.getMetaData().getTables(null, null, "", null);
+            Statement statement = conn.createStatement();
+            while(rs.next()) {
+                int version;
+                String tableName = rs.getString("TABLE_NAME");
+                try {
+                    version = Integer.parseInt(rs.getString("AJLBVERSION"));
+                } catch(NumberFormatException e) {
+                    version = 0;
+                }
 
                 if(version == 0) {
-                    plugin.getLogger().info("Running table updater. (pv"+version+")");
-                    for(String b : cacheInstance.getBoards()) {
-                        statement.executeUpdate("alter table '"+b+"' add column namecache TEXT;");
-                        statement.executeUpdate("alter table '"+b+"' add column prefixcache TEXT;");
-                        statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
+                    plugin.getLogger().info("Running MySQL table updater for table "+tableName+" (pv"+version+")");
+
+                    for(TimedType typeEnum : TimedType.values()) {
+                        String type = typeEnum.name().toLowerCase(Locale.ROOT);
+                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_delta BIGINT");
+                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_lasttotal BIGINT");
+                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_timestamp TIMESTAMP");
                     }
-                    statement.executeUpdate("PRAGMA user_version = 1;");
+
+                    statement.executeUpdate("ALTER TABLE "+tableName+" AJLBVERSION = '1';");
                 }
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
