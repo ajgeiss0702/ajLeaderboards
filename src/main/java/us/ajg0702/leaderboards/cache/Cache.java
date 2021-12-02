@@ -13,10 +13,7 @@ import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Cache {
 	
@@ -78,21 +75,6 @@ public class Cache {
 			String suffix = "";
 			if(method instanceof MysqlMethod) {
 				r.next();
-			}
-			try {
-				uuidraw = r.getString("id");
-				value = r.getDouble("value");
-				name = r.getString("namecache");
-				prefix = r.getString("prefixcache");
-				suffix = r.getString("suffixcache");
-
-			} catch(SQLException e) {
-				if(
-						!e.getMessage().contains("ResultSet closed") &&
-								!e.getMessage().contains("empty result set")
-				) {
-					throw e;
-				}
 			}
 			try {
 				uuidraw = r.getString("id");
@@ -302,12 +284,16 @@ public class Cache {
 			return;
 		}
 		Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
+
 		String prefix = "";
 		String suffix = "";
 		if(plugin.hasVault() && player instanceof Player) {
 			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
 		}
+
+
+
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		String insertStatment = "insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)";
 		String updateStatement = "update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?";
@@ -337,6 +323,18 @@ public class Cache {
 			plugin.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
 		}
+	}
+
+	public double getLastTotal(String board, OfflinePlayer player, TimedType type) {
+		double last = 0;
+		String typeName =  type.toString().toLowerCase(Locale.ROOT);
+		try(Connection conn = method.getConnection()) {
+			ResultSet rs = conn.createStatement().executeQuery(
+					"select "+typeName+"_lasttotal from "+tablePrefix+board+" where id='"+player.getUniqueId()+"'");
+			last = rs.getInt(1);
+		} catch(SQLException ignored) {}
+
+		return last;
 	}
 
 	private static final HashMap<String, String> altPlaceholders = new HashMap<String, String>() {{
