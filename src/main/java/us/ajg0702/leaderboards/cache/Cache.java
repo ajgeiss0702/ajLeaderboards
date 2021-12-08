@@ -133,22 +133,21 @@ public class Cache {
 	}
 
 	public boolean createBoard(String name) {
+		String t = method instanceof SqliteMethod ? "NUMERIC" : "BIGINT";
+		StringBuilder columns = new StringBuilder();
+		for(TimedType type : TimedType.values()) {
+			columns
+					.append(",\n").append(type.name().toLowerCase(Locale.ROOT)).append("_delta ").append(t)
+					.append(",\n").append(type.name().toLowerCase(Locale.ROOT)).append("_lasttotal ").append(t)
+					.append(",\n").append(type.name().toLowerCase(Locale.ROOT)).append("_timestamp ").append(t);
+		}
 		try {
 			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
 			if(method instanceof SqliteMethod) {
 				statement.executeUpdate("create table if not exists `"+tablePrefix+name+"` (" +
 						"id TEXT PRIMARY KEY, " +
-						"value NUMERIC, " +
-						"daily_delta NUMERIC, " +
-						"daily_lasttotal NUMERIC, " +
-						"daily_timestamp DATETIME, " +
-						"weekly_delta NUMERIC, " +
-						"weekly_lasttotal NUMERIC, " +
-						"weekly_timestamp DATETIME, " +
-						"monthly_delta NUMERIC, " +
-						"monthly_lasttotal NUMERIC, " +
-						"monthly_timestamp DATETIME, " +
+						"value NUMERIC"+ columns +", " +
 						"namecache TEXT, " +
 						"prefixcache TEXT, " +
 						"suffixcache TEXT" +
@@ -158,16 +157,7 @@ public class Cache {
 						"`"+tablePrefix+name+"`\n" +
 						" (\n" +
 						" id VARCHAR(36) PRIMARY KEY,\n" +
-						" value BIGINT,\n" +
-						" daily_delta BIGINT," +
-						" daily_lasttotal BIGINT," +
-						" daily_timestamp TIMESTAMP," +
-						" weekly_delta BIGINT," +
-						" weekly_lasttotal BIGINT," +
-						" weekly_timestamp TIMESTAMP," +
-						" monthly_delta BIGINT," +
-						" monthly_lasttotal BIGINT," +
-						" monthly_timestamp TIMESTAMP" +
+						" value BIGINT"+ columns +",\n" +
 						" namecache VARCHAR(16)," +
 						" prefixcache TINYTEXT," +
 						" suffixcache TINYTEXT" +
@@ -293,10 +283,30 @@ public class Cache {
 		}
 
 
+		StringBuilder addTables = new StringBuilder();
+		StringBuilder addQs = new StringBuilder();
+		StringBuilder addUpdates = new StringBuilder();
+		for(TimedType type : TimedType.values()) {
+			String name = type.name().toLowerCase(Locale.ROOT);
+			addTables
+					.append(", ").append(name).append("_delta")
+					.append(", ").append(name).append("_lasttotal")
+					.append(", ").append(name).append("_timestamp");
+			addQs.append(", ?");
+
+			addUpdates
+					.append(", ").append(name).append("_delta=?");
+		}
+
+		Map<TimedType, Double> lastTotals = new HashMap<>();
+		for(TimedType type : TimedType.values()) {
+			lastTotals.put(type, getLastTotal(board, player, type));
+		}
+
 
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
-		String insertStatment = "insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache) values (?, ?, ?, ?, ?)";
-		String updateStatement = "update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=? where id=?";
+		String insertStatment = "insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache"+ addTables +") values (?, ?, ?, ?, ?"+ addQs +")";
+		String updateStatement = "update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=?"+ addUpdates +" where id=?";
 		try {
 			Connection conn = method.getConnection();
 			try(PreparedStatement statement = conn.prepareStatement(insertStatment)) {
@@ -306,6 +316,12 @@ public class Cache {
 				statement.setString(3, player.getName());
 				statement.setString(4, prefix);
 				statement.setString(5, suffix);
+				int i = 5;
+				for(TimedType type : TimedType.values()) {
+					statement.setDouble(i++, 0);
+					statement.setDouble(i++, output);
+					statement.setLong(i++, System.currentTimeMillis()); // TODO: make this align with others
+				}
 				statement.executeUpdate();
 			} catch(SQLException e) {
 				Debug.info("in catch");
@@ -314,6 +330,10 @@ public class Cache {
 					statement.setString(2, prefix);
 					statement.setString(3, suffix);
 					statement.setString(4, player.getUniqueId().toString());
+					int i = 4;
+					for(TimedType type : TimedType.values()) {
+						statement.setDouble(i++, output-lastTotals.get(type));
+					}
 					statement.executeUpdate();
 				}
 
