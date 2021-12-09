@@ -1,18 +1,24 @@
 package us.ajg0702.leaderboards;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
+import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.commands.main.MainCommand;
+import us.ajg0702.leaderboards.signs.SignManager;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
@@ -24,6 +30,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private Cache cache;
     private Messages messages;
     private TopManager topManager;
+    private SignManager signManager;
 
     private boolean vault;
     private Chat vaultChat;
@@ -113,6 +120,10 @@ public class LeaderboardPlugin extends JavaPlugin {
         return vault;
     }
 
+    public SignManager getSignManager() {
+        return signManager;
+    }
+
     public Chat getVaultChat() {
         return vaultChat;
     }
@@ -131,4 +142,28 @@ public class LeaderboardPlugin extends JavaPlugin {
             }
         }, 10*20, config.getInt("stat-refresh")).getTaskId();
     }
+
+    public boolean validatePlaceholder(String placeholder, CommandSender sayOutput) {
+        if(Bukkit.getOnlinePlayers().size() == 0) {
+            getLogger().warning("Unable to validate placeholder because no players are online. Skipping validation.");
+            return true;
+        }
+        Player vp = Bukkit.getOnlinePlayers().iterator().next();
+        String out = PlaceholderAPI.setPlaceholders(vp, "%"+ Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
+        try {
+            Double.valueOf(out);
+        } catch(NumberFormatException e) {
+            if(sayOutput != null) {
+                sayOutput.sendMessage(message("&7Returned: "+out));
+            }
+            return false;
+        }
+        return true;
+    }
+
+
+    public static Component message(String miniMessage) {
+        return MiniMessage.get().parse(ChatColor.translateAlternateColorCodes('&', miniMessage));
+    }
+
 }

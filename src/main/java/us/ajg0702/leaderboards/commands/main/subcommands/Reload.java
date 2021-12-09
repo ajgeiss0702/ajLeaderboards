@@ -33,6 +33,7 @@ public class Reload extends SubCommand {
         try {
             plugin.getAConfig().reload();
             plugin.getMessages().reload();
+            plugin.getSignManager().reload();
         } catch (ConfigurateException e) {
             e.printStackTrace();
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));

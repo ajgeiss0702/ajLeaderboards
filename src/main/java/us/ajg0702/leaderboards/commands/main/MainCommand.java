@@ -4,11 +4,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import us.ajg0702.commands.BaseCommand;
 import us.ajg0702.commands.CommandSender;
+import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.commands.main.subcommands.Version;
+import us.ajg0702.leaderboards.commands.main.subcommands.*;
+import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 public class MainCommand extends BaseCommand {
     private final LeaderboardPlugin plugin;
@@ -17,6 +21,13 @@ public class MainCommand extends BaseCommand {
         this.plugin = plugin;
 
         addSubCommand(new Version(plugin));
+        addSubCommand(new Reload(plugin));
+        addSubCommand(new Add(plugin));
+        addSubCommand(new Update(plugin));
+        addSubCommand(new RemovePlayer(plugin));
+        addSubCommand(new Remove(plugin));
+        addSubCommand(new ListBoards(plugin));
+        addSubCommand(new Signs(plugin));
     }
 
     @Override
@@ -31,12 +42,20 @@ public class MainCommand extends BaseCommand {
         }
         if(subCommandExecute(sender, args, label)) return;
 
-
-
-        sender.sendMessage(message("hello"));
+        sendHelp(sender, label, getSubCommands());
     }
 
-    public static Component message(String miniMessage) {
-        return MiniMessage.get().parse(miniMessage);
+    public static void sendHelp(CommandSender sender, String label, List<SubCommand> subCommands) {
+        sender.sendMessage(message(""));
+        for(SubCommand subCommand : subCommands) {
+            String command = "/"+label+" "+subCommand.getName();
+            sender.sendMessage(message(
+                    "<hover:show_text:Click to start typing "+command+">" +
+                            "<click:suggest_command:"+command+" >" +
+                            "<gold>"+command+"<yellow> - "+subCommand.getDescription()+"" +
+                            "</click>" +
+                            "</hover>"
+            ));
+        }
     }
 }

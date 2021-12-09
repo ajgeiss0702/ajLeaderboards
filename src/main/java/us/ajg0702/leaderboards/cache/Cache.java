@@ -136,6 +136,7 @@ public class Cache {
 		String t = method instanceof SqliteMethod ? "NUMERIC" : "BIGINT";
 		StringBuilder columns = new StringBuilder();
 		for(TimedType type : TimedType.values()) {
+			if(type == TimedType.ALLTIME) continue;
 			columns
 					.append(",\n").append(type.name().toLowerCase(Locale.ROOT)).append("_delta ").append(t)
 					.append(",\n").append(type.name().toLowerCase(Locale.ROOT)).append("_lasttotal ").append(t)
@@ -174,14 +175,16 @@ public class Cache {
 		}
 	}
 
-	public void removePlayer(String board, String playerName) {
+	public boolean removePlayer(String board, String playerName) {
 			try {
 				Connection conn = method.getConnection();
 				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where namecache=`"+playerName+"`");
 				method.close(conn);
+				return true;
 			} catch (SQLException e) {
 				plugin.getLogger().severe("Unable to remove player from board:");
 				e.printStackTrace();
+				return false;
 			}
 	}
 	
@@ -255,6 +258,9 @@ public class Cache {
 
 	public void updatePlayerStats(OfflinePlayer player) {
 		for(String b : getBoards()) {
+			if(player.isOnline() && player.getPlayer() != null) {
+				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) return;
+			}
 			updateStat(b, player);
 		}
 	}
@@ -287,6 +293,7 @@ public class Cache {
 		StringBuilder addQs = new StringBuilder();
 		StringBuilder addUpdates = new StringBuilder();
 		for(TimedType type : TimedType.values()) {
+			if(type == TimedType.ALLTIME) continue;
 			String name = type.name().toLowerCase(Locale.ROOT);
 			addTables
 					.append(", ").append(name).append("_delta")
@@ -300,6 +307,7 @@ public class Cache {
 
 		Map<TimedType, Double> lastTotals = new HashMap<>();
 		for(TimedType type : TimedType.values()) {
+			if(type == TimedType.ALLTIME) continue;
 			lastTotals.put(type, getLastTotal(board, player, type));
 		}
 
@@ -318,6 +326,7 @@ public class Cache {
 				statement.setString(5, suffix);
 				int i = 5;
 				for(TimedType type : TimedType.values()) {
+					if(type == TimedType.ALLTIME) continue;
 					statement.setDouble(i++, 0);
 					statement.setDouble(i++, output);
 					statement.setLong(i++, System.currentTimeMillis()); // TODO: make this align with others
@@ -332,6 +341,7 @@ public class Cache {
 					statement.setString(4, player.getUniqueId().toString());
 					int i = 4;
 					for(TimedType type : TimedType.values()) {
+						if(type == TimedType.ALLTIME) continue;
 						statement.setDouble(i++, output-lastTotals.get(type));
 					}
 					statement.executeUpdate();

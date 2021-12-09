@@ -62,6 +62,7 @@ public class MysqlMethod implements CacheMethod {
                     plugin.getLogger().info("Running MySQL table updater for table "+tableName+" (pv"+version+")");
 
                     for(TimedType typeEnum : TimedType.values()) {
+                        if(typeEnum == TimedType.ALLTIME) continue;
                         String type = typeEnum.name().toLowerCase(Locale.ROOT);
                         statement.executeUpdate("alter table "+tableName+" add column "+type+"_delta BIGINT");
                         statement.executeUpdate("alter table "+tableName+" add column "+type+"_lasttotal BIGINT");

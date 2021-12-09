@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
+
 public class Version extends SubCommand {
     private final LeaderboardPlugin plugin;
     public Version(LeaderboardPlugin plugin) {
@@ -24,7 +26,7 @@ public class Version extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        sender.sendMessage(MainCommand.message(
+        sender.sendMessage(message(
                 "<gold>ajLedeaderboards v<yellow>"+plugin.getDescription().getVersion()+"<gold> by ajgeiss0702"
         ));
     }

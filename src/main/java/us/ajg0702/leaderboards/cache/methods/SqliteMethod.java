@@ -50,6 +50,7 @@ public class SqliteMethod implements CacheMethod {
 
                 for(String b : cacheInstance.getBoards()) {
                     for(TimedType typeEnum : TimedType.values()) {
+                        if(typeEnum == TimedType.ALLTIME) continue;
                         String type = typeEnum.name().toLowerCase(Locale.ROOT);
                         statement.executeUpdate("alter table '"+b+"' add column '"+type+"_delta' NUMERIC");
                         statement.executeUpdate("alter table '"+b+"' add column '"+type+"_lasttotal' NUMERIC");
