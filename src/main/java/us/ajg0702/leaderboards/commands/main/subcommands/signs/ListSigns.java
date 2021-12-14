@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.commands.main.subcommands.signs;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.LocUtils;
 
 import java.util.ArrayList;
@@ -26,15 +27,14 @@ public class ListSigns extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        sender.sendMessage(message("&cTODO"));
-        /**List<BoardSign> signs = SignManager.getInstance().getSigns();
-        String s = "&6Signs";
+        List<BoardSign> signs = plugin.getSignManager().getSigns();
+        StringBuilder s = new StringBuilder("&6Signs");
         for(BoardSign sign : signs) {
-            s += "\n&7- &e"+ LocUtils.locToString(sign.getLocation())+" "+sign.getBoard();
+            s.append("\n&7- &e").append(LocUtils.locToString(sign.getLocation())).append(" ").append(sign.getBoard());
         }
         if(signs.size() == 0) {
-            s += "\n&7None";
+            s.append("\n&7None");
         }
-        sender.sendMessage(message(s));**/
+        sender.sendMessage(message(s.toString()));
     }
 }

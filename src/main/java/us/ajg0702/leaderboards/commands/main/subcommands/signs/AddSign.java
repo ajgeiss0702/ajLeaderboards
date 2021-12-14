@@ -5,10 +5,12 @@ import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.boards.TimedType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
@@ -25,17 +27,26 @@ public class AddSign extends SubCommand {
         if(args.length == 1) {
             return plugin.getCache().getBoards();
         }
+        if(args.length == 3) {
+            return TimedType.lowerNames();
+        }
         return new ArrayList<>();
     }
+
+    private final String usage = "signs add <board> <position> <type>";
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
         if(args.length < 1) {
-            sender.sendMessage(message("&cPlease provide a board and a position for the sign!\n&7Usage: /"+label+" signs add <board> <position>"));
+            sender.sendMessage(message("&cPlease provide a board and a position for the sign!\n&7Usage: /"+label+" "+usage));
             return;
         }
         if(args.length < 2) {
-            sender.sendMessage(message("&cPlease provide a position for the sign\n&7Usage: /"+label+" signs add <board> <position>"));
+            sender.sendMessage(message("&cPlease provide a position for the sign\n&7Usage: /"+label+" "+usage));
+            return;
+        }
+        if(args.length < 3) {
+            sender.sendMessage(message("&cPlease provide a timed type for the sign\n&7Usage: /"+label+" "+usage));
             return;
         }
         if(!sender.isPlayer()) {
@@ -55,8 +66,19 @@ public class AddSign extends SubCommand {
             sender.sendMessage(message("&cThe block you are looking at is not a sign! Please look at a sign to set."));
             return;
         }
-        sender.sendMessage(message("&cTODO!"));
-        //SignManager.getInstance().addSign(target.getLocation(), args[2], pos);
+        TimedType type;
+        try {
+            type = TimedType.valueOf(args[2].toUpperCase(Locale.ROOT));
+        } catch(IllegalArgumentException e) {
+            StringBuilder list = new StringBuilder();
+            TimedType.lowerNames().forEach(s -> {
+                list.append(s).append(", ");
+            });
+            list.delete(list.length()-2, list.length()-1);
+            sender.sendMessage(message("&cInvalid timed type!\n&7Options: "+list));
+            return;
+        }
+        plugin.getSignManager().addSign(target.getLocation(), args[0], pos, type);
         sender.sendMessage(message("&aSign created!"));
     }
 }

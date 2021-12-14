@@ -1,21 +1,23 @@
-package us.ajg0702.leaderboards.signs;
+package us.ajg0702.leaderboards.displays.signs;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.spigot.LocUtils;
 
 public class BoardSign {
     private final Location location;
     private final String board;
     private final int position;
+    private final TimedType type;
 
     private final int x;
     private final int z;
     private final World world;
 
-    public BoardSign(Location location, String board, int position) {
+    public BoardSign(Location location, String board, int position, TimedType type) {
         this.location = location;
         this.board = board;
         this.position = position;
@@ -23,6 +25,7 @@ public class BoardSign {
         this.x = location.getChunk().getX();
         this.z = location.getChunk().getZ();
         this.world = location.getWorld();
+        this.type = type;
     }
 
     public int getX() {
@@ -43,6 +46,9 @@ public class BoardSign {
     }
     public int getPosition() {
         return position;
+    }
+    public TimedType getType() {
+        return type;
     }
 
     public Sign getSign() {
@@ -65,7 +71,7 @@ public class BoardSign {
     }
 
     public String serialize() {
-        return LocUtils.locToString(location)+";"+board+";"+position;
+        return LocUtils.locToString(location)+";"+board+";"+position+";"+type;
     }
 
     public static BoardSign deserialize(String s) {
@@ -73,6 +79,7 @@ public class BoardSign {
         Location loc = LocUtils.stringToLoc(parts[0]);
         String board = parts[1];
         int pos = Integer.parseInt(parts[2]);
-        return new BoardSign(loc, board, pos);
+        TimedType type = parts.length > 3 ? TimedType.valueOf(parts[3]) : TimedType.ALLTIME;
+        return new BoardSign(loc, board, pos, type);
     }
 }

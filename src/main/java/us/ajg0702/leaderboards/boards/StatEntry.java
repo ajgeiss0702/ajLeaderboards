@@ -56,6 +56,10 @@ public class StatEntry {
 		this.position = position;
 		this.board = board;
 	}
+
+	public boolean hasPlayer() {
+		return player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
+	}
 	
 	public String getPrefix() {
 		return prefix;

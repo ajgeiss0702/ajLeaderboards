@@ -10,7 +10,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
@@ -18,7 +17,8 @@ import us.ajg0702.commands.platforms.bukkit.BukkitSender;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.commands.main.MainCommand;
-import us.ajg0702.leaderboards.signs.SignManager;
+import us.ajg0702.leaderboards.displays.heads.HeadManager;
+import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
@@ -31,6 +31,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private Messages messages;
     private TopManager topManager;
     private SignManager signManager;
+    private HeadManager headManager;
 
     private boolean vault;
     private Chat vaultChat;
@@ -91,6 +92,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         });
 
         reloadInterval();
+
+        signManager = new SignManager(this);
+        headManager = new HeadManager(this);
+
+
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
     }
