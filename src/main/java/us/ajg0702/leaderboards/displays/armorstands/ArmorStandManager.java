@@ -1,29 +1,59 @@
-package us.ajg0702.leaderboards.displays.heads;
+package us.ajg0702.leaderboards.displays.armorstands;
 
-import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.WallSign;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
-public class HeadManager {
+public class ArmorStandManager {
+
     private final LeaderboardPlugin plugin;
 
-    public HeadManager(LeaderboardPlugin plugin) {
+    public ArmorStandManager(LeaderboardPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
+
+    private void checkArmorstand(Location curloc, String name, UUID id) {
+        Collection<Entity> entities = curloc.getWorld().getNearbyEntities(curloc, 1, 1, 1);
+        if(entities.size() <= 0) return;
+        for(Entity entity : entities) {
+            if(entity instanceof ArmorStand) {
+                Location eloc = entity.getLocation();
+                if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
+
+                ArmorStandCache cache = armorStandCache.get(eloc);
+                if(cache != null) {
+                    if(!cache.getEntity().equals(entity)) return;
+                    if(cache.getId().equals(id)) return;
+                }
+
+                armorStandCache.put(eloc, new ArmorStandCache(curloc, entity, id));
+
+                setArmorstandHead((ArmorStand) entity, name, id);
+            }
+        }
+    }
+
+    private void setArmorstandHead(ArmorStand stand, String name, UUID id) {
+        if(VersionSupport.getMinorVersion() >= 10) {
+            stand.setSilent(true);
+        }
+        ItemStack item = plugin.getHeadUtils().getHeadItem(name);
+        stand.setHelmet(item);
     }
 
     public void search(BoardSign sign, String name, UUID id) {
@@ -48,8 +78,6 @@ public class HeadManager {
 
         Location sl = sign.getLocation();
 
-        //pl.getLogger().info(face.toString());
-
         switch(face) {
 
             case NORTH:
@@ -61,7 +89,7 @@ public class HeadManager {
                 for(int z = sl.getBlockZ()+1;z > sl.getBlockZ()-1;z--) {
                     for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
                         Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
-                        checkHead(curloc, name, id);
+                        checkArmorstand(curloc, name, id);
                     }
                 }
                 break;
@@ -75,7 +103,7 @@ public class HeadManager {
                 for(int z = sl.getBlockZ();z > sl.getBlockZ()-2;z--) {
                     for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
                         Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
-                        checkHead(curloc, name, id);
+                        checkArmorstand(curloc, name, id);
                     }
                 }
                 break;
@@ -87,7 +115,7 @@ public class HeadManager {
                 for(int x = sl.getBlockX();x > sl.getBlockX()-2;x--) {
                     for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
                         Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
-                        checkHead(curloc, name, id);
+                        checkArmorstand(curloc, name, id);
                     }
                 }
                 break;
@@ -100,7 +128,7 @@ public class HeadManager {
                 for(int x = sl.getBlockX()+1;x > sl.getBlockX()-1;x--) {
                     for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
                         Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
-                        checkHead(curloc, name, id);
+                        checkArmorstand(curloc, name, id);
                     }
                 }
                 break;
@@ -112,30 +140,5 @@ public class HeadManager {
                 break;
 
         }
-    }
-
-    private final HashMap<Location, UUID> headLocationCache = new HashMap<>();
-
-    public void checkHead(Location loc, String name, UUID id) {
-        Validate.notNull(loc);
-        Validate.notNull(id, "UUID is null!");
-
-        if(id.equals(headLocationCache.get(loc))) return;
-
-        OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            BlockState bs = loc.getBlock().getState();
-            if(!(bs instanceof Skull)) return;
-
-            Skull skull = (Skull) bs;
-            if(VersionSupport.getMinorVersion() > 9) {
-                skull.setOwningPlayer(op);
-            } else {
-                skull.setOwner(name);
-            }
-            skull.update();
-            headLocationCache.put(loc, id);
-        });
     }
 }

@@ -14,14 +14,18 @@ import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
+import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.commands.main.MainCommand;
+import us.ajg0702.leaderboards.displays.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.displays.heads.HeadManager;
+import us.ajg0702.leaderboards.displays.heads.HeadUtils;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class LeaderboardPlugin extends JavaPlugin {
@@ -32,6 +36,8 @@ public class LeaderboardPlugin extends JavaPlugin {
     private TopManager topManager;
     private SignManager signManager;
     private HeadManager headManager;
+    private HeadUtils headUtils;
+    private ArmorStandManager armorStandManager;
 
     private boolean vault;
     private Chat vaultChat;
@@ -95,6 +101,8 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         signManager = new SignManager(this);
         headManager = new HeadManager(this);
+        headUtils = new HeadUtils();
+        armorStandManager = new ArmorStandManager(this);
 
 
 
@@ -130,6 +138,18 @@ public class LeaderboardPlugin extends JavaPlugin {
         return signManager;
     }
 
+    public HeadManager getHeadManager() {
+        return headManager;
+    }
+
+    public HeadUtils getHeadUtils() {
+        return headUtils;
+    }
+
+    public ArmorStandManager getArmorStandManager() {
+        return armorStandManager;
+    }
+
     public Chat getVaultChat() {
         return vaultChat;
     }
@@ -147,6 +167,11 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getCache().updatePlayerStats(p);
             }
         }, 10*20, config.getInt("stat-refresh")).getTaskId();
+    }
+
+    HashMap<TimedType, Integer> resetIds = new HashMap<>();
+    public void scheduleResets() {
+        resetIds.values().forEach(Bukkit.getScheduler()::cancelTask);
     }
 
     public boolean validatePlaceholder(String placeholder, CommandSender sayOutput) {

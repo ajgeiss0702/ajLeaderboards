@@ -148,6 +148,7 @@ public class SignManager {
 
         if(r.hasPlayer()) {
             plugin.getHeadManager().search(sign, r.getPlayer(), r.getPlayerID());
+            plugin.getArmorStandManager().search(sign, r.getPlayer(), r.getPlayerID());
         }
         Bukkit.getScheduler().runTask(plugin, () -> {
             sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));

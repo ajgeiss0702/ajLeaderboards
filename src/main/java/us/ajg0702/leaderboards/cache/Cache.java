@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.cache;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
@@ -329,7 +330,7 @@ public class Cache {
 					if(type == TimedType.ALLTIME) continue;
 					statement.setDouble(i++, 0);
 					statement.setDouble(i++, output);
-					statement.setLong(i++, System.currentTimeMillis()); // TODO: make this align with others
+					statement.setLong(i++, getLastReset(board, type));
 				}
 				statement.executeUpdate();
 			} catch(SQLException e) {
@@ -355,16 +356,54 @@ public class Cache {
 		}
 	}
 
+
 	public double getLastTotal(String board, OfflinePlayer player, TimedType type) {
 		double last = 0;
-		String typeName =  type.toString().toLowerCase(Locale.ROOT);
 		try(Connection conn = method.getConnection()) {
 			ResultSet rs = conn.createStatement().executeQuery(
-					"select "+typeName+"_lasttotal from "+tablePrefix+board+" where id='"+player.getUniqueId()+"'");
+					"select "+type.lowerName()+"_lasttotal from "+tablePrefix+board+" where id='"+player.getUniqueId()+"'");
 			last = rs.getInt(1);
 		} catch(SQLException ignored) {}
 
 		return last;
+	}
+
+	public long getLastReset(String board, TimedType type) {
+		long last = 0;
+		try(Connection conn = method.getConnection()) {
+			ResultSet rs = conn.createStatement().executeQuery(
+					"select "+type.lowerName()+"_timestamp from "+tablePrefix+board+" limit 1");
+			last = rs.getLong(1);
+		} catch(SQLException ignored) {}
+
+		return last;
+	}
+
+	public void reset(String board, TimedType type) {
+		plugin.getLogger().info("Resetting the "+type.lowerName()+" leaderboard for "+board);
+		try(Connection conn = method.getConnection()) {
+			ResultSet rs = conn.createStatement().executeQuery("select * from "+tablePrefix+board+"");
+			while(rs.next()) {
+				String idRaw = rs.getString("id");
+				Runnable r = () -> {
+					// If we are using mysql, utilize multiple connections for better performance
+					try(Connection con = method instanceof SqliteMethod ? conn : method.getConnection()) {
+						con.createStatement().executeUpdate(
+								"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis());
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				};
+				if(method instanceof SqliteMethod) {
+					r.run();
+				} else {
+					Bukkit.getScheduler().runTaskAsynchronously(plugin, r);
+				}
+			}
+		} catch (SQLException e) {
+			plugin.getLogger().severe("An error occurred while resetting a timed leaderboard:");
+			e.printStackTrace();
+		}
 	}
 
 	private static final HashMap<String, String> altPlaceholders = new HashMap<String, String>() {{
