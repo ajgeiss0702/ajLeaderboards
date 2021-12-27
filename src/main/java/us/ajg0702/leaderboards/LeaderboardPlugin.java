@@ -104,6 +104,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         headUtils = new HeadUtils();
         armorStandManager = new ArmorStandManager(this);
 
+        scheduleResets();
+
 
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
@@ -172,6 +174,33 @@ public class LeaderboardPlugin extends JavaPlugin {
     HashMap<TimedType, Integer> resetIds = new HashMap<>();
     public void scheduleResets() {
         resetIds.values().forEach(Bukkit.getScheduler()::cancelTask);
+        resetIds.clear();
+
+        for(String board : cache.getBoards()) {
+            for(TimedType type : TimedType.values()) {
+                scheduleReset(board, type);
+            }
+        }
+    }
+
+    public void scheduleReset(String board, TimedType type) {
+        if(type.equals(TimedType.ALLTIME)) return;
+        if(type.getResetMs() < 0) return;
+
+
+        long lastReset = cache.getLastReset(board, type);
+        long nextReset = lastReset + type.getResetMs();
+        int timeTilNextReset = (int) (nextReset - System.currentTimeMillis());
+        if(timeTilNextReset < 0) {
+            timeTilNextReset = 0;
+        }
+
+        int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
+                this,
+                () -> cache.reset(board, type),
+                (long) ((timeTilNextReset/1000D)*20)
+        ).getTaskId();
+        resetIds.put(type, taskId);
     }
 
     public boolean validatePlaceholder(String placeholder, CommandSender sayOutput) {

@@ -380,6 +380,9 @@ public class Cache {
 	}
 
 	public void reset(String board, TimedType type) {
+		if(type.equals(TimedType.ALLTIME)) {
+			throw new IllegalArgumentException("Cannot reset ALLTIME!");
+		}
 		plugin.getLogger().info("Resetting the "+type.lowerName()+" leaderboard for "+board);
 		try(Connection conn = method.getConnection()) {
 			ResultSet rs = conn.createStatement().executeQuery("select * from "+tablePrefix+board+"");
