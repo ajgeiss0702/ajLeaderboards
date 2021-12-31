@@ -12,13 +12,26 @@ import java.util.Locale;
 
 public class SqliteMethod implements CacheMethod {
     private Connection conn;
+    private LeaderboardPlugin plugin;
+    private ConfigFile config;
+    private Cache cacheInstance;
     @Override
     public Connection getConnection() {
+        try {
+            if(conn.isClosed()) {
+                init(plugin, config, cacheInstance);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return conn;
     }
 
     @Override
     public void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance) {
+        this.plugin = plugin;
+        this.config = config;
+        this.cacheInstance = cacheInstance;
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e1) {

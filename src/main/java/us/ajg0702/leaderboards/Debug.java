@@ -15,6 +15,7 @@ public class Debug {
 
     public static void setDebug(boolean debug) {
         Debug.debug = debug;
+        info("Debug mode "+(debug ? "enabled" : "disabled"));
     }
 
     public static void info(String message) {

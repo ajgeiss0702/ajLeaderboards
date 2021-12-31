@@ -20,13 +20,13 @@ public class ListBoards extends SubCommand {
     }
 
     @Override
-    public java.util.List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return null;
+    public java.util.List<String> autoComplete(CommandSender commandSender, String[] args) {
+        return plugin.getCache().getBoards();
     }
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        if(args.length <= 1) {
+        if(args.length < 1) {
             StringBuilder list = new StringBuilder("&6Boards");
             for(String boardn : plugin.getCache().getBoards()) {
                 list.append("\n&7- &e").append(boardn);
@@ -34,7 +34,7 @@ public class ListBoards extends SubCommand {
             sender.sendMessage(message(list.toString()));
             return;
         }
-        String boardn = args[1];
+        String boardn = args[0];
         if(!plugin.getCache().getBoards().contains(boardn)) {
             sender.sendMessage(message("&cThe board '"+boardn+"' does not exist."));
             return;

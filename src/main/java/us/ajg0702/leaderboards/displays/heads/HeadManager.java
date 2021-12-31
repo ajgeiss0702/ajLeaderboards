@@ -130,6 +130,7 @@ public class HeadManager {
 
             Skull skull = (Skull) bs;
             if(VersionSupport.getMinorVersion() > 9) {
+                assert op != null;
                 skull.setOwningPlayer(op);
             } else {
                 skull.setOwner(name);

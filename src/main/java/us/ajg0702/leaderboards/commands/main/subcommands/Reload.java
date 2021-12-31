@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.commands.main.subcommands;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.util.Collections;
@@ -34,6 +35,9 @@ public class Reload extends SubCommand {
             plugin.getAConfig().reload();
             plugin.getMessages().reload();
             plugin.getSignManager().reload();
+
+            plugin.reloadInterval();
+            Debug.setDebug(plugin.getAConfig().getBoolean("debug"));
         } catch (ConfigurateException e) {
             e.printStackTrace();
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));

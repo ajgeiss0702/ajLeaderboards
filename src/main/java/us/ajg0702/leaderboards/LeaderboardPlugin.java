@@ -104,8 +104,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         headUtils = new HeadUtils();
         armorStandManager = new ArmorStandManager(this);
 
+        cache = new Cache(this);
+
         scheduleResets();
 
+        reloadInterval();
 
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");

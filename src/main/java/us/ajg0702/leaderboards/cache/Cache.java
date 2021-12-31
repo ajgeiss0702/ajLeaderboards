@@ -223,10 +223,9 @@ public class Cache {
 			} else {
 				r = statement.executeQuery("show tables;");
 			}
-
 			while(r.next()) {
 				String e = r.getString(1);
-				if(b.indexOf(tablePrefix) != 0) continue;
+				if(e.indexOf(tablePrefix) != 0) continue;
 				b.add(e);
 			}
 
@@ -385,14 +384,19 @@ public class Cache {
 		}
 		plugin.getLogger().info("Resetting the "+type.lowerName()+" leaderboard for "+board);
 		try(Connection conn = method.getConnection()) {
-			ResultSet rs = conn.createStatement().executeQuery("select * from "+tablePrefix+board+"");
+			ResultSet rs = conn.createStatement().executeQuery("select id from "+tablePrefix+board+";");
+			List<String> uuids = new ArrayList<>();
 			while(rs.next()) {
-				String idRaw = rs.getString("id");
+				uuids.add(rs.getString("id"));
+			}
+			rs.close();
+			for(String idRaw : uuids) {
 				Runnable r = () -> {
 					// If we are using mysql, utilize multiple connections for better performance
 					try(Connection con = method instanceof SqliteMethod ? conn : method.getConnection()) {
 						con.createStatement().executeUpdate(
-								"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis());
+								"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis()+" where id=`"+idRaw+"`");
+						method.close(con);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

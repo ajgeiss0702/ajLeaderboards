@@ -26,11 +26,11 @@ public class Add extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        if(args.length <= 1) {
+        if(args.length < 1) {
             sender.sendMessage(message("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
             return;
         }
-        String placeholder = args[1];
+        String placeholder = args[0];
         placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
         if(!plugin.validatePlaceholder(placeholder, sender)) {
             sender.sendMessage(message("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
