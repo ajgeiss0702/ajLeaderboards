@@ -42,16 +42,16 @@ public class RemovePlayer extends SubCommand {
             return;
         }
         String playername = args[1];
-        String board0 = args[2];
-        if(!plugin.getCache().getBoards().contains(board0)) {
-            sender.sendMessage(message("&cThe board '"+board0+"' does not exist."));
+        String board = args[2];
+        if(!plugin.getCache().getBoards().contains(board)) {
+            sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if(plugin.getCache().removePlayer(board0, playername)) {
-                sender.sendMessage(message("&aRemoved "+playername+" from "+board0+"!"));
+            if(plugin.getCache().removePlayer(board, playername)) {
+                sender.sendMessage(message("&aRemoved "+playername+" from "+board+"!"));
             } else {
-                sender.sendMessage(message("&cUnable to remove "+playername+" from "+board0+". &7Check the console for more info."));
+                sender.sendMessage(message("&cUnable to remove "+playername+" from "+board+". &7Check the console for more info."));
             }
 
         });

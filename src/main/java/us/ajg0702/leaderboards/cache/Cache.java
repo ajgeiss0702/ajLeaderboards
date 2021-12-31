@@ -409,6 +409,10 @@ public class Cache {
 		}
 	}
 
+	public CacheMethod getMethod() {
+		return method;
+	}
+
 	private static final HashMap<String, String> altPlaceholders = new HashMap<String, String>() {{
 		put("ajpk_stats_highscore", "ajpk_stats_highscore_nocache");
 		put("ajtr_stats_wins", "ajtr_stats_wins_nocache");

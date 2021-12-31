@@ -67,4 +67,13 @@ public class SqliteMethod implements CacheMethod {
 
     @Override
     public void close(Connection connection) {}
+
+    @Override
+    public void shutdown() {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

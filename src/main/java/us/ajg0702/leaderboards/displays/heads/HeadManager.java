@@ -11,12 +11,10 @@ import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.WallSign;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
 public class HeadManager {
@@ -34,7 +32,7 @@ public class HeadManager {
         BlockFace face;
         if(VersionSupport.getMinorVersion() > 12) {
             BlockData bd = ss.getBlockData();
-            if(bd instanceof Sign) {
+            if(bd instanceof org.bukkit.block.data.type.Sign) {
                 org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
                 face = bs.getRotation();
             } else {
