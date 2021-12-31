@@ -10,4 +10,5 @@ public interface CacheMethod {
     Connection getConnection() throws SQLException;
     void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance);
     void close(Connection connection) throws SQLException;
+    void shutdown();
 }

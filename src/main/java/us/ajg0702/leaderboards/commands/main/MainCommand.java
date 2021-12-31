@@ -1,7 +1,5 @@
 package us.ajg0702.leaderboards.commands.main;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import us.ajg0702.commands.BaseCommand;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;

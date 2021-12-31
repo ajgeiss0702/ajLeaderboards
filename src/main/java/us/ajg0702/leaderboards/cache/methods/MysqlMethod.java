@@ -82,4 +82,9 @@ public class MysqlMethod implements CacheMethod {
     public void close(Connection connection) throws SQLException {
         connection.close();
     }
+
+    @Override
+    public void shutdown() {
+        ds.close();
+    }
 }

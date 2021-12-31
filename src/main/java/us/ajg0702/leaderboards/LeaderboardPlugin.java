@@ -116,6 +116,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getCache().getMethod().shutdown();
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
     }
 
@@ -143,16 +144,16 @@ public class LeaderboardPlugin extends JavaPlugin {
         return signManager;
     }
 
-    public HeadManager getHeadManager() {
-        return headManager;
-    }
-
     public HeadUtils getHeadUtils() {
         return headUtils;
     }
 
     public ArmorStandManager getArmorStandManager() {
         return armorStandManager;
+    }
+
+    public HeadManager getHeadManager() {
+        return headManager;
     }
 
     public Chat getVaultChat() {

@@ -27,13 +27,13 @@ public class ArmorStandManager {
 
     HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
 
-    private void checkArmorstand(Location curloc, String name, UUID id) {
-        Collection<Entity> entities = curloc.getWorld().getNearbyEntities(curloc, 1, 1, 1);
+    private void checkArmorstand(Location loc, String name, UUID id) {
+        Collection<Entity> entities = loc.getWorld().getNearbyEntities(loc, 1, 1, 1);
         if(entities.size() <= 0) return;
         for(Entity entity : entities) {
             if(entity instanceof ArmorStand) {
                 Location eloc = entity.getLocation();
-                if(eloc.getBlockX() != curloc.getBlockX() || eloc.getBlockZ() != curloc.getBlockZ()) continue;
+                if(eloc.getBlockX() != loc.getBlockX() || eloc.getBlockZ() != loc.getBlockZ()) continue;
 
                 ArmorStandCache cache = armorStandCache.get(eloc);
                 if(cache != null) {
@@ -41,7 +41,7 @@ public class ArmorStandManager {
                     if(cache.getId().equals(id)) return;
                 }
 
-                armorStandCache.put(eloc, new ArmorStandCache(curloc, entity, id));
+                armorStandCache.put(eloc, new ArmorStandCache(loc, entity, id));
 
                 setArmorstandHead((ArmorStand) entity, name, id);
             }
