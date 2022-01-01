@@ -299,7 +299,7 @@ public class Cache {
 					.append(", ").append(name).append("_delta")
 					.append(", ").append(name).append("_lasttotal")
 					.append(", ").append(name).append("_timestamp");
-			addQs.append(", ?");
+			addQs.append(", ?").append(", ?").append(", ?");
 
 			addUpdates
 					.append(", ").append(name).append("_delta=?");
@@ -331,6 +331,7 @@ public class Cache {
 					statement.setDouble(i++, output);
 					statement.setLong(i++, getLastReset(board, type));
 				}
+
 				statement.executeUpdate();
 			} catch(SQLException e) {
 				Debug.info("in catch");
@@ -358,10 +359,12 @@ public class Cache {
 
 	public double getLastTotal(String board, OfflinePlayer player, TimedType type) {
 		double last = 0;
-		try(Connection conn = method.getConnection()) {
+		try {
+			Connection conn = method.getConnection();
 			ResultSet rs = conn.createStatement().executeQuery(
 					"select "+type.lowerName()+"_lasttotal from "+tablePrefix+board+" where id='"+player.getUniqueId()+"'");
 			last = rs.getInt(1);
+			method.close(conn);
 		} catch(SQLException ignored) {}
 
 		return last;
@@ -369,21 +372,25 @@ public class Cache {
 
 	public long getLastReset(String board, TimedType type) {
 		long last = 0;
-		try(Connection conn = method.getConnection()) {
+		try {
+			Connection conn = method.getConnection();
 			ResultSet rs = conn.createStatement().executeQuery(
 					"select "+type.lowerName()+"_timestamp from "+tablePrefix+board+" limit 1");
 			last = rs.getLong(1);
+			method.close(conn);
 		} catch(SQLException ignored) {}
 
 		return last;
 	}
 
 	public void reset(String board, TimedType type) {
+		long startTime = System.currentTimeMillis();
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
-		plugin.getLogger().info("Resetting the "+type.lowerName()+" leaderboard for "+board);
-		try(Connection conn = method.getConnection()) {
+		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
+		try {
+			Connection conn = method.getConnection();
 			ResultSet rs = conn.createStatement().executeQuery("select id from "+tablePrefix+board+";");
 			List<String> uuids = new ArrayList<>();
 			while(rs.next()) {
@@ -391,26 +398,21 @@ public class Cache {
 			}
 			rs.close();
 			for(String idRaw : uuids) {
-				Runnable r = () -> {
-					// If we are using mysql, utilize multiple connections for better performance
-					try(Connection con = method instanceof SqliteMethod ? conn : method.getConnection()) {
-						con.createStatement().executeUpdate(
-								"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis()+" where id=`"+idRaw+"`");
-						method.close(con);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				};
-				if(method instanceof SqliteMethod) {
-					r.run();
-				} else {
-					Bukkit.getScheduler().runTaskAsynchronously(plugin, r);
+				try {
+					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
+					con.createStatement().executeUpdate(
+							"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis()+" where id=`"+idRaw+"`");
+					method.close(con);
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
 			}
+			method.close(conn);
 		} catch (SQLException e) {
 			plugin.getLogger().severe("An error occurred while resetting a timed leaderboard:");
 			e.printStackTrace();
 		}
+		plugin.getLogger().info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
 	}
 
 	public CacheMethod getMethod() {

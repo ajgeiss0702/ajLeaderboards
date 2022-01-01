@@ -21,7 +21,7 @@ public class Version extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

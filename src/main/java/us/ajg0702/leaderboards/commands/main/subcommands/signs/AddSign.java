@@ -30,7 +30,7 @@ public class AddSign extends SubCommand {
         if(args.length == 3) {
             return TimedType.lowerNames();
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private final String usage = "signs add <board> <position> <type>";

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 public enum TimedType {
-    ALLTIME(-1), DAILY(24 * 60 * 60 * 1000), WEEKLY(7 * 24 * 60 * 60 * 1000), MONTHLY(30L * 24 * 60 * 60 * 1000);
+    ALLTIME(-1), HOURLY(60 * 60 * 1000), DAILY(24 * 60 * 60 * 1000), WEEKLY(7 * 24 * 60 * 60 * 1000), MONTHLY(30L * 24 * 60 * 60 * 1000);
 
     private final long resetMs;
 

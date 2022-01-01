@@ -19,6 +19,7 @@ public class SqliteMethod implements CacheMethod {
     public Connection getConnection() {
         try {
             if(conn.isClosed()) {
+                plugin.getLogger().warning("Sqlite connection is dead, making a new one");
                 init(plugin, config, cacheInstance);
             }
         } catch (SQLException e) {
@@ -74,7 +75,15 @@ public class SqliteMethod implements CacheMethod {
                 statement.executeUpdate("PRAGMA user_version = 2;");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            if(e.getMessage().contains("duplicate column name")) {
+                try(Statement statement = conn.createStatement()) {
+                    statement.executeUpdate("PRAGMA user_version = 2;");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
         }
     }
 

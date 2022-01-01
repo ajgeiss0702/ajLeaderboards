@@ -97,8 +97,6 @@ public class LeaderboardPlugin extends JavaPlugin {
             }
         });
 
-        reloadInterval();
-
         signManager = new SignManager(this);
         headManager = new HeadManager(this);
         headUtils = new HeadUtils();
@@ -173,6 +171,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getCache().updatePlayerStats(p);
             }
         }, 10*20, config.getInt("stat-refresh")).getTaskId();
+        Debug.info("Update task id is "+updateTaskId);
     }
 
     HashMap<TimedType, Integer> resetIds = new HashMap<>();
@@ -198,6 +197,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         if(timeTilNextReset < 0) {
             timeTilNextReset = 0;
         }
+
+        Debug.info(((timeTilNextReset/1000D)+"s until the reset for "+board+" "+type.lowerName()));
 
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,

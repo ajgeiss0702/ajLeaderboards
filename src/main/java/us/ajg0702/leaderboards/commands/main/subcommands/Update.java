@@ -6,6 +6,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,8 +21,12 @@ public class Update extends SubCommand {
     }
 
     @Override
-    public List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return null;
+    public List<String> autoComplete(CommandSender commandSender, String[] args) {
+        if(args.length == 2) return null;
+        if(args.length == 1) {
+            return plugin.getCache().getBoards();
+        }
+        return Collections.emptyList();
     }
 
     @Override
