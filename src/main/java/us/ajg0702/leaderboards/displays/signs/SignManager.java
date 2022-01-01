@@ -54,11 +54,9 @@ public class SignManager {
 
     public boolean removeSign(Location l) {
         boolean save = false;
-        Iterator<BoardSign> i = signs.iterator();
-        while(i.hasNext()) {
-            BoardSign s = i.next();
+        for(BoardSign s : signs) {
             if(l.equals(s.getLocation())) {
-                i.remove();
+                signs.remove(s);
                 save = true;
                 s.setText("", "", "", "");
                 break;
@@ -141,6 +139,7 @@ public class SignManager {
                     .replaceAll("\\{NAME}", r.getPlayer())
                     .replaceAll("\\{VALUE}", r.getScorePretty())
                     .replaceAll("\\{VALUENAME}", name)
+                    .replaceAll("\\{TIMEDTYPE}", sign.getType().lowerName());
                     ;
             plines.add(pline);
 

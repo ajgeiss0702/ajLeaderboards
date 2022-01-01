@@ -1,8 +1,11 @@
 package us.ajg0702.leaderboards.commands.main;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import us.ajg0702.commands.BaseCommand;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.commands.main.subcommands.*;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
@@ -48,7 +51,7 @@ public class MainCommand extends BaseCommand {
         for(SubCommand subCommand : subCommands) {
             String command = "/"+label+" "+subCommand.getName();
             sender.sendMessage(message(
-                    "<hover:show_text:Click to start typing "+command+">" +
+                    "<hover:show_text:'<yellow>Click to start typing <gold>"+command+"'>" +
                             "<click:suggest_command:"+command+" >" +
                             "<gold>"+command+"<yellow> - "+subCommand.getDescription()+"" +
                             "</click>" +

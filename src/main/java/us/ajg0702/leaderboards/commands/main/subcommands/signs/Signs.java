@@ -18,6 +18,8 @@ public class Signs extends SubCommand {
         this.plugin = plugin;
 
         addSubCommand(new AddSign(plugin));
+        addSubCommand(new ListSigns(plugin));
+        addSubCommand(new RemoveSign(plugin));
     }
 
     @Override

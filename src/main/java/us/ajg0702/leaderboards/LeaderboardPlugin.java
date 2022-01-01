@@ -104,9 +104,12 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         cache = new Cache(this);
 
-        scheduleResets();
+        topManager = new TopManager(this);
 
         reloadInterval();
+        scheduleResets();
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 30 * 60 * 20);
 
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
@@ -193,17 +196,19 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         long lastReset = cache.getLastReset(board, type);
         long nextReset = lastReset + type.getResetMs();
-        int timeTilNextReset = (int) (nextReset - System.currentTimeMillis());
-        if(timeTilNextReset < 0) {
-            timeTilNextReset = 0;
+        long msTilNextReset = nextReset - System.currentTimeMillis();
+
+        double secsTilNextReset = (msTilNextReset/1000D);
+        if(secsTilNextReset < 0) {
+            secsTilNextReset = 0.0;
         }
 
-        Debug.info(((timeTilNextReset/1000D)+"s until the reset for "+board+" "+type.lowerName()));
+        Debug.info(TimeUtils.formatTimeMs(msTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (total: "+type.getResetMs()/1000+", last: "+(lastReset/1000)+", time: "+(msTilNextReset/1000)+")");
 
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,
                 () -> cache.reset(board, type),
-                (long) ((timeTilNextReset/1000D)*20)
+                (long) (secsTilNextReset*20)
         ).getTaskId();
         resetIds.put(type, taskId);
     }

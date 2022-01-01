@@ -14,7 +14,7 @@ repositories {
     maven { url = uri("https://repo.ajg0702.us/") }
     maven { url = uri("https://repo.codemc.io/repository/nms/") }
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
-    maven { url = uri("http://repo.extendedclip.com/content/repositories/placeholderapi/") }
+    maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://repo.citizensnpcs.co/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
@@ -31,12 +31,12 @@ dependencies {
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.bstats:bstats-bukkit:1.7")
     implementation("us.ajg0702:ajUtils:1.1.17")
-    implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre13")
-    implementation("us.ajg0702.commands.api:api:1.0.0-pre13")
+    implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
+    implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 
     implementation("net.kyori:adventure-api:4.9.3")
     implementation("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT")
-    implementation("net.kyori:adventure-platform-bukkit:4.0.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.0.1")
 }
 
 tasks.withType<ProcessResources> {
@@ -49,12 +49,17 @@ tasks.withType<ProcessResources> {
 }
 
 tasks.shadowJar {
-    relocate("net.kyori", "us.ajg0702.leaderboards.kyori")
-    relocate("org.bstats", "us.ajg0702.leaderboards.libs")
-    relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs")
+    relocate("net.kyori", "us.ajg0702.leaderboards.libs.kyori")
+    relocate("org.bstats", "us.ajg0702.leaderboards.libs.bstats")
+    relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs.utils")
     relocate("us.ajg0702.commands", "us.ajg0702.leaderboards.commands.base")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
-    archiveFileName.set("${baseName}-${version}.${extension}")
+    relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
+    relocate("org.yaml", "us.ajg0702.leaderboards.libs")
+    relocate("org.slf4j", "us.ajg0702.leaderboards.libs.slf4j")
+    relocate("io.leangen", "us.ajg0702.leaderboards.libs")
+    archiveBaseName.set("ajLeaderboards")
+    archiveClassifier.set("")
     exclude("junit/**/*")
     exclude("org/junit/**/*")
     exclude("org/hamcrest/**/*")

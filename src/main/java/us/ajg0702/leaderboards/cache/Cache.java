@@ -68,7 +68,13 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
-			ResultSet r = statement.executeQuery("select id,value,daily_delta,weekly_delta,monthly_delta,namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by value desc limit "+(position-1)+","+position);
+			StringBuilder deltaBuilder = new StringBuilder();
+			for(TimedType t : TimedType.values()) {
+				if(t == TimedType.ALLTIME) continue;
+				deltaBuilder.append(t.lowerName()).append("_delta,");
+			}
+			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
+			ResultSet r = statement.executeQuery("select id,value,"+deltaBuilder+"namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by "+sortBy+" desc limit "+(position-1)+","+position);
 			String uuidraw = null;
 			double value = -1;
 			String name = "-Unknown-";
@@ -82,20 +88,7 @@ public class Cache {
 				name = r.getString("namecache");
 				prefix = r.getString("prefixcache");
 				suffix = r.getString("suffixcache");
-				switch(type) {
-					case ALLTIME:
-						value = r.getDouble("value");
-						break;
-					case DAILY:
-						value = r.getDouble("daily_delta");
-						break;
-					case WEEKLY:
-						value = r.getDouble("weekly_delta");
-						break;
-					case MONTHLY:
-						value = r.getDouble("monthly_delta");
-						break;
-				}
+				value = r.getDouble(sortBy);
 			} catch(SQLException e) {
 				if(
 						!e.getMessage().contains("ResultSet closed") &&
@@ -242,6 +235,9 @@ public class Cache {
 	public boolean removeBoard(String board) {
 		if(!getBoards().contains(board)) return true;
 		try {
+			if(method instanceof SqliteMethod) {
+				((SqliteMethod) method).newConnection();
+			}
 			Connection conn = method.getConnection();
 			Statement statement = conn.createStatement();
 			statement.executeUpdate("drop table `"+tablePrefix+board+"`;");
@@ -313,8 +309,8 @@ public class Cache {
 
 
 		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
-		String insertStatment = "insert into `"+tablePrefix+board+"` (id, value, namecache, prefixcache, suffixcache"+ addTables +") values (?, ?, ?, ?, ?"+ addQs +")";
-		String updateStatement = "update `"+tablePrefix+board+"` set value="+output+", namecache=?, prefixcache=?, suffixcache=?"+ addUpdates +" where id=?";
+		String insertStatment = "insert into '"+tablePrefix+board+"' (id, value, namecache, prefixcache, suffixcache"+ addTables +") values (?, ?, ?, ?, ?"+ addQs +")";
+		String updateStatement = "update '"+tablePrefix+board+"' set value="+output+", namecache=?, prefixcache=?, suffixcache=?"+ addUpdates +" where id=?";
 		try {
 			Connection conn = method.getConnection();
 			try(PreparedStatement statement = conn.prepareStatement(insertStatment)) {
@@ -327,9 +323,11 @@ public class Cache {
 				int i = 5;
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
-					statement.setDouble(i++, 0);
-					statement.setDouble(i++, output);
-					statement.setLong(i++, getLastReset(board, type));
+					long lastReset = getLastReset(board, type);
+					Debug.info(board+" "+type+" lastReset: "+lastReset);
+					statement.setDouble(++i, 0);
+					statement.setDouble(++i, output);
+					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
 				}
 
 				statement.executeUpdate();
@@ -339,12 +337,12 @@ public class Cache {
 					statement.setString(1, player.getName());
 					statement.setString(2, prefix);
 					statement.setString(3, suffix);
-					statement.setString(4, player.getUniqueId().toString());
 					int i = 4;
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
 						statement.setDouble(i++, output-lastTotals.get(type));
 					}
+					statement.setString(i++, player.getUniqueId().toString());
 					statement.executeUpdate();
 				}
 
@@ -376,7 +374,7 @@ public class Cache {
 			Connection conn = method.getConnection();
 			ResultSet rs = conn.createStatement().executeQuery(
 					"select "+type.lowerName()+"_timestamp from "+tablePrefix+board+" limit 1");
-			last = rs.getLong(1);
+			last = rs.getLong(type.lowerName()+"_timestamp");
 			method.close(conn);
 		} catch(SQLException ignored) {}
 
@@ -389,19 +387,21 @@ public class Cache {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
 		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
+		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
-			ResultSet rs = conn.createStatement().executeQuery("select id from "+tablePrefix+board+";");
-			List<String> uuids = new ArrayList<>();
+			ResultSet rs = conn.createStatement().executeQuery("select id,value from "+tablePrefix+board+";");
+			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
-				uuids.add(rs.getString("id"));
+				uuids.put(rs.getString("id"), rs.getDouble("value"));
 			}
 			rs.close();
-			for(String idRaw : uuids) {
+			for(String idRaw : uuids.keySet()) {
 				try {
 					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					con.createStatement().executeUpdate(
-							"update "+tablePrefix+board+" set "+type.lowerName()+"_delta=0, "+type.lowerName()+"_timestamp="+System.currentTimeMillis()+" where id=`"+idRaw+"`");
+					String update = "update "+tablePrefix+board+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+System.currentTimeMillis()+" where id='"+idRaw+"'";
+					con.createStatement().executeUpdate(update);
+					Debug.info(update);
 					method.close(con);
 				} catch (SQLException e) {
 					e.printStackTrace();

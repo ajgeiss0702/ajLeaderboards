@@ -6,7 +6,6 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.LocUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.commands.main.subcommands;
 import org.bukkit.Bukkit;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
@@ -20,36 +21,46 @@ public class Remove extends SubCommand {
     }
 
     @Override
-    public List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return plugin.getCache().getBoards();
+    public List<String> autoComplete(CommandSender commandSender, String[] args) {
+        if(args.length == 1) return plugin.getCache().getBoards();
+        return Collections.emptyList();
     }
 
-    HashMap<CommandSender, String> confirmDeletes = new HashMap<>();
+    HashMap<Object, String> confirmDeletes = new HashMap<>();
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        if(args.length <= 1) {
+        if(args.length < 1) {
             sender.sendMessage(message("&cPlease provide a placeholder to remove.\n&7Usage: /"+label+" remove <board>"));
             return;
         }
-        String board1 = args[1];
-        if(!plugin.getCache().getBoards().contains(board1)) {
-            sender.sendMessage(message("&cThe board '"+board1+"' does not exist."));
+        String board = args[0];
+        if(!plugin.getCache().getBoards().contains(board)) {
+            sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }
 
-        if(!confirmDeletes.containsKey(sender) || (confirmDeletes.containsKey(sender) && !confirmDeletes.get(sender).equals(board1))) {
+        Debug.info("Confirming: "+confirmDeletes.containsKey(sender));
+
+        if(!confirmDeletes.containsKey(sender.getHandle()) || (confirmDeletes.containsKey(sender.getHandle()) && !confirmDeletes.get(sender.getHandle()).equals(board))) {
             sender.sendMessage(message("&cThis action will delete data! If you add back the board, the top players will have to join again to show up.\n"
-                    + "&7Repeat the command within 30 seconds to confirm this action"));
-            confirmDeletes.put(sender, board1);
+                    + "&7Repeat the command within 15 seconds to confirm this action\n" +
+                    "&7Or click: <click:run_command:'/ajleaderboards remove "+board+"'><green><b>" +
+                        "<hover:show_text:'<gray>Click to confirm removing the board\n<red>WARNING: <yellow>This will delete the cache for this leaderboard!'>[CONFIRM]</hover>" +
+                    "</b></green></click>"));
+            confirmDeletes.put(sender.getHandle(), board);
+            Debug.info("Added confirmDelete: "+confirmDeletes.keySet().size());
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if(confirmDeletes.containsKey(sender) && confirmDeletes.get(sender).equals(board1)) {
-                    confirmDeletes.remove(sender);
+                Debug.info("Removing confirmDelete");
+                if(confirmDeletes.containsKey(sender.getHandle()) && confirmDeletes.get(sender.getHandle()).equals(board)) {
+                    confirmDeletes.remove(sender.getHandle());
+                    Debug.info("Removed confirmDelete");
                 }
-            }, 30*20);
+
+            }, 15*20);
         } else {
             confirmDeletes.remove(sender);
-            if(plugin.getCache().removeBoard(board1)) {
+            if(plugin.getCache().removeBoard(board)) {
                 sender.sendMessage(message("&aThe board has been removed!"));
             } else {
                 sender.sendMessage(message("&cSomething went wrong. Check the console for more info."));

@@ -98,4 +98,9 @@ public class SqliteMethod implements CacheMethod {
             e.printStackTrace();
         }
     }
+
+    public void newConnection() {
+        shutdown();
+        init(plugin, config, cacheInstance);
+    }
 }
