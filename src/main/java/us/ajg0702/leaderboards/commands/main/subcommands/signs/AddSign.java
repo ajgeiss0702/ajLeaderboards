@@ -33,6 +33,7 @@ public class AddSign extends SubCommand {
         return Collections.emptyList();
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final String usage = "signs add <board> <position> <type>";
 
     @Override
@@ -71,9 +72,7 @@ public class AddSign extends SubCommand {
             type = TimedType.valueOf(args[2].toUpperCase(Locale.ROOT));
         } catch(IllegalArgumentException e) {
             StringBuilder list = new StringBuilder();
-            TimedType.lowerNames().forEach(s -> {
-                list.append(s).append(", ");
-            });
+            TimedType.lowerNames().forEach(s -> list.append(s).append(", "));
             list.delete(list.length()-2, list.length()-1);
             sender.sendMessage(message("&cInvalid timed type!\n&7Options: "+list));
             return;

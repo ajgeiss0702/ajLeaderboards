@@ -23,15 +23,17 @@ public class Cache {
 	}
 
 	ConfigFile storageConfig;
-	LeaderboardPlugin plugin;
-	CacheMethod method;
+	final LeaderboardPlugin plugin;
+	final CacheMethod method;
 
-	String tablePrefix;
+	final String tablePrefix;
 
 	public Cache(LeaderboardPlugin plugin) {
 		this.plugin = plugin;
 
-		plugin.getDataFolder().mkdirs();
+		if(plugin.getDataFolder().mkdirs()) {
+			plugin.getLogger().info("Directory created");
+		}
 
 		try {
 			storageConfig = new ConfigFile(plugin.getDataFolder(), plugin.getLogger(), "cache_storage.yml");
@@ -183,6 +185,7 @@ public class Cache {
 	}
 	
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean boardExists(String board) {
 		return getBoards().contains(board);
 	}
@@ -342,7 +345,7 @@ public class Cache {
 						if(type == TimedType.ALLTIME) continue;
 						statement.setDouble(i++, output-lastTotals.get(type));
 					}
-					statement.setString(i++, player.getUniqueId().toString());
+					statement.setString(i, player.getUniqueId().toString());
 					statement.executeUpdate();
 				}
 

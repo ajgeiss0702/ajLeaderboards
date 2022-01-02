@@ -13,18 +13,18 @@ public class StatEntry {
 
 	private final LeaderboardPlugin plugin;
 	
-	String player;
-	String prefix;
-	String suffix;
+	final String player;
+	final String prefix;
+	final String suffix;
 
-	UUID playerID;
+	final UUID playerID;
 	
-	int position;
-	String board;
+	final int position;
+	final String board;
 
 	private Cache cache;
 
-	private TimedType type;
+	private final TimedType type;
 
 	String k = "k";
 	String m = "m";
@@ -32,7 +32,7 @@ public class StatEntry {
 	String t = "t";
 	String q = "q";
 	
-	double score;
+	final double score;
 	public StatEntry(LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
 		this.plugin = plugin;
 		this.player = player;

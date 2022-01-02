@@ -36,6 +36,7 @@ public class HeadUtils {
     public ItemStack getHeadItem(String name) {
         ItemStack skull = null;
         if(VersionSupport.getMinorVersion() <= 12) {
+            //noinspection deprecation
             skull = new ItemStack(Material.valueOf("SKULL_ITEM"), 1 , (short) 3);
         } else if(VersionSupport.getMinorVersion() > 12) {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
@@ -43,6 +44,7 @@ public class HeadUtils {
         String value = getHeadValue(name);
         if(value.equals("")) return skull;
         UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
+        //noinspection deprecation
         return Bukkit.getUnsafe().modifyItemStack(
                 skull,
                 "{SkullOwner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + value + "\"}]}}}"
@@ -51,7 +53,7 @@ public class HeadUtils {
 
 
     Map<String, CachedData<String>> skinCache = new HashMap<>();
-    long lastClear = System.currentTimeMillis();
+    final long lastClear = System.currentTimeMillis();
 
     public String getHeadValue(String name) {
         if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
@@ -95,8 +97,8 @@ public class HeadUtils {
     }
 
 
-    HashMap<String, String> urlCache = new HashMap<>();
-    HashMap<String, Long> urlLastget = new HashMap<>();
+    final HashMap<String, String> urlCache = new HashMap<>();
+    final HashMap<String, Long> urlLastget = new HashMap<>();
     private String getURLContent(String urlStr) {
         if(
                 urlLastget.containsKey(urlStr) &&

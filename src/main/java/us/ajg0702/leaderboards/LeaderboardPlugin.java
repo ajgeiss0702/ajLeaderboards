@@ -92,7 +92,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                     getLogger().warning("Vault prefix hook failed! Make sure you have a plugin that implements chat (e.g. Luckperms)");
                 } else {
                     vaultChat = rsp.getProvider();
-                    vault = vaultChat != null;
+                    vault = true;
                 }
             }
         });
@@ -176,7 +176,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.info("Update task id is "+updateTaskId);
     }
 
-    HashMap<TimedType, Integer> resetIds = new HashMap<>();
+    final HashMap<TimedType, Integer> resetIds = new HashMap<>();
     public void scheduleResets() {
         resetIds.values().forEach(Bukkit.getScheduler()::cancelTask);
         resetIds.clear();

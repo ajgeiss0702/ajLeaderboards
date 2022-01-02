@@ -40,7 +40,7 @@ public class HeadManager {
                 face = bs.getFacing();
             }
         } else {
-            org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
+            @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
             face = bs.getFacing();
         }
 
@@ -131,6 +131,7 @@ public class HeadManager {
                 assert op != null;
                 skull.setOwningPlayer(op);
             } else {
+                //noinspection deprecation
                 skull.setOwner(name);
             }
             skull.update();

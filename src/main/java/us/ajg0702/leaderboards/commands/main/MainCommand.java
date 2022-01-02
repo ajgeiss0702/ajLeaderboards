@@ -15,6 +15,7 @@ import java.util.List;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class MainCommand extends BaseCommand {
     private final LeaderboardPlugin plugin;
     public MainCommand(LeaderboardPlugin plugin) {

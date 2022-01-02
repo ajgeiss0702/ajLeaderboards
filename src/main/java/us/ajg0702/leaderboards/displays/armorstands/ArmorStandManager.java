@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.displays.armorstands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
@@ -25,10 +26,12 @@ public class ArmorStandManager {
         this.plugin = plugin;
     }
 
-    HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
+    final HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
 
     private void checkArmorstand(Location loc, String name, UUID id) {
-        Collection<Entity> entities = loc.getWorld().getNearbyEntities(loc, 1, 1, 1);
+        World world = loc.getWorld();
+        assert world != null;
+        Collection<Entity> entities = world.getNearbyEntities(loc, 1, 1, 1);
         if(entities.size() <= 0) return;
         for(Entity entity : entities) {
             if(entity instanceof ArmorStand) {
@@ -53,6 +56,7 @@ public class ArmorStandManager {
             stand.setSilent(true);
         }
         ItemStack item = plugin.getHeadUtils().getHeadItem(name);
+        //noinspection deprecation
         stand.setHelmet(item);
     }
 
@@ -72,7 +76,7 @@ public class ArmorStandManager {
                 face = bs.getFacing();
             }
         } else {
-            org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
+            @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
             face = bs.getFacing();
         }
 

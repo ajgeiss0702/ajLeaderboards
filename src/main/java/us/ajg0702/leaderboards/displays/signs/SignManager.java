@@ -103,7 +103,7 @@ public class SignManager {
         }
     }
 
-    HashMap<String, String> names = new HashMap<>();
+    final HashMap<String, String> names = new HashMap<>();
     public void updateNameCache() {
         List<String> namesraw = plugin.getAConfig().getStringList("value-names");
         for(String s : namesraw) {
@@ -140,7 +140,7 @@ public class SignManager {
                     .replaceAll("\\{VALUE}", r.getScorePretty())
                     .replaceAll("\\{VALUENAME}", name)
                     .replaceAll("\\{TIMEDTYPE}", sign.getType().lowerName());
-                    ;
+
             plines.add(pline);
 
         }
@@ -149,9 +149,7 @@ public class SignManager {
             plugin.getHeadManager().search(sign, r.getPlayer(), r.getPlayerID());
             plugin.getArmorStandManager().search(sign, r.getPlayer(), r.getPlayerID());
         }
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3));
-        });
+        Bukkit.getScheduler().runTask(plugin, () -> sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3)));
     }
 
     public boolean isSignChunkLoaded(BoardSign sign) {

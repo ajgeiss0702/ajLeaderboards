@@ -11,6 +11,7 @@ import java.util.List;
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 public class Signs extends SubCommand {
+    @SuppressWarnings("FieldCanBeLocal")
     private final LeaderboardPlugin plugin;
 
     public Signs(LeaderboardPlugin plugin) {

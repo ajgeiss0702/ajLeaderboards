@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Reload extends SubCommand {
 
-    private LeaderboardPlugin plugin;
+    private final LeaderboardPlugin plugin;
 
     public Reload(LeaderboardPlugin plugin) {
         super("reload", Collections.emptyList(), "ajleaderboards.use", "Reload the config files");

@@ -26,7 +26,7 @@ public class Remove extends SubCommand {
         return Collections.emptyList();
     }
 
-    HashMap<Object, String> confirmDeletes = new HashMap<>();
+    final HashMap<Object, String> confirmDeletes = new HashMap<>();
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
