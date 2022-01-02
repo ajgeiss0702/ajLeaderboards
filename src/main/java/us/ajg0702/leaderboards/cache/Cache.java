@@ -373,7 +373,7 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			ResultSet rs = conn.createStatement().executeQuery(
-					"select "+type.lowerName()+"_timestamp from "+tablePrefix+board+" limit 1");
+					"select "+type.lowerName()+"_timestamp from '"+tablePrefix+board+"' limit 1");
 			last = rs.getLong(type.lowerName()+"_timestamp");
 			method.close(conn);
 		} catch(SQLException ignored) {}
@@ -390,7 +390,9 @@ public class Cache {
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
-			ResultSet rs = conn.createStatement().executeQuery("select id,value from "+tablePrefix+board+";");
+			PreparedStatement stmt = conn.prepareStatement("select id,value from '"+tablePrefix+board+"'");
+			//stmt.setString(1, tablePrefix+board);
+			ResultSet rs = stmt.executeQuery();
 			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
 				uuids.put(rs.getString("id"), rs.getDouble("value"));
@@ -399,9 +401,9 @@ public class Cache {
 			for(String idRaw : uuids.keySet()) {
 				try {
 					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					String update = "update "+tablePrefix+board+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+System.currentTimeMillis()+" where id='"+idRaw+"'";
+					String update = "update '"+tablePrefix+board+"' set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+System.currentTimeMillis()+" where id='"+idRaw+"'";
 					con.createStatement().executeUpdate(update);
-					Debug.info(update);
+					//Debug.info(update);
 					method.close(con);
 				} catch (SQLException e) {
 					e.printStackTrace();
