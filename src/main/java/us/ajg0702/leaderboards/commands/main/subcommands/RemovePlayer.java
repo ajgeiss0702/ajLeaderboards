@@ -43,7 +43,7 @@ public class RemovePlayer extends SubCommand {
         }
         String playername = args[1];
         String board = args[2];
-        if(!plugin.getCache().getBoards().contains(board)) {
+        if(!plugin.getCache().boardExists(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }

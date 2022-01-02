@@ -35,7 +35,7 @@ public class ListBoards extends SubCommand {
             return;
         }
         String boardn = args[0];
-        if(!plugin.getCache().getBoards().contains(boardn)) {
+        if(!plugin.getCache().boardExists(boardn)) {
             sender.sendMessage(message("&cThe board '"+boardn+"' does not exist."));
             return;
         }

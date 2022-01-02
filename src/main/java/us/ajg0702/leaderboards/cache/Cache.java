@@ -233,7 +233,7 @@ public class Cache {
 	}
 
 	public boolean removeBoard(String board) {
-		if(!getBoards().contains(board)) return true;
+		if(!boardExists(board)) return true;
 		try {
 			if(method instanceof SqliteMethod) {
 				((SqliteMethod) method).newConnection();

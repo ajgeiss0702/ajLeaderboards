@@ -35,7 +35,7 @@ public class Remove extends SubCommand {
             return;
         }
         String board = args[0];
-        if(!plugin.getCache().getBoards().contains(board)) {
+        if(!plugin.getCache().boardExists(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }
