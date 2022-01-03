@@ -173,20 +173,20 @@ public class Placeholders extends PlaceholderExpansion {
         if(positionMatcher.find()) {
             String board = positionMatcher.group(1);
             String typeRaw = positionMatcher.group(3).toUpperCase();
-            return plugin.getCache().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getPosition()+"";
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getPosition()+"";
         }
 
         Matcher valueMatcher = valuePattern.matcher(identifier);
         if(valueMatcher.find()) {
             String board = valueMatcher.group(1);
             String typeRaw = valueMatcher.group(3).toUpperCase();
-            return plugin.getCache().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScorePretty();
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScorePretty();
         }
         Matcher valueFormattedMatcher = valueFormattedPattern.matcher(identifier);
         if(valueFormattedMatcher.find()) {
             String board = valueFormattedMatcher.group(1);
             String typeRaw = valueFormattedMatcher.group(3).toUpperCase();
-            return plugin.getCache().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScoreFormatted();
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScoreFormatted();
         }
 
         return null;

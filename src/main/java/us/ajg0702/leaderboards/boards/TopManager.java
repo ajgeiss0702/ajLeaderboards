@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.util.HashMap;
@@ -55,6 +56,52 @@ public class TopManager {
     private StatEntry fetchPosition(int position, String board, TimedType type) {
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
+        return te;
+    }
+
+
+    private final HashMap<String, HashMap<TimedType, HashMap<OfflinePlayer, Long>>> lastGetSE = new HashMap<>();
+    private final HashMap<String, HashMap<TimedType, HashMap<OfflinePlayer, StatEntry>>> cacheSE = new HashMap<>();
+
+    /**
+     * Get a leaderboard position
+     * @param player The position to get
+     * @param board The board
+     * @return The StatEntry representing the position on the board
+     */
+    public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
+        if(!cacheSE.containsKey(board)) {
+            cacheSE.put(board, new HashMap<>());
+        }
+        if(!lastGetSE.containsKey(board)) {
+            lastGetSE.put(board, new HashMap<>());
+        }
+
+        if(!cacheSE.get(board).containsKey(type)) {
+            cacheSE.get(board).put(type, new HashMap<>());
+        }
+        if(!lastGetSE.get(board).containsKey(type)) {
+            lastGetSE.get(board).put(type, new HashMap<>());
+        }
+
+        if(cacheSE.get(board).get(type).containsKey(player)) {
+            if(System.currentTimeMillis() - lastGetSE.get(board).get(type).get(player) > 5000) {
+                lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
+                fetchStatEntryAsync(player, board, type);
+            }
+            return cacheSE.get(board).get(type).get(player);
+        }
+
+        lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
+        return fetchStatEntry(player, board, type);
+    }
+
+    private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchStatEntry(player, board, type));
+    }
+    private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
+        StatEntry te = plugin.getCache().getStatEntry(player, board, type);
+        cacheSE.get(board).get(type).put(player, te);
         return te;
     }
 
