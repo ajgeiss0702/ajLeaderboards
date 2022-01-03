@@ -4,6 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.chat.Chat;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -38,6 +39,8 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadManager headManager;
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
+
+    private Metrics metrics;
 
     private boolean vault;
     private Chat vaultChat;
@@ -109,6 +112,15 @@ public class LeaderboardPlugin extends JavaPlugin {
         reloadInterval();
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 30 * 60 * 20);
+
+        metrics = new Metrics(this, 9338);
+
+        Placeholders placeholders = new Placeholders(this);
+        if(placeholders.register()) {
+            getLogger().info("Registered ajlb PAPI placeholders!");
+        } else {
+            getLogger().warning("Failed to register ajlb PAPI placeholders!");
+        }
 
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");

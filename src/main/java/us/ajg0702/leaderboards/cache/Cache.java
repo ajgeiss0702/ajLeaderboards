@@ -327,7 +327,6 @@ public class Cache {
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
 					long lastReset = getLastReset(board, type);
-					Debug.info(board+" "+type+" lastReset: "+lastReset);
 					statement.setDouble(++i, 0);
 					statement.setDouble(++i, output);
 					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
