@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 7
+config-version: 8
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -33,3 +33,8 @@ update-stats: true
 # You should probably keep this disabled unless you know what you are doing or are told to turn it on.
 #  Default: false
 debug: false
+
+# Should we send additional debug about updates?
+# Requires debug to be true
+#  Default: false
+update-de-bug: false

@@ -265,6 +265,7 @@ public class Cache {
 	}
 
 	public void updateStat(String board, OfflinePlayer player) {
+		boolean debug = plugin.getAConfig().getBoolean("update-de-bug");
 		String outputraw;
 		double output;
 		try {
@@ -278,7 +279,7 @@ public class Cache {
 			e.printStackTrace();
 			return;
 		}
-		Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
+		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
 		String prefix = "";
 		String suffix = "";
@@ -311,13 +312,13 @@ public class Cache {
 		}
 
 
-		Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
+		if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		String insertStatment = "insert into '"+tablePrefix+board+"' (id, value, namecache, prefixcache, suffixcache"+ addTables +") values (?, ?, ?, ?, ?"+ addQs +")";
 		String updateStatement = "update '"+tablePrefix+board+"' set value="+output+", namecache=?, prefixcache=?, suffixcache=?"+ addUpdates +" where id=?";
 		try {
 			Connection conn = method.getConnection();
 			try(PreparedStatement statement = conn.prepareStatement(insertStatment)) {
-				Debug.info("in try");
+				if(debug) Debug.info("in try");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
@@ -334,7 +335,7 @@ public class Cache {
 
 				statement.executeUpdate();
 			} catch(SQLException e) {
-				Debug.info("in catch");
+				if(debug) Debug.info("in catch");
 				try(PreparedStatement statement = conn.prepareStatement(updateStatement)) {
 					statement.setString(1, player.getName());
 					statement.setString(2, prefix);
@@ -389,6 +390,8 @@ public class Cache {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
 		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
+		long lastReset = getLastReset(board, type);
+		long newReset = lastReset + type.getResetMs();
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
@@ -403,7 +406,7 @@ public class Cache {
 			for(String idRaw : uuids.keySet()) {
 				try {
 					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					String update = "update '"+tablePrefix+board+"' set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+System.currentTimeMillis()+" where id='"+idRaw+"'";
+					String update = "update '"+tablePrefix+board+"' set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id='"+idRaw+"'";
 					con.createStatement().executeUpdate(update);
 					//Debug.info(update);
 					method.close(con);
