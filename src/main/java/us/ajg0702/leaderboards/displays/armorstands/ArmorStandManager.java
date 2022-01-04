@@ -89,12 +89,15 @@ public class ArmorStandManager {
         BlockFace face;
         if(VersionSupport.getMinorVersion() > 12) {
             BlockData bd = ss.getBlockData();
-            if(bd instanceof Sign) {
+            if(bd instanceof org.bukkit.block.data.type.Sign) {
                 org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
                 face = bs.getRotation();
-            } else {
+            } else if(bd instanceof WallSign) {
                 WallSign bs = (WallSign) bd;
                 face = bs.getFacing();
+            } else {
+                plugin.getLogger().warning("nope");
+                return;
             }
         } else {
             @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
