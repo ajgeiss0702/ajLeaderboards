@@ -114,21 +114,21 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highPrefixMatcher = highPrefixPattern.matcher(identifier);
         if(highPrefixMatcher.find()) {
             String board = highPrefixMatcher.group(1);
-            String typeRaw = highNameMatcher.group(3).toUpperCase();
+            String typeRaw = highPrefixMatcher.group(3).toUpperCase();
             StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getPrefix();
         }
         Matcher highSuffixMatcher = highSuffixPattern.matcher(identifier);
         if(highSuffixMatcher.find()) {
             String board = highSuffixMatcher.group(1);
-            String typeRaw = highNameMatcher.group(3).toUpperCase();
+            String typeRaw = highSuffixMatcher.group(3).toUpperCase();
             StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getSuffix();
         }
         Matcher highColorMatcher = highColorPattern.matcher(identifier);
         if(highColorMatcher.find()) {
             String board = highColorMatcher.group(1);
-            String typeRaw = highNameMatcher.group(3).toUpperCase();
+            String typeRaw = highColorMatcher.group(3).toUpperCase();
             StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highColorMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             if(r.getPrefix().isEmpty()) return "";
             String prefix = r.getPrefix();
@@ -148,7 +148,7 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highValueRawMatcher = highValueRawPattern.matcher(identifier);
         if(highValueRawMatcher.find()) {
             String board = highValueRawMatcher.group(1);
-            String typeRaw = highNameMatcher.group(3).toUpperCase();
+            String typeRaw = highValueRawMatcher.group(3).toUpperCase();
             StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             DecimalFormat df = new DecimalFormat("#.##");
             return df.format(r.getScore());
