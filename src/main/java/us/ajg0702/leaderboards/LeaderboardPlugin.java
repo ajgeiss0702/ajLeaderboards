@@ -40,8 +40,6 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
 
-    private Metrics metrics;
-
     private boolean vault;
     private Chat vaultChat;
 
@@ -114,7 +112,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 15 * 60 * 20);
 
-        metrics = new Metrics(this, 9338);
+        new Metrics(this, 9338);
 
         Placeholders placeholders = new Placeholders(this);
         if(placeholders.register()) {
@@ -122,6 +120,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         } else {
             getLogger().warning("Failed to register ajlb PAPI placeholders!");
         }
+
+        Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
 
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
