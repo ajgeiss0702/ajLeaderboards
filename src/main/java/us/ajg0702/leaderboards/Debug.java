@@ -22,4 +22,13 @@ public class Debug {
         if(!debug) return;
         logger.info("[DEBUG] "+message);
     }
+
+    private static boolean particles = false;
+
+    public static void setParticles(boolean particles) {
+        Debug.particles = particles;
+    }
+    public static boolean particles() {
+        return particles;
+    }
 }

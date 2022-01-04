@@ -1,9 +1,11 @@
 package us.ajg0702.leaderboards.displays.signs;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.plugin.Plugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.spigot.LocUtils;
 
@@ -12,6 +14,8 @@ public class BoardSign {
     private final String board;
     private final int position;
     private final TimedType type;
+
+    private Sign sign;
 
     private final int x;
     private final int z;
@@ -26,6 +30,17 @@ public class BoardSign {
         this.z = location.getChunk().getZ();
         this.world = location.getWorld();
         this.type = type;
+
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("ajLeaderboards");
+        if(plugin == null) throw new IllegalStateException("Where is ajleaderboards? I'm supposed to be ajLeaderboards, but im not?");
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            BlockState state = location.getBlock().getState();
+            if(!(state instanceof Sign)) {
+                sign = null;
+            } else {
+                sign = (Sign) state;
+            }
+        });
     }
 
     public int getX() {
@@ -52,10 +67,7 @@ public class BoardSign {
     }
 
     public Sign getSign() {
-        BlockState state = location.getBlock().getState();
-        if(!(state instanceof Sign)) return null;
-
-        return (Sign) state;
+        return sign;
     }
 
     public void setText(String line1, String line2, String line3, String line4) {

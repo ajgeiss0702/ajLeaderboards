@@ -38,6 +38,7 @@ public class Reload extends SubCommand {
 
             plugin.reloadInterval();
             Debug.setDebug(plugin.getAConfig().getBoolean("debug"));
+            Debug.setParticles(plugin.getAConfig().getBoolean("particles"));
         } catch (ConfigurateException e) {
             e.printStackTrace();
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));

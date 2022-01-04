@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.displays.heads;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -10,6 +11,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.WallSign;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
@@ -118,7 +120,19 @@ public class HeadManager {
         Validate.notNull(loc);
         Validate.notNull(id, "UUID is null!");
 
+        String blockType = loc.getBlock().getType().toString();
+
+        if(headLocationCache.containsKey(loc) && blockType.contains("AIR")) {
+            headLocationCache.remove(loc);
+            Debug.info("Removed air from cache");
+        }
+
         if(id.equals(headLocationCache.get(loc))) return;
+
+
+        if(!(blockType.contains("SKULL") || blockType.contains("HEAD"))) return;
+
+        Debug.info("Updating head");
 
         OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 

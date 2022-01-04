@@ -64,6 +64,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Debug.setLogger(getLogger());
         Debug.setDebug(config.getBoolean("debug"));
+        Debug.setParticles(config.getBoolean("particles"));
 
         LinkedHashMap<String, String> dmsgs = new LinkedHashMap<>();
 
@@ -182,6 +183,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             updateTaskId = -1;
         }
         updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            if(!config.getBoolean("update-stats")) return;
             for(Player p : Bukkit.getOnlinePlayers()) {
                 getCache().updatePlayerStats(p);
             }

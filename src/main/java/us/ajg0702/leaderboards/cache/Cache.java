@@ -376,7 +376,7 @@ public class Cache {
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
-				if(e.getMessage().contains("empty result set") || e.getMessage().contains("Resultset closed")) return last;
+				if(e.getMessage().contains("empty result set") || e.getMessage().contains("ResultSet closed")) return last;
 				e.printStackTrace();
 			}
 		} catch(SQLException ignored) {}
@@ -399,7 +399,7 @@ public class Cache {
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
-				if(e.getMessage().contains("empty result set")) return last;
+				if(e.getMessage().contains("empty result set") || e.getMessage().contains("ResultSet closed")) return last;
 				e.printStackTrace();
 			}
 		} catch(SQLException ignored) {}

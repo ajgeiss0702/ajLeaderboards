@@ -58,7 +58,7 @@ public class StatEntry {
 	}
 
 	public boolean hasPlayer() {
-		return player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
+		return !player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
 	}
 	
 	public String getPrefix() {

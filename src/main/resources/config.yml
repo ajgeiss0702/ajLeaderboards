@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 8
+config-version: 9
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -38,3 +38,7 @@ debug: false
 # Requires debug to be true
 #  Default: false
 update-de-bug: false
+
+# Should we use particles as debug to show where heads and armorstands are being looked for?
+#  Default: false
+particles: false

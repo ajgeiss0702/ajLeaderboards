@@ -8,7 +8,7 @@ description: Leaderboards for your server
 api-version: 1.13
 commands:
    ajleaderboards:
-      aliases: [ajlb, lb, alb]
+      aliases: [ajlb, ajl, alb]
       description: Commands for ajLeaderboards
       permission: ajleaderboards.use
 permissions:
