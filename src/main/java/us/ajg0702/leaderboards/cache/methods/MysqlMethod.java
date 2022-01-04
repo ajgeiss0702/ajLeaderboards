@@ -53,7 +53,7 @@ public class MysqlMethod implements CacheMethod {
             while(rs.next()) {
                 int version;
                 String tableName = rs.getString("TABLE_NAME");
-                if(!tableName.startsWith(plugin.getCache().getTablePrefix())) continue;
+                if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
                 try {
                     version = Integer.parseInt(rs.getString("AJLBVERSION"));
                 } catch(NumberFormatException e) {
