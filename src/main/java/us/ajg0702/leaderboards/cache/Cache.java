@@ -463,4 +463,8 @@ public class Cache {
 	public static String alternatePlaceholders(String board) {
 		return altPlaceholders.getOrDefault(board, board);
 	}
+
+	public String getTablePrefix() {
+		return tablePrefix;
+	}
 }
