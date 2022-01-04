@@ -56,6 +56,12 @@ public class MysqlMethod implements CacheMethod {
                     version = Integer.parseInt(rs.getString("AJLBVERSION"));
                 } catch(NumberFormatException e) {
                     version = 0;
+                } catch(SQLException e) {
+                    if(e.getMessage().contains("Column 'AJLBVERSION' not found")) {
+                        version = 0;
+                    } else {
+                        throw e;
+                    }
                 }
 
                 if(version == 0) {

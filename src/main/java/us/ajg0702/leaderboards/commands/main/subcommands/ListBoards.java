@@ -21,14 +21,14 @@ public class ListBoards extends SubCommand {
 
     @Override
     public java.util.List<String> autoComplete(CommandSender commandSender, String[] args) {
-        return plugin.getCache().getBoards();
+        return plugin.getTopManager().getBoards();
     }
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
         if(args.length < 1) {
             StringBuilder list = new StringBuilder("&6Boards");
-            for(String boardn : plugin.getCache().getBoards()) {
+            for(String boardn : plugin.getTopManager().getBoards()) {
                 list.append("\n&7- &e").append(boardn);
             }
             sender.sendMessage(message(list.toString()));

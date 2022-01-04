@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.0.0"
+version = "2.0.0-pre3"
 
 repositories {
     mavenCentral()
@@ -56,7 +56,6 @@ tasks.shadowJar {
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
     relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
     relocate("org.yaml", "us.ajg0702.leaderboards.libs")
-    relocate("org.slf4j", "us.ajg0702.leaderboards.libs.slf4j")
     relocate("io.leangen", "us.ajg0702.leaderboards.libs")
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")

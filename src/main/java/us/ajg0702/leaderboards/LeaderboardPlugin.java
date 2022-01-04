@@ -106,6 +106,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         armorStandManager = new ArmorStandManager(this);
 
         cache = new Cache(this);
+        getLogger().info("Loaded "+cache.getBoards().size()+" boards");
 
         topManager = new TopManager(this);
 

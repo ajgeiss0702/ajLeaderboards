@@ -4,7 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class TopManager {
 
@@ -37,6 +39,7 @@ public class TopManager {
         if(!lastGet.get(board).containsKey(type)) {
             lastGet.get(board).put(type, new HashMap<>());
         }
+
 
         if(cache.get(board).get(type).containsKey(position)) {
             if(System.currentTimeMillis() - lastGet.get(board).get(type).get(position) > 5000) {
@@ -103,6 +106,26 @@ public class TopManager {
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
         return te;
+    }
+
+    List<String> boardCache;
+    long lastGetBoard = 0;
+    public List<String> getBoards() {
+        if(boardCache == null) return fetchBoards();
+
+        if(System.currentTimeMillis() - lastGetBoard > 1000) {
+            lastGetBoard = System.currentTimeMillis();
+            fetchBoardsAsync();
+        }
+        return boardCache;
+    }
+
+    private void fetchBoardsAsync() {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::fetchBoards);
+    }
+    private List<String> fetchBoards() {
+        boardCache = plugin.getCache().getBoards();
+        return boardCache;
     }
 
 }

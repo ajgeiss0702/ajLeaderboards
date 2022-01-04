@@ -24,7 +24,7 @@ public class Update extends SubCommand {
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
         if(args.length == 2) return null;
         if(args.length == 1) {
-            return plugin.getCache().getBoards();
+            return plugin.getTopManager().getBoards();
         }
         return Collections.emptyList();
     }

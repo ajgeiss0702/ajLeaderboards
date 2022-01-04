@@ -22,7 +22,7 @@ public class Remove extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
-        if(args.length == 1) return plugin.getCache().getBoards();
+        if(args.length == 1) return plugin.getTopManager().getBoards();
         return Collections.emptyList();
     }
 
