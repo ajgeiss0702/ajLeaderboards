@@ -112,7 +112,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         reloadInterval();
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 30 * 60 * 20);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 15 * 60 * 20);
 
         metrics = new Metrics(this, 9338);
 

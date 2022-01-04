@@ -376,7 +376,7 @@ public class Cache {
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
-				if(e.getMessage().contains("empty result set")) return last;
+				if(e.getMessage().contains("empty result set") || e.getMessage().contains("Resultset closed")) return last;
 				e.printStackTrace();
 			}
 		} catch(SQLException ignored) {}
@@ -415,7 +415,7 @@ public class Cache {
 		}
 		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = getLastReset(board, type);
-		long newReset = lastReset + type.getResetMs();
+		long newReset = (lastReset > 0 ? lastReset : startTime) + type.getResetMs();
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
