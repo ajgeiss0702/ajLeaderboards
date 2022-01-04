@@ -415,7 +415,7 @@ public class Cache {
 		}
 		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = getLastReset(board, type);
-		long newReset = (lastReset > 0 ? lastReset : startTime) + type.getResetMs();
+		long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
