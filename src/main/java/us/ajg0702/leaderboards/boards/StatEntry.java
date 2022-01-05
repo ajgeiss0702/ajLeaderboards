@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.boards;
 
+import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.utils.common.Config;
@@ -33,7 +34,7 @@ public class StatEntry {
 	String q = "q";
 	
 	final double score;
-	public StatEntry(LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
+	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.score = score;
@@ -43,21 +44,26 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		try {
-			this.cache = plugin.getCache();
-			Messages msgs = plugin.getMessages();
-			k = msgs.getString("formatted.k");
-			m = msgs.getString("formatted.m");
-			b = msgs.getString("formatted.b");
-			t = msgs.getString("formatted.t");
-			q = msgs.getString("formatted.q");
-		} catch(NoClassDefFoundError ignored) {}
+		if(plugin != null) {
+			try {
+				this.cache = plugin.getCache();
+				Messages msgs = plugin.getMessages();
+				k = msgs.getString("formatted.k");
+				m = msgs.getString("formatted.m");
+				b = msgs.getString("formatted.b");
+				t = msgs.getString("formatted.t");
+				q = msgs.getString("formatted.q");
+			} catch(NoClassDefFoundError ignored) {}
+		}
 		
 		this.position = position;
 		this.board = board;
 	}
 
 	public boolean hasPlayer() {
+		if(plugin == null) {
+			return !player.equals("---") && getPlayerID() != null;
+		}
 		return !player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
 	}
 	
@@ -149,7 +155,7 @@ public class StatEntry {
 	
 	private String addCommas(double number) {
 		String comma;
-		if(cache != null) {
+		if(plugin != null) {
 			comma = plugin.getAConfig().getString("comma");
 		} else { comma = ","; }
 		DecimalFormat df = new DecimalFormat("#.##");
