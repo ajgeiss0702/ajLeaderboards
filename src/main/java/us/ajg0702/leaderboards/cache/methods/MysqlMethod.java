@@ -72,9 +72,23 @@ public class MysqlMethod implements CacheMethod {
                     for(TimedType typeEnum : TimedType.values()) {
                         if(typeEnum == TimedType.ALLTIME) continue;
                         String type = typeEnum.name().toLowerCase(Locale.ROOT);
-                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_delta BIGINT");
-                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_lasttotal BIGINT");
-                        statement.executeUpdate("alter table "+tableName+" add column "+type+"_timestamp TIMESTAMP");
+                        try {
+                            statement.executeUpdate("alter table "+tableName+" add column "+type+"_delta BIGINT");
+                            statement.executeUpdate("alter table "+tableName+" add column "+type+"_lasttotal BIGINT");
+                            statement.executeUpdate("alter table "+tableName+" add column "+type+"_timestamp TIMESTAMP");
+                        } catch(SQLException e) {
+                            if(e.getMessage().contains("duplicate")) {
+                                plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
+                                try {
+                                    conn.createStatement().executeUpdate("ALTER TABLE "+tableName+" AJLBVERSION = '1';");
+                                } catch (SQLException er) {
+                                    er.printStackTrace();
+                                    throw e;
+                                }
+                            } else {
+                                throw e;
+                            }
+                        }
                     }
 
                     statement.executeUpdate("ALTER TABLE "+tableName+" AJLBVERSION = '1';");
