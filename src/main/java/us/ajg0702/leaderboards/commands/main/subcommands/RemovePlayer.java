@@ -25,24 +25,22 @@ public class RemovePlayer extends SubCommand {
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] strings) {
         List<String> players = new ArrayList<>();
-        Bukkit.getOnlinePlayers().forEach(p -> {
-            players.add(p.getName());
-        });
+        Bukkit.getOnlinePlayers().forEach(p -> players.add(p.getName()));
         return players;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        if(args.length <= 1) {
+        if(args.length < 1) {
             sender.sendMessage(message("&cPlease provide a board and a player.\n&7Usage: /"+label+" removeplayer <player> <board>"));
             return;
         }
-        if(args.length <= 2) {
+        if(args.length < 2) {
             sender.sendMessage(message("&cPlease provide a board.\n&7Usage: /"+label+" removeplayer <player> <board>"));
             return;
         }
-        String playername = args[1];
-        String board = args[2];
+        String playername = args[0];
+        String board = args[1];
         if(!plugin.getCache().boardExists(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
