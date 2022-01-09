@@ -413,7 +413,7 @@ public class Cache {
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
-		plugin.getLogger().info("Resetting "+board+" "+type.lowerName()+" leaderboard");
+		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = getLastReset(board, type);
 		long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
 		String t = type.lowerName();
@@ -447,7 +447,7 @@ public class Cache {
 			plugin.getLogger().severe("An error occurred while resetting a timed leaderboard:");
 			e.printStackTrace();
 		}
-		plugin.getLogger().info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
+		Debug.info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
 	}
 
 	public CacheMethod getMethod() {
