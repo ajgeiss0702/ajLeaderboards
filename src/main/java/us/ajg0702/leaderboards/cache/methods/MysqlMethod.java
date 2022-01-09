@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.cache.methods;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Locale;
 
 public class MysqlMethod implements CacheMethod {
@@ -36,7 +38,7 @@ public class MysqlMethod implements CacheMethod {
         int minCount = config.getInt("minConnections");
         int maxCount = config.getInt("maxConnections");
 
-        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8";
+        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8&useInformationSchema=true";
         hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
         hikariConfig.setJdbcUrl(url);
         hikariConfig.setUsername(username);
@@ -47,24 +49,29 @@ public class MysqlMethod implements CacheMethod {
         ds = new HikariDataSource(hikariConfig);
         ds.setLeakDetectionThreshold(60 * 1000);
 
+        List<String> tables = cacheInstance.getDbTableList();
+
         try(Connection conn = getConnection()) {
-            ResultSet rs = conn.getMetaData().getTables(null, null, "", null);
+            //ResultSet rs = conn.getMetaData().getTables(null, null, "", null);
             Statement statement = conn.createStatement();
-            while(rs.next()) {
+            for(String tableName : tables) {
                 int version;
-                String tableName = rs.getString("TABLE_NAME");
                 if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
                 try {
-                    version = Integer.parseInt(rs.getString("AJLBVERSION"));
+                    ResultSet rs = conn.createStatement().executeQuery("show table status where Name='"+tableName+"'");
+                    rs.next();
+                    version = Integer.parseInt(rs.getString("COMMENT"));
+                    rs.close();
                 } catch(NumberFormatException e) {
                     version = 0;
                 } catch(SQLException e) {
-                    if(e.getMessage().contains("Column 'AJLBVERSION' not found")) {
+                    if(e.getMessage().contains("Column 'COMMENT' not found")) {
                         version = 0;
                     } else {
                         throw e;
                     }
                 }
+                Debug.info("Table version for "+tableName+" is: "+version);
 
                 if(version == 0) {
                     plugin.getLogger().info("Running MySQL table updater for table "+tableName+" (pv"+version+")");
@@ -80,7 +87,7 @@ public class MysqlMethod implements CacheMethod {
                             if(e.getMessage().contains("Duplicate")) {
                                 plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                                 try {
-                                    conn.createStatement().executeUpdate("ALTER TABLE "+tableName+" AJLBVERSION = '1';");
+                                    conn.createStatement().executeUpdate("ALTER TABLE "+tableName+" COMMENT = '1';");
                                 } catch (SQLException er) {
                                     er.printStackTrace();
                                     throw e;
@@ -91,10 +98,9 @@ public class MysqlMethod implements CacheMethod {
                         }
                     }
 
-                    statement.executeUpdate("ALTER TABLE "+tableName+" AJLBVERSION = '1';");
+                    statement.executeUpdate("ALTER TABLE "+tableName+" COMMENT = '1';");
                 }
             }
-            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
