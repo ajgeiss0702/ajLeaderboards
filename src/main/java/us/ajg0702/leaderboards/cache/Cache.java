@@ -416,7 +416,7 @@ public class Cache {
 		long lastReset = getLastReset(board, type);
 		//long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
 		long newReset = (long) (type.getResetMs()*(Math.floor(System.currentTimeMillis()/(type.getResetMs()*1D))));
-		Debug.info("last: "+lastReset+" next: "+newReset+" diff: "+(newReset-lastReset));
+		Debug.info("last: "+lastReset+" next: "+newReset+" diff: "+(newReset-lastReset)+" gap: "+(System.currentTimeMillis() - lastReset));
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
