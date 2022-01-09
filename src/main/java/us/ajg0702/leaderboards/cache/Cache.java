@@ -1,7 +1,6 @@
 package us.ajg0702.leaderboards.cache;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
@@ -368,7 +367,7 @@ public class Cache {
 			try {
 				String q = method instanceof SqliteMethod ? "'" : "";
 				ResultSet rs = conn.createStatement().executeQuery(
-						"select "+type.lowerName()+"_lasttotal from "+tablePrefix+board+" where id='"+player.getUniqueId()+"'");
+						"select "+type.lowerName()+"_lasttotal from "+q+tablePrefix+board+q+" where id='"+player.getUniqueId()+"'");
 				if(method instanceof MysqlMethod) {
 					rs.next();
 				}
@@ -415,7 +414,9 @@ public class Cache {
 		}
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = getLastReset(board, type);
-		long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
+		//long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
+		long newReset = (long) (type.getResetMs()*(Math.floor(System.currentTimeMillis()/(type.getResetMs()*1D))));
+		Debug.info("last: "+lastReset+" next: "+newReset+" diff: "+(newReset-lastReset));
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
