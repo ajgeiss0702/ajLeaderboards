@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.Utils;
+package us.ajg0702.leaderboards.displays.heads;
 
 public class CachedData<T> {
     private final T data;

@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.boards.StatEntry;
+import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
 
@@ -10,20 +11,11 @@ import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This class will automatically register as a placeholder expansion
- * when a jar including this class is added to the directory
- * {@code /plugins/PlaceholderAPI/expansions} on your server.
- * <br>
- * <br>If you create such a class inside your own plugin, you have to
- * register it manually in your plugins {@code onEnable()} by using
- * {@code new YourExpansionClass().register();}
- */
 public class Placeholders extends PlaceholderExpansion {
 
-    Main pl;
-    public Placeholders(Main pl) {
-        this.pl = pl;
+    LeaderboardPlugin plugin;
+    public Placeholders(LeaderboardPlugin plugin) {
+        this.plugin = plugin;
     }
 
     /**
@@ -82,19 +74,19 @@ public class Placeholders extends PlaceholderExpansion {
      */
     @Override
     public String getVersion(){
-        return pl.getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
-    Pattern highNamePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_name");
-    Pattern highValuePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value");
-    Pattern highValueFormattedPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_value_formatted");
-    Pattern highValueRawPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_rawvalue");
-    Pattern highSuffixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_suffix");
-    Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_prefix");
-    Pattern highColorPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_color");
-    Pattern positionPattern = Pattern.compile("position_(.*)");
-    Pattern valuePattern = Pattern.compile("value_(.*)");
-    Pattern valueFormattedPattern = Pattern.compile("value_(.*)_formatted");
+    Pattern highNamePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_name");
+    Pattern highValuePattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_value");
+    Pattern highValueFormattedPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_value_formatted");
+    Pattern highValueRawPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_rawvalue");
+    Pattern highSuffixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_suffix");
+    Pattern highPrefixPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_prefix");
+    Pattern highColorPattern = Pattern.compile("lb_(.*)_([1-9][0-9]*)_(.*)_color");
+    Pattern positionPattern = Pattern.compile("position_(.*)_(.*)");
+    Pattern valuePattern = Pattern.compile("value_(.*)_(.*)");
+    Pattern valueFormattedPattern = Pattern.compile("value_(.*)_(.*)_formatted");
     /**
      * This is the method called when a placeholder with our identifier
      * is found and needs a value.
@@ -115,25 +107,29 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highNameMatcher = highNamePattern.matcher(identifier);
         if(highNameMatcher.find()) {
             String board = highNameMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highNameMatcher.group(2)), board);
+            String typeRaw = highNameMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highNameMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getPlayer();
         }
         Matcher highPrefixMatcher = highPrefixPattern.matcher(identifier);
         if(highPrefixMatcher.find()) {
             String board = highPrefixMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board);
+            String typeRaw = highPrefixMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highPrefixMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getPrefix();
         }
         Matcher highSuffixMatcher = highSuffixPattern.matcher(identifier);
         if(highSuffixMatcher.find()) {
             String board = highSuffixMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board);
+            String typeRaw = highSuffixMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highSuffixMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getSuffix();
         }
         Matcher highColorMatcher = highColorPattern.matcher(identifier);
         if(highColorMatcher.find()) {
             String board = highColorMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highColorMatcher.group(2)), board);
+            String typeRaw = highColorMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highColorMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             if(r.getPrefix().isEmpty()) return "";
             String prefix = r.getPrefix();
             StringBuilder colors = new StringBuilder();
@@ -152,20 +148,23 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher highValueRawMatcher = highValueRawPattern.matcher(identifier);
         if(highValueRawMatcher.find()) {
             String board = highValueRawMatcher.group(1);
-            StatEntry r = Cache.getInstance().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board);
+            String typeRaw = highValueRawMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highValueRawMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             DecimalFormat df = new DecimalFormat("#.##");
             return df.format(r.getScore());
         }
         Matcher highValueFormattedMatcher = highValueFormattedPattern.matcher(identifier);
         if(highValueFormattedMatcher.find()) {
             String board = highValueFormattedMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highValueFormattedMatcher.group(2)), board);
+            String typeRaw = highValueFormattedMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highValueFormattedMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getScoreFormatted();
         }
         Matcher highValueMatcher = highValuePattern.matcher(identifier);
         if(highValueMatcher.find()) {
             String board = highValueMatcher.group(1);
-            StatEntry r = TopManager.getInstance().getStat(Integer.parseInt(highValueMatcher.group(2)), board);
+            String typeRaw = highValueMatcher.group(3).toUpperCase();
+            StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(highValueMatcher.group(2)), board, TimedType.valueOf(typeRaw));
             return r.getScorePretty();
         }
 
@@ -173,19 +172,23 @@ public class Placeholders extends PlaceholderExpansion {
         Matcher positionMatcher = positionPattern.matcher(identifier);
         if(positionMatcher.find()) {
             String board = positionMatcher.group(1);
-            return Cache.getInstance().getStatEntry(player, board).getPosition()+"";
+            String typeRaw = positionMatcher.group(2).toUpperCase();
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getPosition()+"";
         }
 
-        Matcher valueMatcher = valuePattern.matcher(identifier);
-        if(valueMatcher.find()) {
-            String board = valueMatcher.group(1);
-            return Cache.getInstance().getStatEntry(player, board).getScorePretty();
-        }
         Matcher valueFormattedMatcher = valueFormattedPattern.matcher(identifier);
         if(valueFormattedMatcher.find()) {
             String board = valueFormattedMatcher.group(1);
-            return Cache.getInstance().getStatEntry(player, board).getScoreFormatted();
+            String typeRaw = valueFormattedMatcher.group(2).toUpperCase();
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScoreFormatted();
         }
+        Matcher valueMatcher = valuePattern.matcher(identifier);
+        if(valueMatcher.find()) {
+            String board = valueMatcher.group(1);
+            String typeRaw = valueMatcher.group(2).toUpperCase();
+            return plugin.getTopManager().getStatEntry(player, board, TimedType.valueOf(typeRaw)).getScorePretty();
+        }
+
 
         return null;
     }

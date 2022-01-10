@@ -1,26 +1,31 @@
 package us.ajg0702.leaderboards.boards;
 
+import org.jetbrains.annotations.Nullable;
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.utils.spigot.Config;
-import us.ajg0702.utils.spigot.Messages;
+import us.ajg0702.utils.common.Config;
+import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.UUID;
 
 public class StatEntry {
-	
-	String player;
-	String prefix;
-	String suffix;
 
-	UUID playerID;
+	private final LeaderboardPlugin plugin;
 	
-	int position;
-	String board;
+	final String player;
+	final String prefix;
+	final String suffix;
+
+	final UUID playerID;
+	
+	final int position;
+	final String board;
 
 	private Cache cache;
-	private Messages msgs;
+
+	private final TimedType type;
 
 	String k = "k";
 	String m = "m";
@@ -28,27 +33,38 @@ public class StatEntry {
 	String t = "t";
 	String q = "q";
 	
-	double score;
-	public StatEntry(int position, String board, String prefix, String player, UUID playerID, String suffix, double score) {
+	final double score;
+	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
+		this.plugin = plugin;
 		this.player = player;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
+		this.type = type;
 
 		this.playerID = playerID;
 
-		try {
-			this.cache = Cache.getInstance();
-			msgs = cache.getPlugin().getMessages();
-			k = msgs.get("formatted.k");
-			m = msgs.get("formatted.m");
-			b = msgs.get("formatted.b");
-			t = msgs.get("formatted.t");
-			q = msgs.get("formatted.q");
-		} catch(NoClassDefFoundError ignored) {}
+		if(plugin != null) {
+			try {
+				this.cache = plugin.getCache();
+				Messages msgs = plugin.getMessages();
+				k = msgs.getString("formatted.k");
+				m = msgs.getString("formatted.m");
+				b = msgs.getString("formatted.b");
+				t = msgs.getString("formatted.t");
+				q = msgs.getString("formatted.q");
+			} catch(NoClassDefFoundError ignored) {}
+		}
 		
 		this.position = position;
 		this.board = board;
+	}
+
+	public boolean hasPlayer() {
+		if(plugin == null) {
+			return !player.equals("---") && getPlayerID() != null;
+		}
+		return !player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
 	}
 	
 	public String getPrefix() {
@@ -72,8 +88,11 @@ public class StatEntry {
 	public String getBoard() {
 		return board;
 	}
-	
-	
+
+	public TimedType getType() {
+		return type;
+	}
+
 	public double getScore() {
 		return score;
 	}
@@ -136,8 +155,8 @@ public class StatEntry {
 	
 	private String addCommas(double number) {
 		String comma;
-		if(cache != null) {
-			comma = Cache.getInstance().getPlugin().getAConfig().getString("comma");
+		if(plugin != null) {
+			comma = plugin.getAConfig().getString("comma");
 		} else { comma = ","; }
 		DecimalFormat df = new DecimalFormat("#.##");
 		String ns = df.format(number);
