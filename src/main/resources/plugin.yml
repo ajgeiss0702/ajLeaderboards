@@ -1,6 +1,6 @@
 name: ajLeaderboards
 version: "@VERSION@"
-main: us.ajg0702.leaderboards.Main
+main: us.ajg0702.leaderboards.LeaderboardPlugin
 author: ajgeiss0702
 depend: [PlaceholderAPI]
 softdepend: [Vault]
@@ -8,8 +8,8 @@ description: Leaderboards for your server
 api-version: 1.13
 commands:
    ajleaderboards:
-      aliases: [ajlb, lb, alb]
-      description: Commands for ajLeaderBoards
+      aliases: [ajlb, ajl, alb]
+      description: Commands for ajLeaderboards
       permission: ajleaderboards.use
 permissions:
    ajleaderboards.use:
