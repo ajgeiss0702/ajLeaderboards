@@ -147,6 +147,7 @@ public class Cache {
 						throw e;
 					}
 				}
+				if(uuidraw == null) break;
 				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
 				r = new StatEntry(plugin, i, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
 				break;
