@@ -116,13 +116,50 @@ public class Cache {
 
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		StatEntry r = null;
-		int i = 1;
-		while(i < 10000000 && r == null) {
-			StatEntry rt = plugin.getTopManager().getStat(i, board, type);
-			i++;
-			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
-				r = rt;
+		try {
+			Connection conn = method.getConnection();
+			StringBuilder delta = new StringBuilder();
+			for(TimedType t : TimedType.values()) {
+				if(t == TimedType.ALLTIME) continue;
+				delta.append(t.lowerName()).append("_delta,");
 			}
+			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
+			ResultSet rs = conn.createStatement().executeQuery("select id,value,"+delta+"namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by "+sortBy+" desc");
+			int i = 0;
+			while(rs.next()) {
+				i++;
+				String uuidraw = null;
+				double value = -1;
+				String name = "-Unknown-";
+				String prefix = "";
+				String suffix = "";
+				try {
+					uuidraw = rs.getString("id");
+					name = rs.getString("namecache");
+					prefix = rs.getString("prefixcache");
+					suffix = rs.getString("suffixcache");
+					value = rs.getDouble(sortBy);
+				} catch(SQLException e) {
+					if(
+							!e.getMessage().contains("ResultSet closed") &&
+									!e.getMessage().contains("empty result set")
+					) {
+						throw e;
+					}
+				}
+				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
+				r = new StatEntry(plugin, i, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
+				break;
+			}
+			rs.close();
+			method.close(conn);
+		} catch (SQLException e) {
+			plugin.getLogger().severe("Unable to get position/value of player:");
+			e.printStackTrace();
+			return new StatEntry(plugin, -1, board, "", "An error occured", null, "", 0, type);
+		}
+		if(r == null) {
+			return new StatEntry(plugin, -1, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
 		}
 		return r;
 	}
