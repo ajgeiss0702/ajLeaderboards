@@ -15,6 +15,8 @@ import us.ajg0702.utils.common.ConfigFile;
 import java.sql.*;
 import java.util.*;
 
+import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
+
 public class Cache {
 	
 	public LeaderboardPlugin getPlugin() {
@@ -310,7 +312,7 @@ public class Cache {
 		try {
 			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%")
 					.replaceAll(",", "");
-			output = Double.parseDouble(outputraw);
+			output = Double.parseDouble(convertPlaceholderOutput(outputraw));
 		} catch(NumberFormatException e) {
 			return;
 		} catch(Exception e) {
