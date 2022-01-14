@@ -465,7 +465,7 @@ public class Cache {
 			for(String idRaw : uuids.keySet()) {
 				try {
 					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id="+q+idRaw+q+"";
+					String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id='"+idRaw+"'";
 					con.createStatement().executeUpdate(update);
 					//Debug.info(update);
 					method.close(con);
