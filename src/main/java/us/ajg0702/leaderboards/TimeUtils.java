@@ -3,7 +3,7 @@ package us.ajg0702.leaderboards;
 @SuppressWarnings("unused")
 public class TimeUtils {
 
-    private static final long SECOND = (1000L * 60);
+    private static final long SECOND = 1000L;
     private static final long MINUTE = SECOND * 60L;
     private static final long HOUR = MINUTE * 60L;
     private static final long DAY = HOUR * 24L;
