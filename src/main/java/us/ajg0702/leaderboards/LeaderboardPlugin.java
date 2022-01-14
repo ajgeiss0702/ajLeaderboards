@@ -248,6 +248,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         return true;
     }
 
+    private final static Pattern weekPattern = Pattern.compile("([1-9][0-9]*)w");
     private final static Pattern dayPattern = Pattern.compile("([1-9][0-9]*)d");
     private final static Pattern hourPattern = Pattern.compile("([1-9][0-9]*)h");
     private final static Pattern minutePattern = Pattern.compile("([1-9][0-9]*)m");
@@ -255,6 +256,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     public static String convertPlaceholderOutput(String output) {
         int seconds = -1;
 
+        seconds = getSeconds(output, 60*60*24*7, seconds, weekPattern);
         seconds = getSeconds(output, 60*60*24, seconds, dayPattern);
         seconds = getSeconds(output, 60*60, seconds, hourPattern);
         seconds = getSeconds(output, 60, seconds, minutePattern);
