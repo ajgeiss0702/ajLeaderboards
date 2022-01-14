@@ -27,6 +27,8 @@ public class Cache {
 
 	final String tablePrefix;
 
+	private final String q;
+
 	public Cache(LeaderboardPlugin plugin) {
 		this.plugin = plugin;
 
@@ -50,7 +52,7 @@ public class Cache {
 			tablePrefix = "";
 		}
 		method.init(plugin, storageConfig, this);
-
+		q = method instanceof SqliteMethod ? "'" : "`";
 
 	}
 
@@ -303,7 +305,6 @@ public class Cache {
 
 	public void updateStat(String board, OfflinePlayer player) {
 		boolean debug = plugin.getAConfig().getBoolean("update-de-bug");
-		String q = method instanceof SqliteMethod ? "'" : "";
 		String outputraw;
 		double output;
 		try {
@@ -403,7 +404,6 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			try {
-				String q = method instanceof SqliteMethod ? "'" : "";
 				ResultSet rs = conn.createStatement().executeQuery(
 						"select "+type.lowerName()+"_lasttotal from "+q+tablePrefix+board+q+" where id='"+player.getUniqueId()+"'");
 				if(method instanceof MysqlMethod) {
@@ -426,7 +426,6 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			try {
-				String q = method instanceof SqliteMethod ? "'" : "";
 				ResultSet rs = conn.createStatement().executeQuery(
 						"select "+type.lowerName()+"_timestamp from "+q+tablePrefix+board+q+" limit 1");
 				if(method instanceof MysqlMethod) {
@@ -445,7 +444,6 @@ public class Cache {
 	}
 
 	public void reset(String board, TimedType type) {
-		String q = method instanceof SqliteMethod ? "'" : "";
 		long startTime = System.currentTimeMillis();
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
@@ -458,13 +456,7 @@ public class Cache {
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
-			//PreparedStatement stmt = conn.prepareStatement(");
-			//stmt.setString(1, tablePrefix+board);
-			String query = "select id,value from "+tablePrefix+board+"";
-			if(method instanceof SqliteMethod) {
-				query = "select id,value from '"+tablePrefix+board+"'";
-			}
-			ResultSet rs = conn.createStatement().executeQuery(query);
+			ResultSet rs = conn.createStatement().executeQuery("select id,value from "+q+tablePrefix+board+q);
 			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
 				uuids.put(rs.getString("id"), rs.getDouble("value"));
@@ -473,7 +465,7 @@ public class Cache {
 			for(String idRaw : uuids.keySet()) {
 				try {
 					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id='"+idRaw+"'";
+					String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id="+q+idRaw+q+"";
 					con.createStatement().executeUpdate(update);
 					//Debug.info(update);
 					method.close(con);
