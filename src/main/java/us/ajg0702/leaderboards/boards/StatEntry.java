@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.boards;
 
 import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -150,6 +151,10 @@ public class StatEntry {
 			}
 		}
 		return addCommas(score);
+	}
+
+	public String getTime() {
+		return TimeUtils.formatTimeSeconds(Math.round(getScore()));
 	}
 	
 	

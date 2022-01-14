@@ -4,6 +4,7 @@ import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerPosition;
+import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerTime;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerValue;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerValueFormatted;
 
@@ -24,10 +25,12 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new RawValue(plugin));
         placeholders.add(new ValueFormatted(plugin));
         placeholders.add(new Value(plugin));
+        placeholders.add(new Time(plugin));
 
         placeholders.add(new PlayerPosition(plugin));
         placeholders.add(new PlayerValueFormatted(plugin));
         placeholders.add(new PlayerValue(plugin));
+        placeholders.add(new PlayerTime(plugin));
     }
 
     @Override
