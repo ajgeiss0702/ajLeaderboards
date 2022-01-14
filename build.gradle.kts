@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.0.0"
+version = "2.1.0"
 
 repositories {
     mavenCentral()
@@ -30,7 +30,7 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.bstats:bstats-bukkit:1.7")
-    implementation("us.ajg0702:ajUtils:1.1.17")
+    implementation("us.ajg0702:ajUtils:1.1.18")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
     implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 

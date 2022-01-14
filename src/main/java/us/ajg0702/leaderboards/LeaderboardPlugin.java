@@ -23,11 +23,14 @@ import us.ajg0702.leaderboards.displays.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.displays.heads.HeadManager;
 import us.ajg0702.leaderboards.displays.heads.HeadUtils;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
+import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LeaderboardPlugin extends JavaPlugin {
 
@@ -115,9 +118,9 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         new Metrics(this, 9338);
 
-        Placeholders placeholders = new Placeholders(this);
+        PlaceholderExpansion placeholders = new PlaceholderExpansion(this);
         if(placeholders.register()) {
-            getLogger().info("Registered ajlb PAPI placeholders!");
+            getLogger().info("PAPI placeholders successfully registered!");
         } else {
             getLogger().warning("Failed to register ajlb PAPI placeholders!");
         }
@@ -235,7 +238,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         Player vp = Bukkit.getOnlinePlayers().iterator().next();
         String out = PlaceholderAPI.setPlaceholders(vp, "%"+ Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
         try {
-            Double.valueOf(out);
+            Double.valueOf(convertPlaceholderOutput(out));
         } catch(NumberFormatException e) {
             if(sayOutput != null) {
                 sayOutput.sendMessage(message("&7Returned: "+out));
@@ -243,6 +246,33 @@ public class LeaderboardPlugin extends JavaPlugin {
             return false;
         }
         return true;
+    }
+
+    private final static Pattern weekPattern = Pattern.compile("([1-9][0-9]*)w");
+    private final static Pattern dayPattern = Pattern.compile("([1-9][0-9]*)d");
+    private final static Pattern hourPattern = Pattern.compile("([1-9][0-9]*)h");
+    private final static Pattern minutePattern = Pattern.compile("([1-9][0-9]*)m");
+    private final static Pattern secondPattern = Pattern.compile("([1-9][0-9]*)s");
+    public static String convertPlaceholderOutput(String output) {
+        int seconds = -1;
+
+        seconds = getSeconds(output, 60*60*24*7, seconds, weekPattern);
+        seconds = getSeconds(output, 60*60*24, seconds, dayPattern);
+        seconds = getSeconds(output, 60*60, seconds, hourPattern);
+        seconds = getSeconds(output, 60, seconds, minutePattern);
+        seconds = getSeconds(output, 1, seconds, secondPattern);
+
+        if(seconds != -1) return seconds+"";
+        return output;
+    }
+
+    private static int getSeconds(String output, int multiplier, int seconds, Pattern pattern) {
+        Matcher matcher = pattern.matcher(output);
+        if(matcher.find()) {
+            if(seconds == -1) seconds = 0;
+            seconds += Integer.parseInt(matcher.group(1))*multiplier;
+        }
+        return seconds;
     }
 
 

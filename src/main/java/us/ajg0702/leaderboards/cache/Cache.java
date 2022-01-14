@@ -15,6 +15,8 @@ import us.ajg0702.utils.common.ConfigFile;
 import java.sql.*;
 import java.util.*;
 
+import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
+
 public class Cache {
 	
 	public LeaderboardPlugin getPlugin() {
@@ -26,6 +28,8 @@ public class Cache {
 	final CacheMethod method;
 
 	final String tablePrefix;
+
+	private final String q;
 
 	public Cache(LeaderboardPlugin plugin) {
 		this.plugin = plugin;
@@ -50,7 +54,7 @@ public class Cache {
 			tablePrefix = "";
 		}
 		method.init(plugin, storageConfig, this);
-
+		q = method instanceof SqliteMethod ? "'" : "`";
 
 	}
 
@@ -116,13 +120,51 @@ public class Cache {
 
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		StatEntry r = null;
-		int i = 1;
-		while(i < 10000000 && r == null) {
-			StatEntry rt = plugin.getTopManager().getStat(i, board, type);
-			i++;
-			if(rt.getPlayerID() == null || player.getUniqueId().equals(rt.getPlayerID())) {
-				r = rt;
+		try {
+			Connection conn = method.getConnection();
+			StringBuilder delta = new StringBuilder();
+			for(TimedType t : TimedType.values()) {
+				if(t == TimedType.ALLTIME) continue;
+				delta.append(t.lowerName()).append("_delta,");
 			}
+			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
+			ResultSet rs = conn.createStatement().executeQuery("select id,value,"+delta+"namecache,prefixcache,suffixcache from `"+tablePrefix+board+"` order by "+sortBy+" desc");
+			int i = 0;
+			while(rs.next()) {
+				i++;
+				String uuidraw = null;
+				double value = -1;
+				String name = "-Unknown-";
+				String prefix = "";
+				String suffix = "";
+				try {
+					uuidraw = rs.getString("id");
+					name = rs.getString("namecache");
+					prefix = rs.getString("prefixcache");
+					suffix = rs.getString("suffixcache");
+					value = rs.getDouble(sortBy);
+				} catch(SQLException e) {
+					if(
+							!e.getMessage().contains("ResultSet closed") &&
+									!e.getMessage().contains("empty result set")
+					) {
+						throw e;
+					}
+				}
+				if(uuidraw == null) break;
+				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
+				r = new StatEntry(plugin, i, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
+				break;
+			}
+			rs.close();
+			method.close(conn);
+		} catch (SQLException e) {
+			plugin.getLogger().severe("Unable to get position/value of player:");
+			e.printStackTrace();
+			return new StatEntry(plugin, -1, board, "", "An error occured", null, "", 0, type);
+		}
+		if(r == null) {
+			return new StatEntry(plugin, -1, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
 		}
 		return r;
 	}
@@ -265,13 +307,12 @@ public class Cache {
 
 	public void updateStat(String board, OfflinePlayer player) {
 		boolean debug = plugin.getAConfig().getBoolean("update-de-bug");
-		String q = method instanceof SqliteMethod ? "'" : "";
 		String outputraw;
 		double output;
 		try {
 			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%")
 					.replaceAll(",", "");
-			output = Double.parseDouble(outputraw);
+			output = Double.parseDouble(convertPlaceholderOutput(outputraw));
 		} catch(NumberFormatException e) {
 			return;
 		} catch(Exception e) {
@@ -365,7 +406,6 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			try {
-				String q = method instanceof SqliteMethod ? "'" : "";
 				ResultSet rs = conn.createStatement().executeQuery(
 						"select "+type.lowerName()+"_lasttotal from "+q+tablePrefix+board+q+" where id='"+player.getUniqueId()+"'");
 				if(method instanceof MysqlMethod) {
@@ -388,7 +428,6 @@ public class Cache {
 		try {
 			Connection conn = method.getConnection();
 			try {
-				String q = method instanceof SqliteMethod ? "'" : "";
 				ResultSet rs = conn.createStatement().executeQuery(
 						"select "+type.lowerName()+"_timestamp from "+q+tablePrefix+board+q+" limit 1");
 				if(method instanceof MysqlMethod) {
@@ -407,7 +446,6 @@ public class Cache {
 	}
 
 	public void reset(String board, TimedType type) {
-		String q = method instanceof SqliteMethod ? "'" : "";
 		long startTime = System.currentTimeMillis();
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
@@ -420,13 +458,7 @@ public class Cache {
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
-			//PreparedStatement stmt = conn.prepareStatement(");
-			//stmt.setString(1, tablePrefix+board);
-			String query = "select id,value from "+tablePrefix+board+"";
-			if(method instanceof SqliteMethod) {
-				query = "select id,value from '"+tablePrefix+board+"'";
-			}
-			ResultSet rs = conn.createStatement().executeQuery(query);
+			ResultSet rs = conn.createStatement().executeQuery("select id,value from "+q+tablePrefix+board+q);
 			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
 				uuids.put(rs.getString("id"), rs.getDouble("value"));
