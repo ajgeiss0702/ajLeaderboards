@@ -23,6 +23,7 @@ import us.ajg0702.leaderboards.displays.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.displays.heads.HeadManager;
 import us.ajg0702.leaderboards.displays.heads.HeadUtils;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
+import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
@@ -115,9 +116,9 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         new Metrics(this, 9338);
 
-        Placeholders placeholders = new Placeholders(this);
+        PlaceholderExpansion placeholders = new PlaceholderExpansion(this);
         if(placeholders.register()) {
-            getLogger().info("Registered ajlb PAPI placeholders!");
+            getLogger().info("PAPI placeholders successfully registered!");
         } else {
             getLogger().warning("Failed to register ajlb PAPI placeholders!");
         }
