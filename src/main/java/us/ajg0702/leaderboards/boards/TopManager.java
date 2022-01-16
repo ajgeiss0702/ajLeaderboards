@@ -50,7 +50,12 @@ public class TopManager {
         }
 
         lastGet.get(board).get(type).put(position, System.currentTimeMillis());
-        return fetchPosition(position, board, type);
+        if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            return fetchPosition(position, board, type);
+        } else {
+            fetchPositionAsync(position, board, type);
+            return new StatEntry(plugin, -2, board, "", "Loading", null, "", 0, type);
+        }
     }
 
     private void fetchPositionAsync(int position, String board, TimedType type) {
@@ -96,7 +101,12 @@ public class TopManager {
         }
 
         lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
-        return fetchStatEntry(player, board, type);
+        if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            return fetchStatEntry(player, board, type);
+        } else {
+            fetchStatEntryAsync(player, board, type);
+            return new StatEntry(plugin, -2, board, "", player.getName(), player.getUniqueId(), "", 0, type);
+        }
     }
 
     private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
@@ -111,7 +121,14 @@ public class TopManager {
     List<String> boardCache;
     long lastGetBoard = 0;
     public List<String> getBoards() {
-        if(boardCache == null) return fetchBoards();
+        if(boardCache == null) {
+            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+                return fetchBoards();
+            } else {
+                fetchBoardsAsync();
+                return new ArrayList<>();
+            }
+        }
 
         if(System.currentTimeMillis() - lastGetBoard > 1000) {
             lastGetBoard = System.currentTimeMillis();
