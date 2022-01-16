@@ -133,6 +133,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getScheduler().cancelTasks(this);
         getCache().getMethod().shutdown();
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
     }
