@@ -112,6 +112,11 @@ public class MysqlMethod implements CacheMethod {
     }
 
     @Override
+    public int getMaxConnections() {
+        return ds.getMaximumPoolSize();
+    }
+
+    @Override
     public void shutdown() {
         ds.close();
     }
