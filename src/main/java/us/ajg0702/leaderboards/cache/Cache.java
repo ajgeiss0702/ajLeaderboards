@@ -216,7 +216,7 @@ public class Cache {
 	public boolean removePlayer(String board, String playerName) {
 			try {
 				Connection conn = method.getConnection();
-				conn.createStatement().executeUpdate("delete from `"+tablePrefix+board+"` where namecache=`"+playerName+"`");
+				conn.createStatement().executeUpdate("delete from "+q+tablePrefix+board+q+" where namecache='"+playerName+"'");
 				method.close(conn);
 				return true;
 			} catch (SQLException e) {

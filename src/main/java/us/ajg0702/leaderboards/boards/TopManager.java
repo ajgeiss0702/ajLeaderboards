@@ -78,7 +78,7 @@ public class TopManager {
         fetchService.submit(() -> fetchPosition(position, board, type));
     }
     private StatEntry fetchPosition(int position, String board, TimedType type) {
-        Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
+        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
         fetching.decrementAndGet();
@@ -132,7 +132,7 @@ public class TopManager {
         fetchService.submit(() -> fetchStatEntry(player, board, type));
     }
     private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
-        Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
+        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
         fetching.decrementAndGet();
@@ -163,7 +163,7 @@ public class TopManager {
         fetchService.submit(this::fetchBoards);
     }
     private List<String> fetchBoards() {
-        Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
+        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
         boardCache = plugin.getCache().getBoards();
         fetching.decrementAndGet();
         return boardCache;
@@ -172,7 +172,7 @@ public class TopManager {
 
 
     private void checkWrong() {
-        if(fetching.get() > 70) {
+        if(fetching.get() > 150) {
             plugin.getLogger().warning("Something might be going wrong, printing some useful info");
             Thread.dumpStack();
         }
