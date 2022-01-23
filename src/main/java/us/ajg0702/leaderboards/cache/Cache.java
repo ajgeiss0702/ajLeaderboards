@@ -10,6 +10,7 @@ import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
+import us.ajg0702.leaderboards.utils.Partition;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.*;
@@ -464,18 +465,22 @@ public class Cache {
 				uuids.put(rs.getString("id"), rs.getDouble("value"));
 			}
 			rs.close();
-			for(String idRaw : uuids.keySet()) {
+			method.close(conn);
+			Partition<String> partition = Partition.ofSize(new ArrayList<>(uuids.keySet()), Math.max(uuids.size()/(int) Math.ceil(method.getMaxConnections()/2D), 1));
+			Debug.info("Partition length: "+partition.size()+" uuids size: "+ uuids.size()+" partition chunk size: "+partition.getChunkSize());
+			for(List<String> uuidPartition : partition) {
 				try {
-					Connection con = method instanceof SqliteMethod ? conn : method.getConnection();
-					String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id='"+idRaw+"'";
-					con.createStatement().executeUpdate(update);
+					Connection con = method.getConnection();
+					for(String idRaw : uuidPartition) {
+						String update = "update "+q+tablePrefix+board+q+" set "+t+"_lasttotal="+uuids.get(idRaw)+", "+t+"_delta=0, "+t+"_timestamp="+newReset+" where id='"+idRaw+"'";
+						con.createStatement().executeUpdate(update);
+					}
 					//Debug.info(update);
 					method.close(con);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
 			}
-			method.close(conn);
 		} catch (SQLException e) {
 			plugin.getLogger().severe("An error occurred while resetting a timed leaderboard:");
 			e.printStackTrace();

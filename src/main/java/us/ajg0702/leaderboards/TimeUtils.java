@@ -19,7 +19,7 @@ public class TimeUtils {
         int minutes = (int) ((timeMs % HOUR) / MINUTE);
         int seconds = (int) ((timeMs % MINUTE) / SECOND);
 
-        String weekss = weeks != 0 ? weeks+"w" : "";
+        String weekss = weeks != 0 ? weeks+"w " : "";
         String dayss = days != 0 ? days+"d " : "";
         String hourss = hours != 0 ? hours+"h " : "";
         String minutess = minutes != 0 ? minutes+"m " : "";

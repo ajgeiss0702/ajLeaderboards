@@ -91,6 +91,11 @@ public class SqliteMethod implements CacheMethod {
     public void close(Connection connection) {}
 
     @Override
+    public int getMaxConnections() {
+        return 1;
+    }
+
+    @Override
     public void shutdown() {
         try {
             conn.close();
