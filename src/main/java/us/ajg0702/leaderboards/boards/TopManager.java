@@ -2,13 +2,28 @@ package us.ajg0702.leaderboards.boards;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
+
+    private final ThreadPoolExecutor fetchService = new ThreadPoolExecutor(
+            0, Integer.MAX_VALUE,
+            70L, TimeUnit.SECONDS,
+            new SynchronousQueue<>()
+    );
+
+    
+
+    public void shutdown() {
+        fetchService.shutdownNow();
+    }
 
 
     private final LeaderboardPlugin plugin;
@@ -50,15 +65,23 @@ public class TopManager {
         }
 
         lastGet.get(board).get(type).put(position, System.currentTimeMillis());
-        return fetchPosition(position, board, type);
+        if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            return fetchPosition(position, board, type);
+        } else {
+            fetchPositionAsync(position, board, type);
+            return new StatEntry(plugin, -2, board, "", "Loading", null, "", 0, type);
+        }
     }
-
+    AtomicInteger fetching = new AtomicInteger(0);
     private void fetchPositionAsync(int position, String board, TimedType type) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchPosition(position, board, type));
+        checkWrong();
+        fetchService.submit(() -> fetchPosition(position, board, type));
     }
     private StatEntry fetchPosition(int position, String board, TimedType type) {
+        Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
+        fetching.decrementAndGet();
         return te;
     }
 
@@ -96,22 +119,37 @@ public class TopManager {
         }
 
         lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
-        return fetchStatEntry(player, board, type);
+        if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            return fetchStatEntry(player, board, type);
+        } else {
+            fetchStatEntryAsync(player, board, type);
+            return new StatEntry(plugin, -2, board, "", player.getName(), player.getUniqueId(), "", 0, type);
+        }
     }
 
     private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchStatEntry(player, board, type));
+        checkWrong();
+        fetchService.submit(() -> fetchStatEntry(player, board, type));
     }
     private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
+        Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
+        fetching.decrementAndGet();
         return te;
     }
 
     List<String> boardCache;
     long lastGetBoard = 0;
     public List<String> getBoards() {
-        if(boardCache == null) return fetchBoards();
+        if(boardCache == null) {
+            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+                return fetchBoards();
+            } else {
+                fetchBoardsAsync();
+                return new ArrayList<>();
+            }
+        }
 
         if(System.currentTimeMillis() - lastGetBoard > 1000) {
             lastGetBoard = System.currentTimeMillis();
@@ -121,11 +159,23 @@ public class TopManager {
     }
 
     private void fetchBoardsAsync() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::fetchBoards);
+        checkWrong();
+        fetchService.submit(this::fetchBoards);
     }
     private List<String> fetchBoards() {
+        Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
         boardCache = plugin.getCache().getBoards();
+        fetching.decrementAndGet();
         return boardCache;
+    }
+
+
+
+    private void checkWrong() {
+        if(fetching.get() > 70) {
+            plugin.getLogger().warning("Something might be going wrong, printing some useful info");
+            Thread.dumpStack();
+        }
     }
 
 }

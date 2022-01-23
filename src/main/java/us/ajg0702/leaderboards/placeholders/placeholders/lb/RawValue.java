@@ -7,6 +7,7 @@ import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.placeholders.Placeholder;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class RawValue extends Placeholder {
@@ -22,7 +23,7 @@ public class RawValue extends Placeholder {
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
-        String typeRaw = matcher.group(3).toUpperCase();
+        String typeRaw = matcher.group(3).toUpperCase(Locale.ROOT);
         StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, TimedType.valueOf(typeRaw));
         DecimalFormat df = new DecimalFormat("#.##");
         return df.format(r.getScore());

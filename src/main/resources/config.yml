@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 9
+config-version: 10
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -42,3 +42,9 @@ update-de-bug: false
 # Should we use particles as debug to show where heads and armorstands are being looked for?
 #  Default: false
 particles: false
+
+# Should we block the server when loading placeholders?
+# If this is true, it can cause some lag when the placeholders first get loaded, but that only happens once
+#  (until the server restarts again)
+# Usually this isnt an issue, but if you see lag from ajLeaderboards and you dont have head blocks, maybe disable this
+blocking-fetch: true
