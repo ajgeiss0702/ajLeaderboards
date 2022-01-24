@@ -75,6 +75,7 @@ public class TopManager {
     }
     AtomicInteger fetching = new AtomicInteger(0);
     private void fetchPositionAsync(int position, String board, TimedType type) {
+        if(plugin.isShuttingDown()) return;
         checkWrong();
         fetchService.submit(() -> fetchPosition(position, board, type));
     }

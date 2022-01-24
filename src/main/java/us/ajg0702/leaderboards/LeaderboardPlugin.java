@@ -50,8 +50,14 @@ public class LeaderboardPlugin extends JavaPlugin {
     private boolean vault;
     private Chat vaultChat;
 
+    private boolean shuttingDown = false;
+
     @Override
     public void onEnable() {
+
+        if(isShuttingDown()) {
+            throw new IllegalStateException("Reload was used! ajLeaderboards does not support this!");
+        }
 
         BukkitCommand bukkitMainCommand = new BukkitCommand(new MainCommand(this));
 
@@ -131,12 +137,12 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
 
-
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
     }
 
     @Override
     public void onDisable() {
+        shuttingDown = true;
         Bukkit.getScheduler().cancelTasks(this);
         getTopManager().shutdown();
 
@@ -148,6 +154,12 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getLogger().warning("Cache took too long to shut down. Skipping it.");
             }
         }catch(InterruptedException ignored){}
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            if(!bukkitWorker.getOwner().equals(this)) return;
+            try {
+                bukkitWorker.getThread().interrupt();
+            } catch(SecurityException ignored) {}
+        });
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
     }
 
@@ -294,4 +306,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         return MiniMessage.get().parse(ChatColor.translateAlternateColorCodes('&', miniMessage));
     }
 
+    public boolean isShuttingDown() {
+        return shuttingDown;
+    }
 }
