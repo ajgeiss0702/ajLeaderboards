@@ -1,6 +1,5 @@
 package us.ajg0702.leaderboards.boards;
 
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
@@ -8,15 +7,17 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
     private final ThreadPoolExecutor fetchService = new ThreadPoolExecutor(
-            0, Integer.MAX_VALUE,
-            70L, TimeUnit.SECONDS,
-            new SynchronousQueue<>()
+            0, 50,
+            5L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(500, true)
     );
 
     
@@ -78,7 +79,7 @@ public class TopManager {
         fetchService.submit(() -> fetchPosition(position, board, type));
     }
     private StatEntry fetchPosition(int position, String board, TimedType type) {
-        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
         fetching.decrementAndGet();
@@ -132,7 +133,7 @@ public class TopManager {
         fetchService.submit(() -> fetchStatEntry(player, board, type));
     }
     private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
-        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
         fetching.decrementAndGet();
@@ -163,7 +164,7 @@ public class TopManager {
         fetchService.submit(this::fetchBoards);
     }
     private List<String> fetchBoards() {
-        //Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
         boardCache = plugin.getCache().getBoards();
         fetching.decrementAndGet();
         return boardCache;
