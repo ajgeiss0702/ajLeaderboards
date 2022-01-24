@@ -3,10 +3,7 @@ package us.ajg0702.leaderboards.placeholders;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
-import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerPosition;
-import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerTime;
-import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerValue;
-import us.ajg0702.leaderboards.placeholders.placeholders.player.PlayerValueFormatted;
+import us.ajg0702.leaderboards.placeholders.placeholders.player.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +26,8 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
         placeholders.add(new PlayerPosition(plugin));
         placeholders.add(new PlayerValueFormatted(plugin));
+        placeholders.add(new PlayerValueRaw(plugin));
+        placeholders.add(new PlayerValueTime(plugin));
         placeholders.add(new PlayerValue(plugin));
         placeholders.add(new PlayerTime(plugin));
     }
