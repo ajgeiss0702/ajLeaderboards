@@ -29,6 +29,10 @@ import us.ajg0702.utils.common.Messages;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,8 +138,16 @@ public class LeaderboardPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
-        getCache().getMethod().shutdown();
         getTopManager().shutdown();
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(getCache().getMethod()::shutdown);
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+                getLogger().warning("Cache took too long to shut down. Skipping it.");
+            }
+        }catch(InterruptedException ignored){}
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
     }
 
