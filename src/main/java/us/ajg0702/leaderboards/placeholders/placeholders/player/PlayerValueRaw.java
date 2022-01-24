@@ -17,7 +17,7 @@ public class PlayerValueRaw extends Placeholder {
 
     @Override
     public String getRegex() {
-        return "value_(*.*)_(*.*)_raw";
+        return "value_(.*)_(.*)_raw";
     }
 
     @Override

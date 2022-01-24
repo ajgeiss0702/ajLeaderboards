@@ -15,7 +15,7 @@ public class PlayerValueTime extends Placeholder {
 
     @Override
     public String getRegex() {
-        return "value_(*.*)_(*.*)_time";
+        return "value_(.*)_(.*)_time";
     }
 
     @Override
