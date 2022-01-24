@@ -22,6 +22,6 @@ public class PlayerValueFormatted extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        return plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getScorePretty();
+        return plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getScoreFormatted();
     }
 }
