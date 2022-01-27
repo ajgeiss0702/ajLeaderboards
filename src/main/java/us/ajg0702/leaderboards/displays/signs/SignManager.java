@@ -146,8 +146,10 @@ public class SignManager {
 
         }
 
+        if(plugin.isShuttingDown()) return;
         if(r.hasPlayer()) {
             plugin.getHeadManager().search(sign, r.getPlayer(), r.getPlayerID());
+            if(plugin.isShuttingDown()) return;
             plugin.getArmorStandManager().search(sign, r.getPlayer(), r.getPlayerID());
         }
         if(plugin.isShuttingDown()) return;

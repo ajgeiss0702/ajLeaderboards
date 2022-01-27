@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,11 +155,23 @@ public class LeaderboardPlugin extends JavaPlugin {
         }catch(InterruptedException ignored){}
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
             if(!bukkitWorker.getOwner().equals(this)) return;
+            Debug.info("Got worker "+bukkitWorker.getTaskId());
             try {
                 bukkitWorker.getThread().interrupt();
-            } catch(SecurityException ignored) {}
+                Debug.info("Interupted");
+                bukkitWorker.getThread().join(1000);
+                Debug.info("Death");
+            } catch(SecurityException e) {Debug.info("denied: "+e.getMessage());} catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" ");
+            for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
+                Debug.info(" - "+stackTraceElement);
+            }
+        });
     }
 
     public Config getAConfig() {
