@@ -8,20 +8,20 @@ import us.ajg0702.leaderboards.placeholders.Placeholder;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-public class PlayerValueFormatted extends Placeholder {
-    public PlayerValueFormatted(LeaderboardPlugin plugin) {
+public class PlayerValueTime extends Placeholder {
+    public PlayerValueTime(LeaderboardPlugin plugin) {
         super(plugin);
     }
 
     @Override
     public String getRegex() {
-        return "value_(.*)_(.*)_formatted";
+        return "value_(.*)_(.*)_time";
     }
 
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        return plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getScoreFormatted();
+        return plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getTime();
     }
 }

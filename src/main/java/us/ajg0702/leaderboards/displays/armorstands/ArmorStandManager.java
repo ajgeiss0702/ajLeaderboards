@@ -38,6 +38,7 @@ public class ArmorStandManager {
         assert world != null;
         AtomicReference<Collection<Entity>> entities = new AtomicReference<>();
         AtomicBoolean waiting = new AtomicBoolean(true);
+        if(plugin.isShuttingDown()) return;
         Bukkit.getScheduler().runTask(plugin, ()->{
             entities.set(world.getNearbyEntities(loc, 1, 1, 1));
             waiting.set(false);
@@ -46,7 +47,9 @@ public class ArmorStandManager {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                if(!plugin.isShuttingDown()) {
+                    e.printStackTrace();
+                }
                 return;
             }
         }

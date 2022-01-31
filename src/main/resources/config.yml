@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 10
+config-version: 11
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -48,3 +48,7 @@ particles: false
 #  (until the server restarts again)
 # Usually this isnt an issue, but if you see lag from ajLeaderboards and you dont have head blocks, maybe disable this
 blocking-fetch: true
+
+# Should we print some more stuff about the internals of fetching?
+# You really only need to use this if the dev asks for it.
+fetching-de-bug: false

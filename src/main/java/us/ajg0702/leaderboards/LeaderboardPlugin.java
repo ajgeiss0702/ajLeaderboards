@@ -29,6 +29,9 @@ import us.ajg0702.utils.common.Messages;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,8 +49,14 @@ public class LeaderboardPlugin extends JavaPlugin {
     private boolean vault;
     private Chat vaultChat;
 
+    private boolean shuttingDown = false;
+
     @Override
     public void onEnable() {
+
+        if(isShuttingDown()) {
+            throw new IllegalStateException("Reload was used! ajLeaderboards does not support this!");
+        }
 
         BukkitCommand bukkitMainCommand = new BukkitCommand(new MainCommand(this));
 
@@ -127,16 +136,42 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
 
-
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
     }
 
     @Override
     public void onDisable() {
+        shuttingDown = true;
         Bukkit.getScheduler().cancelTasks(this);
-        getCache().getMethod().shutdown();
         getTopManager().shutdown();
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(getCache().getMethod()::shutdown);
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+                getLogger().warning("Cache took too long to shut down. Skipping it.");
+            }
+        }catch(InterruptedException ignored){}
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            if(!bukkitWorker.getOwner().equals(this)) return;
+            Debug.info("Got worker "+bukkitWorker.getTaskId());
+            try {
+                bukkitWorker.getThread().interrupt();
+                Debug.info("Interupted");
+                bukkitWorker.getThread().join(1000);
+                Debug.info("Death");
+            } catch(SecurityException e) {Debug.info("denied: "+e.getMessage());} catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" ");
+            for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
+                Debug.info(" - "+stackTraceElement);
+            }
+        });
     }
 
     public Config getAConfig() {
@@ -282,4 +317,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         return MiniMessage.get().parse(ChatColor.translateAlternateColorCodes('&', miniMessage));
     }
 
+    public boolean isShuttingDown() {
+        return shuttingDown;
+    }
 }
