@@ -14,10 +14,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static us.ajg0702.leaderboards.displays.heads.HeadUtils.debugParticles;
@@ -50,7 +47,7 @@ public class ArmorStandManager {
         if (cache != null) {
             ArmorStand cacheEntity = cache.getEntity();
             if (cacheEntity != null && !cacheEntity.isDead()) {
-                if (cache.getId().equals(id)) return;
+                if (Objects.equals(cache.getId(), id)) return;
                 cache.setId(id);
                 setArmorstandHead(cacheEntity, name, id);
                 return;
@@ -69,8 +66,8 @@ public class ArmorStandManager {
                     Location entityLoc = entity.getLocation();
                     if (entityLoc.getBlockX() != loc.getBlockX() || entityLoc.getBlockZ() != loc.getBlockZ()) continue;
                     ArmorStand armorStand = (ArmorStand) entity;
-                    armorStandCache.put(sign.getLocation(), new ArmorStandCache(armorStand, id));
-                    setArmorstandHead(armorStand, name, id);
+                    armorStandCache.put(sign.getLocation(), new ArmorStandCache(armorStand));
+                    requestQueue.add(request);
                     break;
                 }
             }

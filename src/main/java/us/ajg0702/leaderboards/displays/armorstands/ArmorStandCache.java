@@ -4,14 +4,13 @@ import org.bukkit.entity.ArmorStand;
 
 import java.util.UUID;
 
-@SuppressWarnings("unused")
 public class ArmorStandCache {
     private final ArmorStand entity;
     private UUID id;
 
-    public ArmorStandCache(ArmorStand entity, UUID id) {
+    public ArmorStandCache(ArmorStand entity) {
         this.entity = entity;
-        this.id = id;
+        this.id = null;
     }
 
     public ArmorStand getEntity() {
