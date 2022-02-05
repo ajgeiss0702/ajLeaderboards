@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 import org.bukkit.OfflinePlayer;
+import sun.nio.ch.ThreadPool;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
@@ -8,17 +9,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
-    private final ThreadPoolExecutor fetchService = new ThreadPoolExecutor(
-            0, 50,
+    /*private final ThreadPoolExecutor fetchService = new ThreadPoolExecutor(
+            0, 10,
             5L, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(500, true)
-    );
+    );*/
+    private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     
 
