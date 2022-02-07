@@ -299,6 +299,7 @@ public class Cache {
 
 	public void updatePlayerStats(OfflinePlayer player) {
 		for(String b : getBoards()) {
+			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
 				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) return;
 			}
@@ -310,6 +311,7 @@ public class Cache {
 		boolean debug = plugin.getAConfig().getBoolean("update-de-bug");
 		String outputraw;
 		double output;
+		if(plugin.isShuttingDown()) return;
 		try {
 			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%")
 					.replaceAll(",", "");

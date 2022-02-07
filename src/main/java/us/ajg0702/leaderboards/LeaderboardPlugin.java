@@ -11,6 +11,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitWorker;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
@@ -27,8 +28,10 @@ import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -153,9 +156,13 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getLogger().warning("Cache took too long to shut down. Skipping it.");
             }
         }catch(InterruptedException ignored){}
-        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+        List<BukkitWorker> workers = new ArrayList<>(Bukkit.getScheduler().getActiveWorkers());
+        List<Integer> killedWorkers = new ArrayList<>();
+        workers.forEach(bukkitWorker -> {
             if(!bukkitWorker.getOwner().equals(this)) return;
-            Debug.info("Got worker "+bukkitWorker.getTaskId());
+            int id = bukkitWorker.getTaskId();
+            if(killedWorkers.contains(id)) return;
+            Debug.info("Got worker "+id);
             try {
                 bukkitWorker.getThread().interrupt();
                 Debug.info("Interupted");
@@ -164,6 +171,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             } catch(SecurityException e) {Debug.info("denied: "+e.getMessage());} catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            killedWorkers.add(id);
         });
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
@@ -225,6 +233,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             if(!config.getBoolean("update-stats")) return;
             for(Player p : Bukkit.getOnlinePlayers()) {
+                if(isShuttingDown()) return;
                 getCache().updatePlayerStats(p);
             }
         }, 10*20, config.getInt("stat-refresh")).getTaskId();

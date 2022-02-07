@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.commands.main.subcommands;
 
+import org.bukkit.Bukkit;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
@@ -26,21 +27,23 @@ public class Add extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        if(args.length < 1) {
-            sender.sendMessage(message("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
-            return;
-        }
-        String placeholder = args[0];
-        placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
-        if(!plugin.validatePlaceholder(placeholder, sender)) {
-            sender.sendMessage(message("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
-            return;
-        }
-        boolean r = plugin.getCache().createBoard(placeholder);
-        if(r) {
-            sender.sendMessage(message("&aBoard '"+placeholder+"' successfully created!"));
-        } else {
-            sender.sendMessage(message("&cBoard '"+placeholder+"' creation failed! See console for more info."));
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if(args.length < 1) {
+                sender.sendMessage(message("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
+                return;
+            }
+            String placeholder = args[0];
+            placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
+            if(!plugin.validatePlaceholder(placeholder, sender)) {
+                sender.sendMessage(message("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
+                return;
+            }
+            boolean r = plugin.getCache().createBoard(placeholder);
+            if(r) {
+                sender.sendMessage(message("&aBoard '"+placeholder+"' successfully created!"));
+            } else {
+                sender.sendMessage(message("&cBoard '"+placeholder+"' creation failed! See console for more info."));
+            }
+        });
     }
 }
