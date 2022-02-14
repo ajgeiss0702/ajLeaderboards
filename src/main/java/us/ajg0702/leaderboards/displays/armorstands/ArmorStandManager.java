@@ -34,9 +34,8 @@ public class ArmorStandManager {
 
     private void executeQueue() {
         if (waiting.get()) return;
-        if (requestQueue.isEmpty()) return;
-
-        ArmorStandRequest request = requestQueue.remove();
+        ArmorStandRequest request = requestQueue.poll();
+        if (request == null) return;
         BoardSign sign = request.getSign();
         UUID id = request.getId();
         String name = request.getName();
