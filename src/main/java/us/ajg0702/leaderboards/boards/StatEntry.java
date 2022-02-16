@@ -187,4 +187,15 @@ public class StatEntry {
 
 		return ns;
 	}
+
+
+	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+		return new StatEntry(plugin, position, board, "", "Board does not exist", null, "", 0, type);
+	}
+	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+		return new StatEntry(plugin, position, board, "", "An error occured", null, "", 0, type);
+	}
+	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+		return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+	}
 }

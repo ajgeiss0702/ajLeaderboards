@@ -84,7 +84,8 @@ public class TopManager {
         fetchService.submit(() -> fetchPosition(position, board, type));
     }
     private StatEntry fetchPosition(int position, String board, TimedType type) {
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+fetching.getAndIncrement());
+        int f = fetching.getAndIncrement();
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+f);
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
         removeFetching();
@@ -138,7 +139,8 @@ public class TopManager {
         fetchService.submit(() -> fetchStatEntry(player, board, type));
     }
     private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+fetching.getAndIncrement());
+        int f = fetching.getAndIncrement();
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+f);
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
         removeFetching();
@@ -169,7 +171,8 @@ public class TopManager {
         fetchService.submit(this::fetchBoards);
     }
     private List<String> fetchBoards() {
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+fetching.getAndIncrement());
+        int f = fetching.getAndIncrement();
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
         boardCache = plugin.getCache().getBoards();
         removeFetching();
         return boardCache;
@@ -191,6 +194,10 @@ public class TopManager {
 
     public int getLastLow() {
         return lastLow;
+    }
+
+    public int getActiveFetchers() {
+        return fetchService.getActiveCount();
     }
 
     private void checkWrong() {

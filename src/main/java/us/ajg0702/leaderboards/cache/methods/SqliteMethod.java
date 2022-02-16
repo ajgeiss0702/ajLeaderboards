@@ -104,6 +104,16 @@ public class SqliteMethod implements CacheMethod {
         }
     }
 
+    @Override
+    public String formatStatement(String s) {
+        return s.replaceAll("'", "\"");
+    }
+
+    @Override
+    public String getName() {
+        return "sqlite";
+    }
+
     public void newConnection() {
         shutdown();
         init(plugin, config, cacheInstance);
