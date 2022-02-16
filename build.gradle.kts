@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.2.0"
+version = "2.3.0-mysqlfix"
 
 repositories {
     mavenCentral()
@@ -37,9 +37,6 @@ dependencies {
     implementation("net.kyori:adventure-api:4.9.3")
     implementation("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT")
     implementation("net.kyori:adventure-platform-bukkit:4.0.1")
-
-    implementation("com.h2database:h2:2.1.210")
-
 }
 
 tasks.withType<ProcessResources> {
@@ -60,7 +57,6 @@ tasks.shadowJar {
     relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
     relocate("org.yaml", "us.ajg0702.leaderboards.libs")
     relocate("io.leangen", "us.ajg0702.leaderboards.libs")
-    relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")
     exclude("junit/**/*")

@@ -47,7 +47,7 @@ public class MysqlMethod implements CacheMethod {
         hikariConfig.setMinimumIdle(minCount);
         //hikariConfig.setRegisterMbeans(true);
         ds = new HikariDataSource(hikariConfig);
-        ds.setLeakDetectionThreshold(60 * 1000);
+        ds.setLeakDetectionThreshold(10 * 1000);
 
         List<String> tables = cacheInstance.getDbTableList();
 

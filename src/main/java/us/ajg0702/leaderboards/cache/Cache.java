@@ -111,7 +111,9 @@ public class Cache {
 
 			ResultSet r = ps.executeQuery();
 
-			return processData(r, sortBy, position, board, type);
+			StatEntry se = processData(r, sortBy, position, board, type);
+			method.close(conn);
+			return se;
 		} catch(SQLException e) {
 			plugin.getLogger().severe("Unable to get stat of player:");
 			e.printStackTrace();
@@ -603,6 +605,7 @@ public class Cache {
 			}
 		}
 		if(name == null) name = "-Unknown";
+		r.close();
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {
