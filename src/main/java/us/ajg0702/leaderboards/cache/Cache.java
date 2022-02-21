@@ -339,10 +339,11 @@ public class Cache {
 		if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
 		try {
 			Connection conn = method.getConnection();
-			try(PreparedStatement statement = conn.prepareStatement(String.format(
-					method.formatStatement(INSERT_PLAYER),
-					tablePrefix+board
-			))) {
+			try {
+				PreparedStatement statement = conn.prepareStatement(String.format(
+						method.formatStatement(INSERT_PLAYER),
+						tablePrefix+board
+				));
 				if(debug) Debug.info("in try");
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
@@ -359,6 +360,8 @@ public class Cache {
 				}
 
 				statement.executeUpdate();
+				statement.close();
+				method.close(conn);
 			} catch(SQLException e) {
 				if(debug) Debug.info("in catch");
 				try(PreparedStatement statement = conn.prepareStatement(String.format(
@@ -377,7 +380,7 @@ public class Cache {
 					statement.setString(i, player.getUniqueId().toString());
 					statement.executeUpdate();
 				}
-
+				method.close(conn);
 			}
 			method.close(conn);
 		} catch(SQLException e) {
