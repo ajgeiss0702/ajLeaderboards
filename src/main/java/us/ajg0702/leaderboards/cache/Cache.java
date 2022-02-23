@@ -106,7 +106,7 @@ public class Cache {
 					method.formatStatement(SELECT_POSITION),
 					tablePrefix+board,
 					sortBy,
-					position
+					position-1
 			));
 
 			ResultSet r = ps.executeQuery();
