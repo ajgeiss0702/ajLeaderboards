@@ -18,6 +18,7 @@ import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
 
@@ -353,7 +354,7 @@ public class Cache {
 				int i = 5;
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
-					long lastReset = getLastReset(board, type);
+					long lastReset = plugin.getTopManager().getLastReset(board, type).get();
 					statement.setDouble(++i, 0);
 					statement.setDouble(++i, output);
 					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
@@ -383,7 +384,7 @@ public class Cache {
 				method.close(conn);
 			}
 			method.close(conn);
-		} catch(SQLException e) {
+		} catch(ExecutionException | InterruptedException | SQLException e) {
 			plugin.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();
 		}
@@ -448,14 +449,14 @@ public class Cache {
 		return last;
 	}
 
-	public void reset(String board, TimedType type) {
+	public void reset(String board, TimedType type) throws ExecutionException, InterruptedException {
 		if(!boardExists(board)) return;
 		long startTime = System.currentTimeMillis();
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
-		long lastReset = getLastReset(board, type);
+		long lastReset = plugin.getTopManager().getLastReset(board, type).get();
 		//long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
 		long newReset = (long) (type.getResetMs()*(Math.floor(System.currentTimeMillis()/(type.getResetMs()*1D))));
 		Debug.info("last: "+lastReset+" next: "+newReset+" diff: "+(newReset-lastReset)+" gap: "+(System.currentTimeMillis() - lastReset));

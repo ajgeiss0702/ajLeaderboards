@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -248,17 +249,22 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         for(String board : cache.getBoards()) {
             for(TimedType type : TimedType.values()) {
-                scheduleReset(board, type);
+                try {
+                    scheduleReset(board, type);
+                } catch (ExecutionException | InterruptedException e) {
+                    getLogger().warning("Scheduling reset interupted:");
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public void scheduleReset(String board, TimedType type) {
+    public void scheduleReset(String board, TimedType type) throws ExecutionException, InterruptedException {
         if(type.equals(TimedType.ALLTIME)) return;
         if(type.getResetMs() < 0) return;
 
 
-        long lastReset = cache.getLastReset(board, type);
+        long lastReset = topManager.getLastReset(board, type).get();
         long nextReset = lastReset + type.getResetMs();
         long msTilNextReset = nextReset - System.currentTimeMillis();
 
@@ -271,7 +277,14 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,
-                () -> cache.reset(board, type),
+                () -> {
+                    try {
+                        cache.reset(board, type);
+                    } catch (ExecutionException | InterruptedException e) {
+                        getLogger().warning("Unable to reset "+type+" for "+board+": (interupted/exception)");
+                        e.printStackTrace();
+                    }
+                },
                 (long) (secsTilNextReset*20)
         ).getTaskId();
         resetIds.put(type, taskId);
