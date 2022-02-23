@@ -199,6 +199,7 @@ public class TopManager {
 
     public int getFetchingAverage() {
         List<Integer> snap = new ArrayList<>(rolling);
+        if(snap.size() == 0) return 0;
         int sum = 0;
         for(Integer n : snap) {
             if(n == null) break;
