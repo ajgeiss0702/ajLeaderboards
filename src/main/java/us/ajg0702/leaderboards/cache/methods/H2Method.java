@@ -80,7 +80,7 @@ public class H2Method implements CacheMethod {
                         try {
                             statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_delta BIGINT");
                             statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_lasttotal BIGINT");
-                            statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_timestamp TIMESTAMP");
+                            statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_timestamp BIGINT");
                         } catch(SQLException e) {
                             if(e.getMessage().contains("Duplicate")) {
                                 plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
