@@ -5,12 +5,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.utils.Cached;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
@@ -206,6 +207,27 @@ public class TopManager {
             sum += n;
         }
         return sum/snap.size();
+    }
+
+    Map<String, Cached<Future<Long>>> lastResetCache = new HashMap<>();
+
+    public Future<Long> getLastReset(String board, TimedType type) {
+        String key = board+type.toString();
+        Cached<Future<Long>> cached = lastResetCache.getOrDefault(key, Cached.none());
+        if(System.currentTimeMillis() - cached.getLastGet() < 5000) return cached.getThing();
+        if(cached.getThing() != null) {
+            ((CompletableFuture<?>)cached.getThing())
+                    .completeExceptionally(new TimeoutException("Future not completed before cache expiration!"));
+        }
+        CompletableFuture<Long> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            long lastReset = plugin.getCache().getLastReset(board, type);
+            if(future.isDone()) return;
+            future.complete(lastReset);
+        });
+        lastResetCache.put(key, new Cached<>(System.currentTimeMillis(), future));
+        return future;
+
     }
 
     public int getActiveFetchers() {
