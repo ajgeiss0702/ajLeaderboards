@@ -214,7 +214,7 @@ public class TopManager {
     public Future<Long> getLastReset(String board, TimedType type) {
         String key = board+type.toString();
         Cached<Future<Long>> cached = lastResetCache.getOrDefault(key, Cached.none());
-        if(System.currentTimeMillis() - cached.getLastGet() < 5000) return cached.getThing();
+        if(System.currentTimeMillis() - cached.getLastGet() < 30000) return cached.getThing();
         if(cached.getThing() != null) {
             ((CompletableFuture<?>)cached.getThing())
                     .completeExceptionally(new TimeoutException("Future not completed before cache expiration!"));
