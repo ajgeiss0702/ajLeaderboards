@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 11
+config-version: 12
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -52,3 +52,8 @@ blocking-fetch: true
 # Should we print some more stuff about the internals of fetching?
 # You really only need to use this if the dev asks for it.
 fetching-de-bug: false
+
+# Should ajLeaderboards update the stat as soon as the player joins?
+# You should only disable this if you have issues with the player's stat resetting when they join
+#  Default: true
+update-on-join: true
