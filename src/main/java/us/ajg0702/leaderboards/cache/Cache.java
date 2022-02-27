@@ -28,7 +28,7 @@ public class Cache {
 	private final String SELECT_POSITION = "select 'id','value',"+deltaBuilder()+"'namecache','prefixcache','suffixcache' from '%s' order by '%s' desc limit 1 offset %d";
 	private final String SELECT_PLAYER = "select 'id','value',"+deltaBuilder()+"'namecache','prefixcache','suffixcache' from '%s' order by '%s' desc";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT",
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT)",
 			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255))",
 			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT)"
 	);
@@ -380,10 +380,14 @@ public class Cache {
 					}
 					statement.setString(i, player.getUniqueId().toString());
 					statement.executeUpdate();
+					statement.close();
 				}
 				method.close(conn);
 			}
 			method.close(conn);
+			if(!conn.isClosed() && !(method instanceof SqliteMethod)) {
+				plugin.getLogger().warning("Not closed!");
+			}
 		} catch(ExecutionException | InterruptedException | SQLException e) {
 			plugin.getLogger().severe("Unable to update stat for player:");
 			e.printStackTrace();

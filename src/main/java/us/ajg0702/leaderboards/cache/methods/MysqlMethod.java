@@ -2,6 +2,8 @@ package us.ajg0702.leaderboards.cache.methods;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.metrics.prometheus.PrometheusHistogramMetricsTrackerFactory;
+import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -45,9 +47,12 @@ public class MysqlMethod implements CacheMethod {
         hikariConfig.setPassword(password);
         hikariConfig.setMaximumPoolSize(maxCount);
         hikariConfig.setMinimumIdle(minCount);
-        //hikariConfig.setRegisterMbeans(true);
+
+        hikariConfig.setRegisterMbeans(true);
+        hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
+
         ds = new HikariDataSource(hikariConfig);
-        ds.setLeakDetectionThreshold(10 * 1000);
+        ds.setLeakDetectionThreshold(25 * 1000);
 
         List<String> tables = cacheInstance.getDbTableList();
 
