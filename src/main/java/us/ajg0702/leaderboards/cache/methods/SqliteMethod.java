@@ -68,7 +68,7 @@ public class SqliteMethod implements CacheMethod {
                         String type = typeEnum.name().toLowerCase(Locale.ROOT);
                         statement.executeUpdate("alter table '"+b+"' add column '"+type+"_delta' NUMERIC");
                         statement.executeUpdate("alter table '"+b+"' add column '"+type+"_lasttotal' NUMERIC");
-                        statement.executeUpdate("alter table '"+b+"' add column '"+type+"_timestamp' DATETIME");
+                        statement.executeUpdate("alter table '"+b+"' add column '"+type+"_timestamp' NUMERIC");
                     }
                 }
 
@@ -102,6 +102,16 @@ public class SqliteMethod implements CacheMethod {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String formatStatement(String s) {
+        return s.replaceAll("'", "\"");
+    }
+
+    @Override
+    public String getName() {
+        return "sqlite";
     }
 
     public void newConnection() {

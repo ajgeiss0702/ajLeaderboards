@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
 
 public class SignManager {
     private final LeaderboardPlugin plugin;
@@ -139,7 +140,7 @@ public class SignManager {
                     .replaceAll("\\{POSITION}", sign.getPosition()+"")
                     .replaceAll("\\{NAME}", r.getPlayer())
                     .replaceAll("\\{VALUE}", r.getScorePretty())
-                    .replaceAll("\\{VALUENAME}", name)
+                    .replaceAll("\\{VALUENAME}", Matcher.quoteReplacement("name"))
                     .replaceAll("\\{TIMEDTYPE}", sign.getType().lowerName());
 
             plines.add(pline);

@@ -16,6 +16,7 @@ public class Listeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if(!plugin.getAConfig().getBoolean("update-stats")) return;
+        if(!plugin.getAConfig().getBoolean("update-on-join")) return;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getCache().updatePlayerStats(e.getPlayer()));
     }
 }

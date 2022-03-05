@@ -1,9 +1,5 @@
 package us.ajg0702.leaderboards.cache.methods;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.metrics.prometheus.PrometheusHistogramMetricsTrackerFactory;
-import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -11,54 +7,51 @@ import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.File;
+import java.sql.*;
 import java.util.List;
 import java.util.Locale;
 
-public class MysqlMethod implements CacheMethod {
+public class H2Method implements CacheMethod {
+    private Connection conn;
+    private LeaderboardPlugin plugin;
+    private ConfigFile config;
+    private Cache cacheInstance;
     @Override
-    public Connection getConnection() throws SQLException {
-        if(ds == null) return null;
-        return ds.getConnection();
+    public Connection getConnection() {
+        try {
+            if(conn.isClosed()) {
+                plugin.getLogger().warning("H2 connection is dead, making a new one");
+                init(plugin, config, cacheInstance);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return conn;
     }
-
-    private final HikariConfig hikariConfig = new HikariConfig();
-    private HikariDataSource ds;
-
 
     @Override
     public void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance) {
-        String ip = config.getString("ip");
-        String username = config.getString("username");
-        String password = config.getString("password");
-        String database = config.getString("database");
-        boolean useSSL = config.getBoolean("useSSL");
-        boolean allowPublicKeyRetrieval = config.getBoolean("allowPublicKeyRetrieval");
-        int minCount = config.getInt("minConnections");
-        int maxCount = config.getInt("maxConnections");
-
-        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8&useInformationSchema=true";
-        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setUsername(username);
-        hikariConfig.setPassword(password);
-        hikariConfig.setMaximumPoolSize(maxCount);
-        hikariConfig.setMinimumIdle(minCount);
-
-        hikariConfig.setRegisterMbeans(true);
-        hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
-
-        ds = new HikariDataSource(hikariConfig);
-        ds.setLeakDetectionThreshold(25 * 1000);
-
+        this.plugin = plugin;
+        this.config = config;
+        this.cacheInstance = cacheInstance;
+        try {
+            Class.forName("us.ajg0702.leaderboards.libs.h2.Driver");
+        } catch (ClassNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        String url = "jdbc:h2:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"cache;DATABASE_TO_UPPER=false";
+        try {
+            conn = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Unnable to create cache file! The plugin will not work correctly!");
+            e.printStackTrace();
+            return;
+        }
         List<String> tables = cacheInstance.getDbTableList();
 
-        try(Connection conn = getConnection()) {
+        try(Statement statement = conn.createStatement()) {
             //ResultSet rs = conn.getMetaData().getTables(null, null, "", null);
-            Statement statement = conn.createStatement();
             for(String tableName : tables) {
                 int version;
                 if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
@@ -79,7 +72,7 @@ public class MysqlMethod implements CacheMethod {
                 Debug.info("Table version for "+tableName+" is: "+version);
 
                 if(version == 0) {
-                    plugin.getLogger().info("Running MySQL table updater for table "+tableName+" (pv"+version+")");
+                    plugin.getLogger().info("Running H2 table updater for table "+tableName+" (pv"+version+")");
 
                     for(TimedType typeEnum : TimedType.values()) {
                         if(typeEnum == TimedType.ALLTIME) continue;
@@ -112,18 +105,20 @@ public class MysqlMethod implements CacheMethod {
     }
 
     @Override
-    public void close(Connection connection) throws SQLException {
-        connection.close();
-    }
+    public void close(Connection connection) {}
 
     @Override
     public int getMaxConnections() {
-        return ds.getMaximumPoolSize();
+        return 1;
     }
 
     @Override
     public void shutdown() {
-        ds.close();
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -133,6 +128,11 @@ public class MysqlMethod implements CacheMethod {
 
     @Override
     public String getName() {
-        return "mysql";
+        return "h2";
+    }
+
+    public void newConnection() {
+        shutdown();
+        init(plugin, config, cacheInstance);
     }
 }

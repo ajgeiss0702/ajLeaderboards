@@ -12,4 +12,6 @@ public interface CacheMethod {
     void close(Connection connection) throws SQLException;
     int getMaxConnections();
     void shutdown();
+    String formatStatement(String s);
+    String getName();
 }

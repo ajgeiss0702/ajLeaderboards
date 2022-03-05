@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.2.0"
+version = "2.3.0-mysqlfix"
 
 repositories {
     mavenCentral()
