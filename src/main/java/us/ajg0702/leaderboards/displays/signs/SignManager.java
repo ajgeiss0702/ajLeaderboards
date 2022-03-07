@@ -140,7 +140,7 @@ public class SignManager {
                     .replaceAll("\\{POSITION}", sign.getPosition()+"")
                     .replaceAll("\\{NAME}", r.getPlayer())
                     .replaceAll("\\{VALUE}", r.getScorePretty())
-                    .replaceAll("\\{VALUENAME}", Matcher.quoteReplacement("name"))
+                    .replaceAll("\\{VALUENAME}", Matcher.quoteReplacement(name))
                     .replaceAll("\\{TIMEDTYPE}", sign.getType().lowerName());
 
             plines.add(pline);
