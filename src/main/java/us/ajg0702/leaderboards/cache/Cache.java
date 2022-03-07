@@ -412,7 +412,7 @@ public class Cache {
 				if(method instanceof MysqlMethod || method instanceof H2Method) {
 					rs.next();
 				}
-				last = rs.getInt(1);
+				last = rs.getDouble(1);
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
