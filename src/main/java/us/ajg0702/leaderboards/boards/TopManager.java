@@ -215,9 +215,10 @@ public class TopManager {
         String key = board+type.toString();
         Cached<Future<Long>> cached = lastResetCache.getOrDefault(key, Cached.none());
         if(System.currentTimeMillis() - cached.getLastGet() < 30000) return cached.getThing();
-        if(cached.getThing() != null) {
-            ((CompletableFuture<?>)cached.getThing())
-                    .completeExceptionally(new TimeoutException("Future not completed before cache expiration!"));
+        if(cached.getThing() != null && !cached.getThing().isDone()) {
+            plugin.getLogger().warning("Not fetching new lastReset because the old one hasnt returned yet! (database overloaded?) " +
+                    "(f: "+getFetching()+" avg: "+getFetchingAverage()+")");
+            return cached.getThing();
         }
         CompletableFuture<Long> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
