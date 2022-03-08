@@ -345,7 +345,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
 
     public static Component message(String miniMessage) {
-        return getMiniMessage().deserialize(ChatColor.translateAlternateColorCodes('&', miniMessage));
+        return getMiniMessage().deserialize(Messages.color(miniMessage));
     }
 
     public boolean isShuttingDown() {
