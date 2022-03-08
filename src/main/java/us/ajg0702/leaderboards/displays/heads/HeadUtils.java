@@ -40,7 +40,7 @@ public class HeadUtils {
     }
 
 
-    public ItemStack getHeadItem(String name) {
+    public ItemStack getHeadItem(UUID uuid) {
         ItemStack skull = null;
         if(VersionSupport.getMinorVersion() <= 12) {
             //noinspection deprecation
@@ -48,7 +48,7 @@ public class HeadUtils {
         } else if(VersionSupport.getMinorVersion() > 12) {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
         }
-        String value = getHeadValue(name);
+        String value = getHeadValue(uuid);
         if(value.equals("")) return skull;
         UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
         //noinspection deprecation
@@ -59,26 +59,20 @@ public class HeadUtils {
     }
 
 
-    Map<String, CachedData<String>> skinCache = new HashMap<>();
+    Map<UUID, CachedData<String>> skinCache = new HashMap<>();
     final long lastClear = System.currentTimeMillis();
 
-    public String getHeadValue(String name) {
+    public String getHeadValue(UUID uuid) {
         if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
             skinCache = new HashMap<>();
         }
 
-        if(skinCache.containsKey(name) && skinCache.get(name).getTimeSince() < 300e3) {
-            return skinCache.get(name).getData();
+        if(skinCache.containsKey(uuid) && skinCache.get(uuid).getTimeSince() < 300e3) {
+            return skinCache.get(uuid).getData();
         }
-
-        String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
-
-        Gson g = new Gson();
-        JsonObject jObj = g.fromJson(result, JsonObject.class);
-        if(jObj == null || jObj.get("id") == null) return "";
-        String uuid = jObj.get("id").toString().replace("\"","");
         String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
-        jObj = g.fromJson(signature, JsonObject.class);
+        Gson g = new Gson();
+        JsonObject jObj = g.fromJson(signature, JsonObject.class);
         if(jObj == null || jObj.get("id") == null) return "";
         String value = jObj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
         String decoded = new String(Base64.getDecoder().decode(value));
@@ -86,7 +80,7 @@ public class HeadUtils {
         String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
         byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skin + "\"}}}").getBytes();
         String finalSkin = new String(Base64.getEncoder().encode(skinByte));
-        skinCache.put(name, new CachedData<>(finalSkin));
+        skinCache.put(uuid, new CachedData<>(finalSkin));
         return finalSkin;
     }
 

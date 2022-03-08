@@ -1,5 +1,7 @@
 package us.ajg0702.leaderboards.displays.signs;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,13 +14,17 @@ import us.ajg0702.utils.common.Messages;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 
 public class SignManager {
     private final LeaderboardPlugin plugin;
     private YamlConfiguration cfg;
     private File cfgFile;
+
+    private static final LegacyComponentSerializer LEGACY_SIGN_SERIALIZER = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build();
 
     private final List<BoardSign> signs = new CopyOnWriteArrayList<>();
 
@@ -46,8 +52,7 @@ public class SignManager {
                 try {
                     signs.add(BoardSign.deserialize(s));
                 } catch(Exception e) {
-                    plugin.getLogger().warning("An error occurred while loading a sign:");
-                    e.printStackTrace();
+                    plugin.getLogger().log(Level.WARNING, "An error occurred while loading a sign:", e);
                 }
             }
         }
@@ -93,7 +98,7 @@ public class SignManager {
         try {
             cfg.save(cfgFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "An error occurred while saving signs to the file:", e);
         }
     }
 
@@ -127,25 +132,23 @@ public class SignManager {
 
         Messages msgs = plugin.getMessages();
 
-        List<String> lines = Arrays.asList(
-                msgs.getString("signs.top.1"),
-                msgs.getString("signs.top.2"),
-                msgs.getString("signs.top.3"),
-                msgs.getString("signs.top.4"));
+        String[] placeholders = Arrays.asList(
+                "POSITION:"+sign.getPosition(),
+                "NAME:"+r.getPlayer(),
+                "VALUE:"+r.getScorePretty(),
+                "VALUENAME:"+Matcher.quoteReplacement(name),
+                "TIMEDTYPE:"+sign.getType().lowerName()
+        ).toArray(new String[]{});
+
+        List<Component> lines = Arrays.asList(
+                msgs.getComponent("signs.top.1", placeholders),
+                msgs.getComponent("signs.top.2", placeholders),
+                msgs.getComponent("signs.top.3", placeholders),
+                msgs.getComponent("signs.top.4", placeholders));
 
 
-        List<String> plines = new ArrayList<>();
-        for(String l : lines) {
-            String pline = l
-                    .replaceAll("\\{POSITION}", sign.getPosition()+"")
-                    .replaceAll("\\{NAME}", r.getPlayer())
-                    .replaceAll("\\{VALUE}", r.getScorePretty())
-                    .replaceAll("\\{VALUENAME}", Matcher.quoteReplacement("name"))
-                    .replaceAll("\\{TIMEDTYPE}", sign.getType().lowerName());
-
-            plines.add(pline);
-
-        }
+        List<String> pLines = new ArrayList<>();
+        lines.forEach(c -> pLines.add(LEGACY_SIGN_SERIALIZER.serialize(c)));
 
         if(plugin.isShuttingDown()) return;
         if(r.hasPlayer()) {
@@ -154,7 +157,7 @@ public class SignManager {
             plugin.getArmorStandManager().search(sign, r.getPlayer(), r.getPlayerID());
         }
         if(plugin.isShuttingDown()) return;
-        Bukkit.getScheduler().runTask(plugin, () -> sign.setText(plines.get(0), plines.get(1), plines.get(2), plines.get(3)));
+        Bukkit.getScheduler().runTask(plugin, () -> sign.setText(pLines.get(0), pLines.get(1), pLines.get(2), pLines.get(3)));
     }
 
     public boolean isSignChunkLoaded(BoardSign sign) {

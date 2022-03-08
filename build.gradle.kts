@@ -30,8 +30,11 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.bstats:bstats-bukkit:1.7")
+    implementation("us.ajg0702:ajUtils:1.1.20")
+    implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
+    implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 
-    implementation("net.kyori:adventure-api:4.9.3")
+    implementation("net.kyori:adventure-api:4.10.0")
     implementation("net.kyori:adventure-text-minimessage:4.10.0")
     implementation("net.kyori:adventure-platform-bukkit:4.0.1")
 
