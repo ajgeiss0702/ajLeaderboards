@@ -10,12 +10,14 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.*;
+import java.util.logging.Level;
 
 import static us.ajg0702.leaderboards.displays.heads.HeadUtils.debugParticles;
 
@@ -25,64 +27,42 @@ public class ArmorStandManager {
 
     public ArmorStandManager(LeaderboardPlugin plugin) {
         this.plugin = plugin;
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::executeQueue, 10, 10);
     }
 
     private final HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
-    private final Queue<ArmorStandRequest> requestQueue = new LinkedList<>();
-    private final AtomicBoolean waiting = new AtomicBoolean();
 
-    private void executeQueue() {
-        if (waiting.get()) return;
-        ArmorStandRequest request = requestQueue.poll();
-        if (request == null) return;
-        BoardSign sign = request.getSign();
-        UUID id = request.getId();
-        String name = request.getName();
-
+    private void checkArmorstand(BoardSign sign, Location loc, String name, UUID id) throws ExecutionException, InterruptedException, TimeoutException {
         ArmorStandCache cache = armorStandCache.get(sign.getLocation());
 
         // If the cache was found, just update the head
         if (cache != null) {
             ArmorStand cacheEntity = cache.getEntity();
             if (cacheEntity != null && !cacheEntity.isDead()) {
-                if (Objects.equals(cache.getId(), id)) return;
+                if (id != null && id.equals(cache.getId())) return;
                 cache.setId(id);
-                setArmorstandHead(cacheEntity, name, id);
+                setArmorstandHead(cacheEntity, id);
                 return;
             }
         }
 
         // The cache was not found. Find an armorstand and add it to the cache
-        Location loc = request.getLocation();
-        World world = loc.getWorld();
-        assert world != null;
-        waiting.set(true);
         if (plugin.isShuttingDown()) return;
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            for (Entity entity : world.getNearbyEntities(loc, 1, 1, 1)) {
-                if (entity instanceof ArmorStand) {
-                    Location entityLoc = entity.getLocation();
-                    if (entityLoc.getBlockX() != loc.getBlockX() || entityLoc.getBlockZ() != loc.getBlockZ()) continue;
-                    ArmorStand armorStand = (ArmorStand) entity;
-                    armorStandCache.put(sign.getLocation(), new ArmorStandCache(armorStand));
-                    requestQueue.add(request);
-                    break;
-                }
-            }
-            waiting.set(false);
-        });
+        for (Entity entity : getNearbyEntities(loc).get(5, TimeUnit.SECONDS)) {
+            if (!(entity instanceof ArmorStand)) continue;
+            Location entityLoc = entity.getLocation();
+            if (entityLoc.getBlockX() != loc.getBlockX() || entityLoc.getBlockZ() != loc.getBlockZ()) continue;
+            ArmorStand armorStand = (ArmorStand) entity;
+            armorStandCache.put(sign.getLocation(), new ArmorStandCache(armorStand));
+            break;
+        }
     }
 
-    private void addRequest(BoardSign sign, Location loc, String name, UUID id) {
-        requestQueue.add(new ArmorStandRequest(sign, loc, name, id));
-    }
-
-    private void setArmorstandHead(ArmorStand stand, String name, UUID id) {
+    private void setArmorstandHead(ArmorStand stand, UUID id) {
+        Debug.info("Updating armorstand");
         if(VersionSupport.getMinorVersion() >= 10) {
             stand.setSilent(true);
         }
-        ItemStack item = plugin.getHeadUtils().getHeadItem(name);
+        ItemStack item = plugin.getHeadUtils().getHeadItem(id);
         //noinspection deprecation
         stand.setHelmet(item);
     }
@@ -112,71 +92,89 @@ public class ArmorStandManager {
 
         Location sl = sign.getLocation();
 
-        switch(face) {
+        try {
+            switch(face) {
 
-            case NORTH:
-            case NORTH_EAST:
-            case NORTH_NORTH_EAST:
-            case NORTH_NORTH_WEST:
-            case NORTH_WEST:
+                case NORTH:
+                case NORTH_EAST:
+                case NORTH_NORTH_EAST:
+                case NORTH_NORTH_WEST:
+                case NORTH_WEST:
 
-                for(int z = sl.getBlockZ()+1;z > sl.getBlockZ()-1;z--) {
-                    for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
-                        Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
-                        addRequest(sign, curloc, name, id);
-                        debugParticles(curloc);
+                    for(int z = sl.getBlockZ()+1;z > sl.getBlockZ()-1;z--) {
+                        for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+                            Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
+                            checkArmorstand(sign, curloc, name, id);
+                            debugParticles(curloc);
+                        }
                     }
-                }
-                break;
+                    break;
 
-            case SOUTH:
-            case SOUTH_EAST:
-            case SOUTH_SOUTH_EAST:
-            case SOUTH_SOUTH_WEST:
-            case SOUTH_WEST:
+                case SOUTH:
+                case SOUTH_EAST:
+                case SOUTH_SOUTH_EAST:
+                case SOUTH_SOUTH_WEST:
+                case SOUTH_WEST:
 
-                for(int z = sl.getBlockZ();z > sl.getBlockZ()-2;z--) {
-                    for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
-                        Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
-                        addRequest(sign, curloc, name, id);
-                        debugParticles(curloc);
+                    for(int z = sl.getBlockZ();z > sl.getBlockZ()-2;z--) {
+                        for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+                            Location curloc = new Location(sl.getWorld(), sl.getX(), y, z);
+                            checkArmorstand(sign, curloc, name, id);
+                            debugParticles(curloc);
+                        }
                     }
-                }
-                break;
+                    break;
 
-            case EAST:
-            case EAST_NORTH_EAST:
-            case EAST_SOUTH_EAST:
+                case EAST:
+                case EAST_NORTH_EAST:
+                case EAST_SOUTH_EAST:
 
-                for(int x = sl.getBlockX();x > sl.getBlockX()-2;x--) {
-                    for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
-                        Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
-                        addRequest(sign, curloc, name, id);
-                        debugParticles(curloc);
+                    for(int x = sl.getBlockX();x > sl.getBlockX()-2;x--) {
+                        for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+                            Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
+                            checkArmorstand(sign, curloc, name, id);
+                            debugParticles(curloc);
+                        }
                     }
-                }
-                break;
+                    break;
 
-            case WEST:
-            case WEST_NORTH_WEST:
-            case WEST_SOUTH_WEST:
+                case WEST:
+                case WEST_NORTH_WEST:
+                case WEST_SOUTH_WEST:
 
 
-                for(int x = sl.getBlockX()+1;x > sl.getBlockX()-1;x--) {
-                    for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
-                        Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
-                        addRequest(sign, curloc, name, id);
-                        debugParticles(curloc);
+                    for(int x = sl.getBlockX()+1;x > sl.getBlockX()-1;x--) {
+                        for(int y = sl.getBlockY()+1;y > sl.getBlockY()-1;y--) {
+                            Location curloc = new Location(sl.getWorld(), x, y, sl.getZ());
+                            checkArmorstand(sign, curloc, name, id);
+                            debugParticles(curloc);
+                        }
                     }
-                }
-                break;
+                    break;
 
-            case DOWN:
-            case UP:
-            case SELF:
-            default:
-                break;
+                case DOWN:
+                case UP:
+                case SELF:
+                default:
+                    break;
 
+            }
+        } catch(ExecutionException | InterruptedException | TimeoutException e) {
+            if(plugin.isShuttingDown()) return;
+            plugin.getLogger().log(Level.WARNING, "Interupted while scanning for armorstand:", e);
         }
+    }
+
+    private Future<Collection<Entity>> getNearbyEntities(Location loc) {
+        CompletableFuture<Collection<Entity>> future = new CompletableFuture<>();
+        World world = loc.getWorld();
+        if(world == null) {
+            throw new IllegalArgumentException("Invalid world");
+        }
+        Bukkit.getScheduler().runTask(
+                plugin,
+                () -> future.complete(world.getNearbyEntities(loc, 1, 1, 1))
+        );
+        return future;
     }
 }

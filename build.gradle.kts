@@ -36,7 +36,7 @@ dependencies {
 
     implementation("net.kyori:adventure-api:4.10.0")
     implementation("net.kyori:adventure-text-minimessage:4.10.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.0.1")
 }
 
 tasks.withType<ProcessResources> {

@@ -335,9 +335,17 @@ public class LeaderboardPlugin extends JavaPlugin {
         return seconds;
     }
 
+    private static MiniMessage miniMessage;
+    public static MiniMessage getMiniMessage() {
+        if(miniMessage == null) {
+            miniMessage = MiniMessage.miniMessage();
+        }
+        return miniMessage;
+    }
+
 
     public static Component message(String miniMessage) {
-        return MiniMessage.get().parse(ChatColor.translateAlternateColorCodes('&', miniMessage));
+        return getMiniMessage().deserialize(ChatColor.translateAlternateColorCodes('&', miniMessage));
     }
 
     public boolean isShuttingDown() {
