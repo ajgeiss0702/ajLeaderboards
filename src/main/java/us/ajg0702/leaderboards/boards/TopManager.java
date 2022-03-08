@@ -221,10 +221,15 @@ public class TopManager {
             return cached.getThing();
         }
         CompletableFuture<Long> future = new CompletableFuture<>();
+        long start = System.currentTimeMillis();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             long lastReset = plugin.getCache().getLastReset(board, type);
             if(future.isDone()) return;
             future.complete(lastReset);
+            long took = System.currentTimeMillis()-start;
+            if(took > 500) {
+                Debug.info("lastReset fetch took "+took+"ms");
+            }
         });
         lastResetCache.put(key, new Cached<>(System.currentTimeMillis(), future));
         return future;
