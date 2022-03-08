@@ -8,6 +8,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 public class Reload extends SubCommand {
 
@@ -40,7 +41,7 @@ public class Reload extends SubCommand {
             Debug.setDebug(plugin.getAConfig().getBoolean("debug"));
             Debug.setParticles(plugin.getAConfig().getBoolean("particles"));
         } catch (ConfigurateException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "Unable to reload the config:", e);
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));
         }
 

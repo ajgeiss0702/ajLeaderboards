@@ -9,7 +9,6 @@ import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
-import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
@@ -19,6 +18,7 @@ import us.ajg0702.utils.common.ConfigFile;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
 
@@ -66,7 +66,7 @@ public class Cache {
 		try {
 			storageConfig = new ConfigFile(plugin.getDataFolder(), plugin.getLogger(), "cache_storage.yml");
 		} catch (ConfigurateException e) {
-			e.printStackTrace();
+			plugin.getLogger().log(Level.SEVERE, "Error when loading cache storage config! The plugin may not work properly!", e);
 		}
 
 		String methodStr = storageConfig.getString("method");
@@ -116,8 +116,7 @@ public class Cache {
 			method.close(conn);
 			return se;
 		} catch(SQLException e) {
-			plugin.getLogger().severe("Unable to get stat of player:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Unable to get stat of player:", e);
 			return StatEntry.error(plugin, position, board, type);
 		}
 	}
@@ -168,8 +167,7 @@ public class Cache {
 			rs.close();
 			method.close(conn);
 		} catch (SQLException e) {
-			plugin.getLogger().severe("Unable to get position/value of player:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
 			return StatEntry.error(plugin, -1, board, type);
 		}
 		if(r == null) {
@@ -192,11 +190,10 @@ public class Cache {
 			method.close(conn);
 			return true;
 		} catch (SQLException e) {
-			plugin.getLogger().severe("Unable to create board:");
+			plugin.getLogger().log(Level.WARNING, "Unable to create board:", e);
 			if(e.getCause() != null) {
-				e.getCause().printStackTrace();
+				plugin.getLogger().log(Level.WARNING, "Cause:", e);
 			}
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -218,8 +215,7 @@ public class Cache {
 			method.close(conn);
 			return true;
 		} catch (SQLException e) {
-			plugin.getLogger().severe("Unable to remove player from board:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Unable to remove player from board:", e);
 			return false;
 		}
 	}
@@ -262,8 +258,7 @@ public class Cache {
 			r.close();
 			method.close(conn);
 		} catch(SQLException e) {
-			plugin.getLogger().severe("Unable to get list of tables:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Unable to get list of tables:", e);
 		}
 		return b;
 	}
@@ -284,8 +279,7 @@ public class Cache {
 			method.close(conn);
 			return true;
 		} catch (SQLException e) {
-			plugin.getLogger().warning("An error occurred while trying to remove a board:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "An error occurred while trying to remove a board:", e);
 			return false;
 		}
 	}
@@ -316,8 +310,7 @@ public class Cache {
 			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it.");
 			return;
 		} catch(Exception e) {
-			plugin.getLogger().warning("Placeholder %"+board+"% for player "+player.getName()+" threw an error:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Placeholder %"+board+"% for player "+player.getName()+" threw an error:", e);
 			return;
 		}
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
@@ -389,8 +382,7 @@ public class Cache {
 				plugin.getLogger().warning("Not closed!");
 			}
 		} catch(ExecutionException | InterruptedException | SQLException e) {
-			plugin.getLogger().severe("Unable to update stat for player:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
 		}
 	}
 
@@ -418,7 +410,7 @@ public class Cache {
 				method.close(conn);
 				String m = e.getMessage();
 				if(m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
-				e.printStackTrace();
+				plugin.getLogger().log(Level.WARNING, "Unable to get last total for "+player.getName()+" on "+type+" of "+board, e);
 			}
 		} catch(SQLException ignored) {}
 
@@ -446,7 +438,7 @@ public class Cache {
 				method.close(conn);
 				String m = e.getMessage();
 				if(m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
-				e.printStackTrace();
+				plugin.getLogger().log(Level.WARNING, "Unable to get last reset for "+type+" of "+board, e);
 			}
 		} catch(SQLException ignored) {}
 
@@ -507,12 +499,11 @@ public class Cache {
 					}
 					method.close(con);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);
 				}
 			}
 		} catch (SQLException e) {
-			plugin.getLogger().severe("An error occurred while resetting a timed leaderboard:");
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);
 		}
 		Debug.info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
 	}

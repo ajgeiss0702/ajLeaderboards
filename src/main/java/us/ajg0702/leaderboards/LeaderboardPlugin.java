@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,8 +75,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         try {
             config = new Config(getDataFolder(), getLogger());
         } catch (ConfigurateException e) {
-            getLogger().severe("An error occurred while loading your config:");
-            e.printStackTrace();
+            getLogger().log(Level.WARNING, "An error occurred while loading your config:", e);
         }
 
         Debug.setLogger(getLogger());
@@ -170,8 +170,10 @@ public class LeaderboardPlugin extends JavaPlugin {
                 Debug.info("Interupted");
                 bukkitWorker.getThread().join(1000);
                 Debug.info("Death");
-            } catch(SecurityException e) {Debug.info("denied: "+e.getMessage());} catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch(SecurityException e) {
+                Debug.info("denied: "+e.getMessage());
+            } catch (InterruptedException ignored) {
+                Debug.info("threw interupted exception on "+id);
             }
             killedWorkers.add(id);
         });
@@ -252,8 +254,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                 try {
                     scheduleReset(board, type);
                 } catch (ExecutionException | InterruptedException e) {
-                    getLogger().warning("Scheduling reset interupted:");
-                    e.printStackTrace();
+                    getLogger().log(Level.WARNING, "Scheduling reset interupted:", e);
                 }
             }
         }
@@ -281,8 +282,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                     try {
                         cache.reset(board, type);
                     } catch (ExecutionException | InterruptedException e) {
-                        getLogger().warning("Unable to reset "+type+" for "+board+": (interupted/exception)");
-                        e.printStackTrace();
+                        getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
                     }
                 },
                 (long) (secsTilNextReset*20)

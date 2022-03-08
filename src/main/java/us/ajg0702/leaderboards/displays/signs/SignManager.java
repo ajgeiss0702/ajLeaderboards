@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 
 public class SignManager {
@@ -46,8 +47,7 @@ public class SignManager {
                 try {
                     signs.add(BoardSign.deserialize(s));
                 } catch(Exception e) {
-                    plugin.getLogger().warning("An error occurred while loading a sign:");
-                    e.printStackTrace();
+                    plugin.getLogger().log(Level.WARNING, "An error occurred while loading a sign:", e);
                 }
             }
         }
@@ -93,7 +93,7 @@ public class SignManager {
         try {
             cfg.save(cfgFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "An error occurred while saving signs to the file:", e);
         }
     }
 
