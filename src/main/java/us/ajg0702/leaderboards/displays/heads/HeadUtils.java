@@ -24,13 +24,13 @@ public class HeadUtils {
 
 
     /**public void setSkullSkin (String name, Block block) {
-        if(!(block.getState() instanceof Skull)) return;
-        Skull skullData = (Skull)block.getState();
-        // TODO: figure out how to do this without nms
-        TileEntitySkull skullTile = (TileEntitySkull)((CraftWorld)block.getWorld()).getHandle().getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));
-        skullTile.setGameProfile(getNonPlayerProfile(value));
-        block.getState().update(true);
-    }**/
+     if(!(block.getState() instanceof Skull)) return;
+     Skull skullData = (Skull)block.getState();
+     // TODO: figure out how to do this without nms
+     TileEntitySkull skullTile = (TileEntitySkull)((CraftWorld)block.getWorld()).getHandle().getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));
+     skullTile.setGameProfile(getNonPlayerProfile(value));
+     block.getState().update(true);
+     }**/
 
     public static void debugParticles(Location curloc) {
         if(!Debug.particles()) return;
@@ -40,7 +40,7 @@ public class HeadUtils {
     }
 
 
-    public ItemStack getHeadItem(UUID uuid) {
+    public ItemStack getHeadItem(String name) {
         ItemStack skull = null;
         if(VersionSupport.getMinorVersion() <= 12) {
             //noinspection deprecation
@@ -48,7 +48,7 @@ public class HeadUtils {
         } else if(VersionSupport.getMinorVersion() > 12) {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
         }
-        String value = getHeadValue(uuid);
+        String value = getHeadValue(name);
         if(value.equals("")) return skull;
         UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
         //noinspection deprecation
@@ -59,20 +59,26 @@ public class HeadUtils {
     }
 
 
-    Map<UUID, CachedData<String>> skinCache = new HashMap<>();
+    Map<String, CachedData<String>> skinCache = new HashMap<>();
     final long lastClear = System.currentTimeMillis();
 
-    public String getHeadValue(UUID uuid) {
+    public String getHeadValue(String name) {
         if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
             skinCache = new HashMap<>();
         }
 
-        if(skinCache.containsKey(uuid) && skinCache.get(uuid).getTimeSince() < 300e3) {
-            return skinCache.get(uuid).getData();
+        if(skinCache.containsKey(name) && skinCache.get(name).getTimeSince() < 300e3) {
+            return skinCache.get(name).getData();
         }
-        String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
+
+        String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
+
         Gson g = new Gson();
-        JsonObject jObj = g.fromJson(signature, JsonObject.class);
+        JsonObject jObj = g.fromJson(result, JsonObject.class);
+        if(jObj == null || jObj.get("id") == null) return "";
+        String uuid = jObj.get("id").toString().replace("\"","");
+        String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
+        jObj = g.fromJson(signature, JsonObject.class);
         if(jObj == null || jObj.get("id") == null) return "";
         String value = jObj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
         String decoded = new String(Base64.getDecoder().decode(value));
@@ -80,7 +86,7 @@ public class HeadUtils {
         String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
         byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skin + "\"}}}").getBytes();
         String finalSkin = new String(Base64.getEncoder().encode(skinByte));
-        skinCache.put(uuid, new CachedData<>(finalSkin));
+        skinCache.put(name, new CachedData<>(finalSkin));
         return finalSkin;
     }
 
@@ -103,7 +109,7 @@ public class HeadUtils {
     private String getURLContent(String urlStr) {
         if(
                 urlLastget.containsKey(urlStr) &&
-                System.currentTimeMillis() - urlLastget.get(urlStr) < 300e3 // Cache for 5 minutes
+                        System.currentTimeMillis() - urlLastget.get(urlStr) < 300e3 // Cache for 5 minutes
         ) {
             return urlCache.get(urlStr);
         }
