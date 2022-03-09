@@ -48,8 +48,8 @@ public class MysqlMethod implements CacheMethod {
         hikariConfig.setMaximumPoolSize(maxCount);
         hikariConfig.setMinimumIdle(minCount);
 
-        hikariConfig.setRegisterMbeans(true);
-        hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
+        //hikariConfig.setRegisterMbeans(true);
+        //hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
 
         ds = new HikariDataSource(hikariConfig);
         ds.setLeakDetectionThreshold(25 * 1000);
