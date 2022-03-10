@@ -223,7 +223,7 @@ public class TopManager {
         CompletableFuture<Long> future = new CompletableFuture<>();
         long start = System.currentTimeMillis();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            long lastReset = plugin.getCache().getLastReset(board, type);
+            long lastReset = plugin.getCache().getLastReset(board, type)/1000;
             if(future.isDone()) return;
             future.complete(lastReset);
             long took = System.currentTimeMillis()-start;

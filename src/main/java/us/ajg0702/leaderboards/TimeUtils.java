@@ -1,5 +1,9 @@
 package us.ajg0702.leaderboards;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+
 @SuppressWarnings("unused")
 public class TimeUtils {
 
@@ -26,5 +30,12 @@ public class TimeUtils {
         String secondss = seconds+"s";
 
         return weekss+dayss+hourss+minutess+secondss;
+    }
+
+    public static ZoneOffset getDefaultZoneOffset() {
+        return convertToZoneOffset(ZoneOffset.systemDefault());
+    }
+    public static ZoneOffset convertToZoneOffset(ZoneId zoneId) {
+        return zoneId.getRules().getOffset(Instant.now());
     }
 }
