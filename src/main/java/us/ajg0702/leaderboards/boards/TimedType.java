@@ -1,21 +1,18 @@
 package us.ajg0702.leaderboards.boards;
 
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.NotImplementedException;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public enum TimedType {
-    ALLTIME(-1), HOURLY(60 * 60 * 1000), DAILY(24 * 60 * 60 * 1000), WEEKLY(7 * 24 * 60 * 60 * 1000), MONTHLY(30L * 24 * 60 * 60 * 1000);
-
-    private final long resetMs;
-
-    TimedType(long resetMs) {
-        this.resetMs = resetMs;
-    }
-
-    public long getResetMs() {
-        return resetMs;
-    }
+    ALLTIME,
+    HOURLY,
+    DAILY,
+    WEEKLY,
+    MONTHLY;
 
     public String lowerName() {
         return name().toLowerCase(Locale.ROOT);
@@ -27,5 +24,38 @@ public enum TimedType {
             names.add(type.lowerName());
         }
         return names;
+    }
+
+    public LocalDateTime getNextReset() {
+        LocalDateTime now = LocalDateTime.now();
+        switch(this) {
+            case ALLTIME:
+                throw new IllegalStateException("ALLTIME doesnt have a reset date!");
+            case HOURLY:
+                return now.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+            case DAILY:
+                return now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case WEEKLY:
+                return now.plusDays(7-now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case MONTHLY:
+                return now.plusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        }
+        throw new IllegalStateException();
+    }
+    public LocalDateTime getEstimatedLastReset() {
+        LocalDateTime now = LocalDateTime.now();
+        switch(this) {
+            case ALLTIME:
+                throw new IllegalStateException("ALLTIME doesnt have a reset date!");
+            case HOURLY:
+                return now.withMinute(0).withSecond(0).withNano(0);
+            case DAILY:
+                return now.withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case WEEKLY:
+                return now.minusDays(now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case MONTHLY:
+                return now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        }
+        throw new IllegalStateException();
     }
 }
