@@ -28,6 +28,10 @@ import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -262,19 +266,25 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public void scheduleReset(String board, TimedType type) throws ExecutionException, InterruptedException {
         if(type.equals(TimedType.ALLTIME)) return;
-        if(type.getResetMs() < 0) return;
+
+        long now = Instant.now().getEpochSecond();
 
 
         long lastReset = topManager.getLastReset(board, type).get();
-        long nextReset = lastReset + type.getResetMs();
-        long msTilNextReset = nextReset - System.currentTimeMillis();
+        long nextReset = type.getNextReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
 
-        double secsTilNextReset = (msTilNextReset/1000D);
+        long secsTilNextReset = nextReset - now;
+        Debug.info("Initial secsTilNextReset for "+type.lowerName()+" "+board+": "+secsTilNextReset);
         if(secsTilNextReset < 0) {
-            secsTilNextReset = 0.0;
+            secsTilNextReset = 0;
         }
 
-        Debug.info(TimeUtils.formatTimeMs(msTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (total: "+type.getResetMs()/1000+", last: "+(lastReset/1000)+", time: "+(msTilNextReset/1000)+")");
+        if(lastReset < type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset())) {
+            Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset!");
+            secsTilNextReset = 0;
+        }
+
+        Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (next: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" last: "+ LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME) +" last: "+lastReset+" next: "+nextReset+")");
 
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,
@@ -285,7 +295,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                         getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
                     }
                 },
-                (long) (secsTilNextReset*20)
+                secsTilNextReset*20L
         ).getTaskId();
         resetIds.put(type, taskId);
     }

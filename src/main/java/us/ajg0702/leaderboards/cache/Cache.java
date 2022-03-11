@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
@@ -16,6 +17,9 @@ import us.ajg0702.leaderboards.utils.Partition;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -448,14 +452,15 @@ public class Cache {
 	public void reset(String board, TimedType type) throws ExecutionException, InterruptedException {
 		if(!boardExists(board)) return;
 		long startTime = System.currentTimeMillis();
+		LocalDateTime startDateTime = LocalDateTime.now();
+		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
+		Debug.info(board+" "+type+" "+startDateTime.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" "+newTime);
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
-		long lastReset = plugin.getTopManager().getLastReset(board, type).get();
-		//long newReset = (lastReset > 100000000 ? lastReset : startTime) + type.getResetMs();
-		long newReset = (long) (type.getResetMs()*(Math.floor(System.currentTimeMillis()/(type.getResetMs()*1D))));
-		Debug.info("last: "+lastReset+" next: "+newReset+" diff: "+(newReset-lastReset)+" gap: "+(System.currentTimeMillis() - lastReset));
+		long lastReset = plugin.getTopManager().getLastReset(board, type).get()*1000L;
+		Debug.info("last: "+lastReset+" gap: "+(startTime - lastReset));
 		String t = type.lowerName();
 		try {
 			Connection conn = method.getConnection();
@@ -494,8 +499,9 @@ public class Cache {
 						));
 						p.setDouble(1, uuids.get(idRaw));
 						p.setDouble(2, 0);
-						p.setLong(3, newReset);
+						p.setLong(3, newTime);
 						p.setString(4, idRaw);
+						p.executeUpdate();
 					}
 					method.close(con);
 				} catch (SQLException e) {
