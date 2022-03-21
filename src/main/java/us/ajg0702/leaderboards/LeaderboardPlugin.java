@@ -157,7 +157,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         executorService.execute(getCache().getMethod()::shutdown);
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
                 getLogger().warning("Cache took too long to shut down. Skipping it.");
             }

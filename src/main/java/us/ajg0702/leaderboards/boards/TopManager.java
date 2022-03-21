@@ -5,6 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.cache.CacheMethod;
+import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
 import us.ajg0702.leaderboards.utils.Cached;
 
 import java.util.ArrayList;
@@ -16,12 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
-    /*private final ThreadPoolExecutor fetchService = new ThreadPoolExecutor(
-            0, 10,
-            5L, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(500, true)
-    );*/
-    private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+    private final ThreadPoolExecutor fetchService;
+    //private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
     
 
     public void shutdown() {
@@ -32,9 +30,16 @@ public class TopManager {
     private final LeaderboardPlugin plugin;
     public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
+        CacheMethod method = plugin.getCache().getMethod();
+        int t = method instanceof SqliteMethod ? 50 : Math.max(10, method.getMaxConnections());
+        fetchService = new ThreadPoolExecutor(
+                10, t,
+                30L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(1000000, true)
+        );
         fetchService.setThreadFactory(new DefaultThreadFactory("AJLBFETCH"));
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            rolling.add(fetching.get());
+            rolling.add(fetching.get()+getQueuedTasks());
             if(rolling.size() > 50) {
                 rolling.remove(0);
             }
@@ -85,14 +90,14 @@ public class TopManager {
     AtomicInteger fetching = new AtomicInteger(0);
     private void fetchPositionAsync(int position, String board, TimedType type) {
         if(plugin.isShuttingDown()) return;
+        if(!cache.get(board).get(type).containsKey(position)) {
+            cache.get(board).get(type).put(position, StatEntry.loading(plugin, board, type));
+        }
         checkWrong();
         fetchService.submit(() -> fetchPosition(position, board, type));
     }
     private StatEntry fetchPosition(int position, String board, TimedType type) {
         int f = fetching.getAndIncrement();
-        if(!cache.get(board).get(type).containsKey(position)) {
-            cache.get(board).get(type).put(position, StatEntry.loading(plugin, board, type));
-        }
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+f);
         StatEntry te = plugin.getCache().getStat(position, board, type);
         cache.get(board).get(type).put(position, te);
@@ -143,14 +148,14 @@ public class TopManager {
     }
 
     private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
+        if(!cacheSE.get(board).get(type).containsKey(player)) {
+            cacheSE.get(board).get(type).put(player, StatEntry.loading(plugin, board, type));
+        }
         checkWrong();
         fetchService.submit(() -> fetchStatEntry(player, board, type));
     }
     private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
         int f = fetching.getAndIncrement();
-        if(!cacheSE.get(board).get(type).containsKey(player)) {
-            cacheSE.get(board).get(type).put(player, StatEntry.loading(plugin, board, type));
-        }
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+f);
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
@@ -239,6 +244,9 @@ public class TopManager {
     public int getActiveFetchers() {
         return fetchService.getActiveCount();
     }
+    public int getMaxFetchers() {
+        return fetchService.getMaximumPoolSize();
+    }
 
     private void checkWrong() {
         if(fetching.get() > 5000) {
@@ -278,12 +286,19 @@ public class TopManager {
         if(fetchingAverage > 100) {
             r = 180000;
         }
-        if(fetchingAverage > 1000) {
+        if(fetchingAverage > 300) {
             r = 3600000;
+        }
+        if(fetchingAverage > 400) {
+            r = 7200000;
         }
 
 
         return r;
+    }
+
+    public int getQueuedTasks() {
+        return fetchService.getQueue().size();
     }
 
 }
