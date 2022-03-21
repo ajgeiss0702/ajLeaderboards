@@ -301,5 +301,8 @@ public class TopManager {
         return fetchService.getQueue().size();
     }
 
+    public boolean boardExists(String board) {
+        return getBoards().contains(board);
+    }
 }
 

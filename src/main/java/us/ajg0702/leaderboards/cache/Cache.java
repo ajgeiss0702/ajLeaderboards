@@ -101,7 +101,7 @@ public class Cache {
 	 * @return The StatEntry representing the position of the board
 	 */
 	public StatEntry getStat(int position, String board, TimedType type) {
-		if(!boardExists(board)) {
+		if(!plugin.getTopManager().boardExists(board)) {
 			return StatEntry.boardNotFound(plugin, position, board, type);
 		}
 		try {
@@ -126,7 +126,7 @@ public class Cache {
 	}
 
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
-		if(!boardExists(board)) {
+		if(!plugin.getTopManager().boardExists(board)) {
 			return StatEntry.boardNotFound(plugin, -3, board, type);
 		}
 		StatEntry r = null;
@@ -268,7 +268,7 @@ public class Cache {
 	}
 
 	public boolean removeBoard(String board) {
-		if(!boardExists(board)) return true;
+		if(!plugin.getTopManager().boardExists(board)) return true;
 		try {
 			if(method instanceof SqliteMethod) {
 				((SqliteMethod) method).newConnection();
@@ -289,7 +289,7 @@ public class Cache {
 	}
 
 	public void updatePlayerStats(OfflinePlayer player) {
-		for(String b : getBoards()) {
+		for(String b : plugin.getTopManager().getBoards()) {
 			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
 				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) return;
@@ -299,7 +299,7 @@ public class Cache {
 	}
 
 	public void updateStat(String board, OfflinePlayer player) {
-		if(!boardExists(board)) {
+		if(!plugin.getTopManager().boardExists(board)) {
 			return;
 		}
 		boolean debug = plugin.getAConfig().getBoolean("update-de-bug");
@@ -450,7 +450,7 @@ public class Cache {
 	}
 
 	public void reset(String board, TimedType type) throws ExecutionException, InterruptedException {
-		if(!boardExists(board)) return;
+		if(!plugin.getTopManager().boardExists(board)) return;
 		long startTime = System.currentTimeMillis();
 		LocalDateTime startDateTime = LocalDateTime.now();
 		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
