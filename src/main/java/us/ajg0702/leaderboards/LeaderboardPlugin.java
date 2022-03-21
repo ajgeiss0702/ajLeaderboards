@@ -286,6 +286,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (next: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" last: "+ LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME) +" last: "+lastReset+" next: "+nextReset+")");
 
+        if(isShuttingDown()) return;
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,
                 () -> {
