@@ -5,6 +5,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.TimeUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,7 @@ public class Reload extends SubCommand {
             plugin.reloadInterval();
             Debug.setDebug(plugin.getAConfig().getBoolean("debug"));
             Debug.setParticles(plugin.getAConfig().getBoolean("particles"));
+            TimeUtils.setStrings(plugin.getMessages());
         } catch (ConfigurateException e) {
             plugin.getLogger().log(Level.WARNING, "Unable to reload the config:", e);
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));

@@ -99,12 +99,20 @@ public class LeaderboardPlugin extends JavaPlugin {
         dmsgs.put("formatted.b", "b");
         dmsgs.put("formatted.q", "q");
 
+        dmsgs.put("time.w", "w ");
+        dmsgs.put("time.d", "d ");
+        dmsgs.put("time.h", "h ");
+        dmsgs.put("time.m", "m ");
+        dmsgs.put("time.s", "s");
+
         dmsgs.put("noperm", "You don't have permission to do this!");
 
         dmsgs.put("commands.reload.success", "&aConfigs reloaded!");
         dmsgs.put("commands.reload.fail", "&cAn error occurred while reloading one of your configs. Check the console for more info.");
 
         messages = new Messages(getDataFolder(), getLogger(), dmsgs);
+
+        TimeUtils.setStrings(messages);
 
         Bukkit.getScheduler().runTask(this, () -> {
             if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
