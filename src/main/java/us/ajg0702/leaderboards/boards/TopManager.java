@@ -257,7 +257,7 @@ public class TopManager {
 
     public int cacheTime() {
 
-        int r = 2000;
+        int r = 1000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -265,7 +265,10 @@ public class TopManager {
             return r;
         }
 
-        if(fetchingAverage >= 1) {
+        if(fetchingAverage > 0) {
+            r = 2000;
+        }
+        if(fetchingAverage >= 2) {
             r = 5000;
         }
         if(fetchingAverage >= 5) {
