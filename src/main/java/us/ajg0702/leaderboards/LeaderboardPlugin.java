@@ -16,6 +16,7 @@ import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
+import us.ajg0702.leaderboards.boards.BoardType;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
@@ -256,7 +257,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.info("Update task id is "+updateTaskId);
     }
 
-    final HashMap<TimedType, Integer> resetIds = new HashMap<>();
+    final HashMap<BoardType, Integer> resetIds = new HashMap<>();
     public void scheduleResets() {
         resetIds.values().forEach(Bukkit.getScheduler()::cancelTask);
         resetIds.clear();
@@ -306,7 +307,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                 },
                 secsTilNextReset*20L
         ).getTaskId();
-        resetIds.put(type, taskId);
+        resetIds.put(new BoardType(board, type), taskId);
     }
 
     public boolean validatePlaceholder(String placeholder, CommandSender sayOutput) {
