@@ -8,7 +8,9 @@ import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.UUID;
 
 public class StatEntry {
@@ -159,33 +161,20 @@ public class StatEntry {
 	
 	
 	private String addCommas(double number) {
-		String comma;
+		char comma;
+		char decimal;
 		if(plugin != null) {
-			comma = plugin.getAConfig().getString("comma");
-		} else { comma = ","; }
-		DecimalFormat df = new DecimalFormat("#.##");
-		String ns = df.format(number);
-		int ic = 0;
-		if(ns.indexOf(".") == ns.length()-2 && ns.charAt(ns.length()-1) == '0' && ns.length() >= 3) {
-			ns = ns.substring(0, ns.length()-2);
-		}
-		String mn = ns.contains(".") ? ns.substring(0, ns.indexOf(".")) : ns;
-		for(int i = mn.length()-1; i > 0; i--) {
-			ic++;
-			if(ic % 3 != 0) continue;
-			mn = mn.substring(0, i)+comma+mn.substring(i);
-		}
-		if(ns.contains(".")) {
-			ns = mn+ns.substring(ns.indexOf("."));
+			comma = plugin.getAConfig().getString("comma").charAt(0);
+			decimal = plugin.getAConfig().getString("decimal").charAt(0);
 		} else {
-			ns = mn;
+			comma = ',';
+			decimal = '.';
 		}
-		
-		if(ns.charAt(ns.length()-1) == ',') {
-			ns = ns.substring(0, ns.length()-1);
-		}
-
-		return ns;
+		DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT));
+		symbols.setGroupingSeparator(comma);
+		symbols.setDecimalSeparator(decimal);
+		DecimalFormat df = new DecimalFormat("#,###.##", symbols);
+		return df.format(number);
 	}
 
 
