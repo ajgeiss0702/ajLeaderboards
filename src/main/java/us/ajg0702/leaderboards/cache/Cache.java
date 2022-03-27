@@ -29,8 +29,8 @@ import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput
 public class Cache {
 	private String q = "'";
 
-	private final String SELECT_POSITION = "select 'id','value',"+deltaBuilder()+"'namecache','prefixcache','suffixcache' from '%s' order by '%s' desc limit 1 offset %d";
-	private final String SELECT_PLAYER = "select 'id','value',"+deltaBuilder()+"'namecache','prefixcache','suffixcache' from '%s' order by '%s' desc";
+	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache',"+deltaBuilder()+" from '%s' order by '%s' desc limit 1 offset %d";
+	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache',"+deltaBuilder()+" from '%s' order by '%s' desc";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
 			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT)",
 			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255))",
@@ -125,6 +125,7 @@ public class Cache {
 		}
 	}
 
+	private final Map<String, Integer> sortByIndexes = new HashMap<>();
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		if(!plugin.getTopManager().boardExists(board)) {
 			return StatEntry.boardNotFound(plugin, -3, board, type);
@@ -149,11 +150,21 @@ public class Cache {
 				String prefix = "";
 				String suffix = "";
 				try {
-					uuidraw = rs.getString("id");
-					name = rs.getString("namecache");
-					prefix = rs.getString("prefixcache");
-					suffix = rs.getString("suffixcache");
-					value = rs.getDouble(sortBy);
+					uuidraw = rs.getString(1);
+					name = rs.getString(3);
+					prefix = rs.getString(4);
+					suffix = rs.getString(5);
+					value = rs.getDouble(sortByIndexes.computeIfAbsent(sortBy,
+						k -> {
+							try {
+								Debug.info("Calculating (statentry) column for "+sortBy);
+								return rs.findColumn(sortBy);
+							} catch (SQLException e) {
+								plugin.getLogger().log(Level.SEVERE, "Error while finding a column for "+sortBy, e);
+								return -1;
+							}
+						}
+					));
 				} catch(SQLException e) {
 					if(
 							!e.getMessage().contains("ResultSet closed") &&
@@ -439,7 +450,7 @@ public class Cache {
 				if(method instanceof MysqlMethod || method instanceof H2Method) {
 					rs.next();
 				}
-				last = rs.getLong(type.lowerName()+"_timestamp");
+				last = rs.getLong(1);
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
@@ -478,7 +489,7 @@ public class Cache {
 			ResultSet rs = ps.executeQuery();
 			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
-				uuids.put(rs.getString("id"), rs.getDouble("value"));
+				uuids.put(rs.getString(1), rs.getDouble(2));
 			}
 			rs.close();
 			method.close(conn);
@@ -544,7 +555,7 @@ public class Cache {
 			if(t == TimedType.ALLTIME) continue;
 			deltaBuilder.append(q).append(t.lowerName()).append("_delta").append(q).append(",");
 		}
-		return deltaBuilder.toString();
+		return deltaBuilder.deleteCharAt(deltaBuilder.length()-1).toString();
 	}
 	private String columnBuilder(String t) {
 		String q = "'";
@@ -591,6 +602,7 @@ public class Cache {
 		return addUpdates.toString();
 	}
 
+	Map<String, Integer> dataSortByIndexes = new HashMap<>();
 	private StatEntry processData(ResultSet r, String sortBy, int position, String board, TimedType type) throws SQLException {
 		String uuidRaw = null;
 		double value = -1;
@@ -601,11 +613,21 @@ public class Cache {
 			r.next();
 		}
 		try {
-			uuidRaw = r.getString("id");
-			name = r.getString("namecache");
-			prefix = r.getString("prefixcache");
-			suffix = r.getString("suffixcache");
-			value = r.getDouble(sortBy);
+			uuidRaw = r.getString(1);
+			name = r.getString(3);
+			prefix = r.getString(4);
+			suffix = r.getString(5);
+			value = r.getDouble(dataSortByIndexes.computeIfAbsent(sortBy,
+					k -> {
+						try {
+							Debug.info("Calculating (process) column for "+sortBy);
+							return r.findColumn(sortBy);
+						} catch (SQLException e) {
+							plugin.getLogger().log(Level.SEVERE, "Error while finding a column for "+sortBy, e);
+							return -1;
+						}
+					}
+			));
 		} catch(SQLException e) {
 			if(
 					!e.getMessage().contains("ResultSet closed") &&
