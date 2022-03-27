@@ -33,10 +33,11 @@ public class TopManager {
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof SqliteMethod ? 50 : Math.max(10, method.getMaxConnections());
         fetchService = new ThreadPoolExecutor(
-                10, t,
+                t, t,
                 30L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(1000000, true)
         );
+        fetchService.allowCoreThreadTimeOut(true);
         fetchService.setThreadFactory(new DefaultThreadFactory("AJLBFETCH"));
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             rolling.add(fetching.get()+getQueuedTasks());
