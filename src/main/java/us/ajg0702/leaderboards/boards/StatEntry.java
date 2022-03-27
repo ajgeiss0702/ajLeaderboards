@@ -161,19 +161,25 @@ public class StatEntry {
 	
 	
 	private String addCommas(double number) {
-		char comma;
+		boolean useComma = true;
+		char comma = 0;
 		char decimal;
 		if(plugin != null) {
-			comma = plugin.getAConfig().getString("comma").charAt(0);
+			String commaString = plugin.getAConfig().getString("comma");
+			useComma = !commaString.isEmpty();
+			if(useComma) comma = commaString.charAt(0);
 			decimal = plugin.getAConfig().getString("decimal").charAt(0);
 		} else {
 			comma = ',';
 			decimal = '.';
 		}
 		DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT));
-		symbols.setGroupingSeparator(comma);
+		if(useComma) {
+			symbols.setGroupingSeparator(comma);
+		}
 		symbols.setDecimalSeparator(decimal);
 		DecimalFormat df = new DecimalFormat("#,###.##", symbols);
+		df.setGroupingUsed(useComma);
 		return df.format(number);
 	}
 
