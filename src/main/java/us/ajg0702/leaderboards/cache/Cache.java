@@ -352,6 +352,9 @@ public class Cache {
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
 					long lastReset = plugin.getTopManager().getLastReset(board, type).get();
+					if(plugin.isShuttingDown()) {
+						method.close(conn);
+					}
 					statement.setDouble(++i, 0);
 					statement.setDouble(++i, output);
 					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
@@ -460,6 +463,9 @@ public class Cache {
 		}
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = plugin.getTopManager().getLastReset(board, type).get()*1000L;
+		if(plugin.isShuttingDown()) {
+			return;
+		}
 		Debug.info("last: "+lastReset+" gap: "+(startTime - lastReset));
 		String t = type.lowerName();
 		try {
