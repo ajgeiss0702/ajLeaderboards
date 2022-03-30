@@ -121,8 +121,8 @@ public class SignManager {
         }
     }
 
-    public ImmutableMap<String, String> getNames() {
-        return ImmutableMap.copyOf(names);
+    public Map<String, String> getNames() {
+        return new HashMap<>(names);
     }
 
     public void updateSign(BoardSign sign) {
