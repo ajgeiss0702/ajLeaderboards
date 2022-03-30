@@ -117,6 +117,7 @@ public class Cache {
 			ResultSet r = ps.executeQuery();
 
 			StatEntry se = processData(r, sortBy, position, board, type);
+			ps.close();
 			method.close(conn);
 			return se;
 		} catch(SQLException e) {
