@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.displays.signs;
 
+import com.google.common.collect.ImmutableMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -118,6 +119,10 @@ public class SignManager {
             String[] parts = s.split("%");
             names.put(parts[0], parts[1]);
         }
+    }
+
+    public ImmutableMap<String, String> getNames() {
+        return ImmutableMap.copyOf(names);
     }
 
     public void updateSign(BoardSign sign) {
