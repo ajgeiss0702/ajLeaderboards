@@ -280,7 +280,10 @@ public class Cache {
 	}
 
 	public boolean removeBoard(String board) {
-		if(!plugin.getTopManager().boardExists(board)) return true;
+		if(!plugin.getTopManager().boardExists(board)) {
+			plugin.getLogger().warning("Attempted to remove board that doesnt exist!");
+			return false;
+		}
 		try {
 			if(method instanceof SqliteMethod) {
 				((SqliteMethod) method).newConnection();
@@ -293,6 +296,11 @@ public class Cache {
 
 			ps.close();
 			method.close(conn);
+			plugin.getTopManager().fetchBoards();
+			if(plugin.getTopManager().boardExists(board)) {
+				plugin.getLogger().warning("Attempted to remove a board, but it didnt get removed!");
+				return false;
+			}
 			return true;
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "An error occurred while trying to remove a board:", e);

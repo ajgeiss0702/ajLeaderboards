@@ -183,11 +183,11 @@ public class TopManager {
         return boardCache;
     }
 
-    private void fetchBoardsAsync() {
+    public void fetchBoardsAsync() {
         checkWrong();
         fetchService.submit(this::fetchBoards);
     }
-    private List<String> fetchBoards() {
+    public List<String> fetchBoards() {
         int f = fetching.getAndIncrement();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
         boardCache = plugin.getCache().getBoards();
