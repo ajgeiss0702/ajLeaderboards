@@ -312,5 +312,9 @@ public class TopManager {
     public boolean boardExists(String board) {
         return getBoards().contains(board);
     }
+
+    public Future<?> submit(Runnable task) {
+        return fetchService.submit(task);
+    }
 }
 

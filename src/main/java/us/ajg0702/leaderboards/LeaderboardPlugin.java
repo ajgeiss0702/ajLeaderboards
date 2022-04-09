@@ -249,9 +249,13 @@ public class LeaderboardPlugin extends JavaPlugin {
         }
         updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             if(!config.getBoolean("update-stats")) return;
+            if(getTopManager().getQueuedTasks() > 100) {
+                getLogger().warning("Database is overloaded! Skipping update of players.");
+                return;
+            }
             for(Player p : Bukkit.getOnlinePlayers()) {
                 if(isShuttingDown()) return;
-                getCache().updatePlayerStats(p);
+                getTopManager().submit(() -> getCache().updatePlayerStats(p));
             }
         }, 10*20, config.getInt("stat-refresh")).getTaskId();
         Debug.info("Update task id is "+updateTaskId);
