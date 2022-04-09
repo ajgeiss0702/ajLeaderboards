@@ -21,6 +21,7 @@ public class Signs extends SubCommand {
         addSubCommand(new AddSign(plugin));
         addSubCommand(new ListSigns(plugin));
         addSubCommand(new RemoveSign(plugin));
+        addSubCommand(new Teleport(plugin));
     }
 
     @Override
