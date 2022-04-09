@@ -1,11 +1,8 @@
 package us.ajg0702.leaderboards.commands.main;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import us.ajg0702.commands.BaseCommand;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
-import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.commands.main.subcommands.*;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
@@ -25,7 +22,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Version(plugin));
         addSubCommand(new Reload(plugin));
         addSubCommand(new Add(plugin));
-        addSubCommand(new Update(plugin));
+        addSubCommand(new UpdatePlayer(plugin));
         addSubCommand(new RemovePlayer(plugin));
         addSubCommand(new Remove(plugin));
         addSubCommand(new ListBoards(plugin));

@@ -11,11 +11,11 @@ import java.util.List;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
-public class Update extends SubCommand {
+public class UpdatePlayer extends SubCommand {
     private final LeaderboardPlugin plugin;
 
-    public Update(LeaderboardPlugin plugin) {
-        super("update", Collections.emptyList(), "ajleaderboards.use", "Attempt to manually update a player's stats on the leaderboard");
+    public UpdatePlayer(LeaderboardPlugin plugin) {
+        super("updateplayer", Collections.emptyList(), "ajleaderboards.use", "Attempt to manually update a player's stats on the leaderboard");
         this.plugin = plugin;
     }
 
