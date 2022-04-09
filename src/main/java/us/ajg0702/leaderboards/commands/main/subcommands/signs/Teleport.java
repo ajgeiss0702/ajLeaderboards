@@ -18,7 +18,7 @@ public class Teleport extends SubCommand {
     private final LeaderboardPlugin plugin;
 
     public Teleport(LeaderboardPlugin plugin) {
-        super("teleport", Collections.singletonList("tp"), null, "List all created signs");
+        super("teleport", Collections.singletonList("tp"), null, "Teleport to a signs");
         this.plugin = plugin;
     }
 
