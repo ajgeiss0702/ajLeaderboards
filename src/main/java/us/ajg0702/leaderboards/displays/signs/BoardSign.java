@@ -6,8 +6,14 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.plugin.Plugin;
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.spigot.LocUtils;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
 
 public class BoardSign {
     private final Location location;
@@ -21,6 +27,8 @@ public class BoardSign {
     private final int z;
     private final World world;
 
+    private final LeaderboardPlugin plugin;
+
     public BoardSign(Location location, String board, int position, TimedType type) {
         this.location = location;
         this.board = board;
@@ -33,6 +41,12 @@ public class BoardSign {
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("ajLeaderboards");
         if(plugin == null) throw new IllegalStateException("Where is ajleaderboards? I'm supposed to be ajLeaderboards, but im not?");
+        this.plugin = (LeaderboardPlugin) plugin;
+        setSign();
+    }
+
+    private Future<Sign> setSign() {
+        CompletableFuture<Sign> future = new CompletableFuture<>();
         Bukkit.getScheduler().runTask(plugin, () -> {
             BlockState state = location.getBlock().getState();
             if(!(state instanceof Sign)) {
@@ -40,7 +54,9 @@ public class BoardSign {
             } else {
                 sign = (Sign) state;
             }
+            future.complete(sign);
         });
+        return future;
     }
 
     public int getX() {
@@ -68,6 +84,18 @@ public class BoardSign {
 
     public Sign getSign() {
         return sign;
+    }
+
+    public boolean isPlaced() {
+        boolean placed = getLocation().getBlock().getType().toString().contains("SIGN");
+        if(placed && sign == null) {
+            try {
+                setSign().get();
+            } catch (InterruptedException | ExecutionException e) {
+                plugin.getLogger().log(Level.SEVERE, "Interupted while trying to get sign data", e);
+            }
+        }
+        return placed;
     }
 
     public void setText(String line1, String line2, String line3, String line4) {

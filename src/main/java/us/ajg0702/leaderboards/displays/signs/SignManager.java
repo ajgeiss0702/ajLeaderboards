@@ -128,6 +128,8 @@ public class SignManager {
     public void updateSign(BoardSign sign) {
         if(!isSignChunkLoaded(sign)) return;
 
+        if(!sign.isPlaced()) return;
+
         String name = "";
         if(names.containsKey(sign.getBoard())) {
             name = names.get(sign.getBoard());

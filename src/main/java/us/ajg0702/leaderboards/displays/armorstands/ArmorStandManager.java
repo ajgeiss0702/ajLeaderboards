@@ -72,6 +72,7 @@ public class ArmorStandManager {
         if(!plugin.getTopManager().getBoards().contains(sign.getBoard())) return;
         if(id == null) return;
         Sign ss = sign.getSign();
+        if(ss == null) return;
         BlockFace face;
         if(VersionSupport.getMinorVersion() > 12) {
             BlockData bd = ss.getBlockData();
