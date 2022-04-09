@@ -22,7 +22,7 @@ public class Add extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return Collections.emptyList();
+        return plugin.getCache().getNonExistantBoards();
     }
 
     @Override

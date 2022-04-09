@@ -60,6 +60,8 @@ public class Cache {
 
 	final String tablePrefix;
 
+	List<String> nonExistantBoards = new ArrayList<>();
+
 	public Cache(LeaderboardPlugin plugin) {
 		this.plugin = plugin;
 
@@ -102,6 +104,9 @@ public class Cache {
 	 */
 	public StatEntry getStat(int position, String board, TimedType type) {
 		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
 			return StatEntry.boardNotFound(plugin, position, board, type);
 		}
 		try {
@@ -129,6 +134,9 @@ public class Cache {
 	private final Map<String, Integer> sortByIndexes = new HashMap<>();
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
 			return StatEntry.boardNotFound(plugin, -3, board, type);
 		}
 		StatEntry r = null;
@@ -204,6 +212,12 @@ public class Cache {
 
 			ps.close();
 			method.close(conn);
+			plugin.getTopManager().fetchBoards();
+			nonExistantBoards.remove(name);
+			if(!plugin.getTopManager().boardExists(name)) {
+				plugin.getLogger().warning("Failed to create board: It wasnt created, but there was no error!");
+				return false;
+			}
 			return true;
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to create board:", e);
@@ -654,5 +668,9 @@ public class Cache {
 		} else {
 			return new StatEntry(plugin, position, board, prefix, name, UUID.fromString(uuidRaw), suffix, value, type);
 		}
+	}
+
+	public List<String> getNonExistantBoards() {
+		return nonExistantBoards;
 	}
 }
