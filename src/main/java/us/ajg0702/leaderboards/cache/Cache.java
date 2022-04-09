@@ -293,6 +293,7 @@ public class Cache {
 					method.formatStatement(DROP_TABLE),
 					tablePrefix+board
 			));
+			ps.executeUpdate();
 
 			ps.close();
 			method.close(conn);
