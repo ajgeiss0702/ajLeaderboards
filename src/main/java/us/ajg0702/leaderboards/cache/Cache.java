@@ -29,20 +29,20 @@ import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput
 public class Cache {
 	private String q = "'";
 
-	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache',"+deltaBuilder()+" from '%s' order by '%s' desc limit 1 offset %d";
-	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache',"+deltaBuilder()+" from '%s' order by '%s' desc";
+	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' desc limit 1 offset %d";
+	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' desc";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT)"
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT))",
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(255))",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' TINYTEXT))"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
 			"sqlite", "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
 	);
 	private final String DROP_TABLE = "drop table '%s';";
-	private final String INSERT_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache'"+tableBuilder()+") values (?, ?, ?, ?, ?"+qBuilder()+")";
-	private final String UPDATE_PLAYER = "update '%s' set 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?"+updateBuilder()+" where id=?";
+	private final String INSERT_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
+	private final String UPDATE_PLAYER = "update '%s' set 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder()+" where id=?";
 	private final String QUERY_LASTTOTAL = "select '%s' from '%s' where id=?";
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
 	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
@@ -156,6 +156,7 @@ public class Cache {
 				String uuidraw = null;
 				double value = -1;
 				String name = "-Unknown-";
+				String displayName = name;
 				String prefix = "";
 				String suffix = "";
 				try {
@@ -163,6 +164,7 @@ public class Cache {
 					name = rs.getString(3);
 					prefix = rs.getString(4);
 					suffix = rs.getString(5);
+					displayName = rs.getString(6);
 					value = rs.getDouble(sortByIndexes.computeIfAbsent(sortBy,
 						k -> {
 							try {
@@ -185,7 +187,7 @@ public class Cache {
 				}
 				if(uuidraw == null) break;
 				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
-				r = new StatEntry(plugin, i, board, prefix, name, UUID.fromString(uuidraw), suffix, value, type);
+				r = new StatEntry(plugin, i, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 				break;
 			}
 			rs.close();
@@ -354,6 +356,11 @@ public class Cache {
 		}
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
+		String displayName = player.getName();
+		if(player instanceof Player) {
+			displayName = ((Player) player).getDisplayName();
+		}
+
 		String prefix = "";
 		String suffix = "";
 		if(plugin.hasVault() && player instanceof Player) {
@@ -383,7 +390,8 @@ public class Cache {
 				statement.setString(3, player.getName());
 				statement.setString(4, prefix);
 				statement.setString(5, suffix);
-				int i = 5;
+				statement.setString(6, displayName);
+				int i = 6;
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
 					long lastReset = plugin.getTopManager().getLastReset(board, type).get();
@@ -408,7 +416,8 @@ public class Cache {
 					statement.setString(2, player.getName());
 					statement.setString(3, prefix);
 					statement.setString(4, suffix);
-					int i = 5;
+					statement.setString(5, displayName);
+					int i = 6;
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
 						statement.setDouble(i++, output-lastTotals.get(type));
@@ -631,6 +640,7 @@ public class Cache {
 		String uuidRaw = null;
 		double value = -1;
 		String name = "-Unknown-";
+		String displayName = name;
 		String prefix = "";
 		String suffix = "";
 		if(method instanceof MysqlMethod || method instanceof H2Method) {
@@ -641,6 +651,7 @@ public class Cache {
 			name = r.getString(3);
 			prefix = r.getString(4);
 			suffix = r.getString(5);
+			displayName = r.getString(6);
 			value = r.getDouble(dataSortByIndexes.computeIfAbsent(sortBy,
 					k -> {
 						try {
@@ -666,7 +677,7 @@ public class Cache {
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {
-			return new StatEntry(plugin, position, board, prefix, name, UUID.fromString(uuidRaw), suffix, value, type);
+			return new StatEntry(plugin, position, board, prefix, name, displayName, UUID.fromString(uuidRaw), suffix, value, type);
 		}
 	}
 

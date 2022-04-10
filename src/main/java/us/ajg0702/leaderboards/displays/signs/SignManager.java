@@ -1,12 +1,10 @@
 package us.ajg0702.leaderboards.displays.signs;
 
-import com.google.common.collect.ImmutableMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
-import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -141,7 +139,7 @@ public class SignManager {
 
         String[] placeholders = Arrays.asList(
                 "POSITION:"+sign.getPosition(),
-                "NAME:"+r.getPlayer(),
+                "NAME:"+r.getPlayerName(),
                 "VALUE:"+r.getScorePretty(),
                 "VALUENAME:"+Matcher.quoteReplacement(name),
                 "TIMEDTYPE:"+sign.getType().lowerName()
@@ -159,9 +157,9 @@ public class SignManager {
 
         if(plugin.isShuttingDown()) return;
         if(r.hasPlayer()) {
-            plugin.getHeadManager().search(sign, r.getPlayer(), r.getPlayerID());
+            plugin.getHeadManager().search(sign, r.getPlayerName(), r.getPlayerID());
             if(plugin.isShuttingDown()) return;
-            plugin.getArmorStandManager().search(sign, r.getPlayer(), r.getPlayerID());
+            plugin.getArmorStandManager().search(sign, r.getPlayerName(), r.getPlayerID());
         }
         if(plugin.isShuttingDown()) return;
         Bukkit.getScheduler().runTask(plugin, () -> sign.setText(pLines.get(0), pLines.get(1), pLines.get(2), pLines.get(3)));

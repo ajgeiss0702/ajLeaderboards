@@ -9,14 +9,14 @@ import us.ajg0702.leaderboards.placeholders.Placeholder;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-public class Name extends Placeholder {
-    public Name(LeaderboardPlugin plugin) {
+public class DisplayName extends Placeholder {
+    public DisplayName(LeaderboardPlugin plugin) {
         super(plugin);
     }
 
     @Override
     public String getRegex() {
-        return "lb_(.*)_([1-9][0-9]*)_(.*)_name";
+        return "lb_(.*)_([1-9][0-9]*)_(.*)_displayname";
     }
 
     @Override

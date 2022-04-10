@@ -7,7 +7,6 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
@@ -44,7 +43,7 @@ public class ListBoards extends SubCommand {
             StringBuilder list = new StringBuilder("&6Top for " + boardn);
             for(int i = 1;i<=10;i++) {
                 StatEntry e = plugin.getCache().getStat(i, boardn, TimedType.ALLTIME);
-                list.append("\n&6").append(i).append(". &e").append(e.getPlayer()).append(" &7- &e").append(e.getScorePretty());
+                list.append("\n&6").append(i).append(". &e").append(e.getPlayerName()).append(" &7- &e").append(e.getScorePretty());
             }
             sender.sendMessage(message(list.toString()));
         });

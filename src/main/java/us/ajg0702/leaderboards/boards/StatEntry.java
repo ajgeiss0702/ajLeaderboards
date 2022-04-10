@@ -17,7 +17,8 @@ public class StatEntry {
 
 	private final LeaderboardPlugin plugin;
 	
-	final String player;
+	final String playerName;
+	final String playerDisplayName;
 	final String prefix;
 	final String suffix;
 
@@ -37,9 +38,10 @@ public class StatEntry {
 	String q = "q";
 	
 	final double score;
-	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String player, UUID playerID, String suffix, double score, TimedType type) {
+	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.plugin = plugin;
-		this.player = player;
+		this.playerName = playerName;
+		this.playerDisplayName = playerDisplayName;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
@@ -65,9 +67,9 @@ public class StatEntry {
 
 	public boolean hasPlayer() {
 		if(plugin == null) {
-			return !player.equals("---") && getPlayerID() != null;
+			return !playerName.equals("---") && getPlayerID() != null;
 		}
-		return !player.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
+		return !playerName.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
 	}
 	
 	public String getPrefix() {
@@ -77,8 +79,12 @@ public class StatEntry {
 		return suffix;
 	}
 	
-	public String getPlayer() {
-		return player;
+	public String getPlayerName() {
+		return playerName;
+	}
+
+	public String getPlayerDisplayName() {
+		return playerDisplayName;
 	}
 
 	public UUID getPlayerID() {
@@ -103,11 +109,11 @@ public class StatEntry {
 	public String getScoreFormatted() {
 		if(cache != null) {
 			Config config = cache.getPlugin().getAConfig();
-			if(score == 0 && player.equals(config.getString("no-data-name"))) {
+			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
 				return config.getString("no-data-score");
 			}
 		} else {
-			if(score == 0 && player.equals("---")) {
+			if(score == 0 && playerName.equals("---")) {
 				return "---";
 			}
 		}
@@ -144,11 +150,11 @@ public class StatEntry {
 	public String getScorePretty() {
 		if(cache != null) {
 			Config config = cache.getPlugin().getAConfig();
-			if(score == 0 && player.equals(config.getString("no-data-name"))) {
+			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
 				return config.getString("no-data-score");
 			}
 		} else {
-			if(score == 0 && player.equals("---")) {
+			if(score == 0 && playerName.equals("---")) {
 				return "---";
 			}
 		}
@@ -183,17 +189,25 @@ public class StatEntry {
 		return df.format(number);
 	}
 
+	/**
+	 * Deprecated. Use getPlayerName instead
+	 */
+	@Deprecated
+	public String getPlayer() {
+		return playerName;
+	}
+
 
 	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", "Board does not exist", null, "", 0, type);
+		return new StatEntry(plugin, position, board, "", "Board does not exist", "Board does not exist", null, "", 0, type);
 	}
 	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", "An error occured", null, "", 0, type);
+		return new StatEntry(plugin, position, board, "", "An error occured", "An error occured", null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+		return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
-		return new StatEntry(plugin, -2, board, "", "Loading", null, "", 0, type);
+		return new StatEntry(plugin, -2, board, "", "Loading", "Loading", null, "", 0, type);
 	}
 }

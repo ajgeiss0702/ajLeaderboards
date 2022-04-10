@@ -73,11 +73,19 @@ public class SqliteMethod implements CacheMethod {
                 }
 
                 statement.executeUpdate("PRAGMA user_version = 2;");
+            } else if(version == 2) {
+                plugin.getLogger().info("Running SQLite table updater (pv"+version+")");
+
+                for(String b : cacheInstance.getDbTableList()) {
+                    statement.executeUpdate("alter table `"+b+"` add column displaynamecache TINYTEXT");
+                }
+
+                statement.executeUpdate("PRAGMA user_version = 3;");
             }
         } catch (SQLException e) {
             if(e.getMessage().contains("duplicate column name")) {
                 try(Statement statement = conn.createStatement()) {
-                    statement.executeUpdate("PRAGMA user_version = 2;");
+                    statement.executeUpdate("PRAGMA user_version = 3;");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }

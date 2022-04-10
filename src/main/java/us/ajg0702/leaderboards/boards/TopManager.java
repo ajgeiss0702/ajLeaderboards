@@ -144,7 +144,7 @@ public class TopManager {
             return fetchStatEntry(player, board, type);
         } else {
             fetchStatEntryAsync(player, board, type);
-            return new StatEntry(plugin, -2, board, "", player.getName(), player.getUniqueId(), "", 0, type);
+            return new StatEntry(plugin, -2, board, "", player.getName(), player.getName(), player.getUniqueId(), "", 0, type);
         }
     }
 
