@@ -357,8 +357,8 @@ public class Cache {
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
 		String displayName = player.getName();
-		if(player instanceof Player) {
-			displayName = ((Player) player).getDisplayName();
+		if(player.isOnline()) {
+			displayName = player.getPlayer().getDisplayName();
 		}
 
 		String prefix = "";
