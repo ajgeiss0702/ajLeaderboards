@@ -14,7 +14,11 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
     private final List<Placeholder> placeholders = new ArrayList<>();
 
+    private final LeaderboardPlugin plugin;
+
     public PlaceholderExpansion(LeaderboardPlugin plugin) {
+
+        this.plugin = plugin;
 
         placeholders.add(new Name(plugin));
         placeholders.add(new Prefix(plugin));
@@ -60,7 +64,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
     @Override
     public String getVersion() {
-        return null;
+        return plugin.getDescription().getVersion();
     }
 
     @Override
