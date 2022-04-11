@@ -327,7 +327,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             Double.valueOf(convertPlaceholderOutput(out));
         } catch(NumberFormatException e) {
             if(sayOutput != null) {
-                sayOutput.sendMessage(message("&7Returned: "+out));
+                sayOutput.sendMessage(message("&7Returned: "+out.replaceAll("§", "&")));
             }
             return false;
         }
