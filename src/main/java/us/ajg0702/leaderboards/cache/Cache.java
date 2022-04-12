@@ -326,10 +326,12 @@ public class Cache {
 	}
 
 	public void updatePlayerStats(OfflinePlayer player) {
+		List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
 		for(String b : plugin.getTopManager().getBoards()) {
+			if(!updatableBoards.isEmpty() && !updatableBoards.contains(b)) continue;
 			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
-				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) return;
+				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
 			}
 			updateStat(b, player);
 		}
