@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 13
+config-version: 14
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -60,3 +60,10 @@ fetching-de-bug: false
 # You should only disable this if you have issues with the player's stat resetting when they join
 #  Default: true
 update-on-join: true
+
+# Only automatically update these boards.
+# If this is an empty list (the default), then all boards will be updated
+# update-stats, if disabled, will override this.
+# Note this is case-sensitive
+#  Default: []
+only-update: []
