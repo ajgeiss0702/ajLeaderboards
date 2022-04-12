@@ -1,11 +1,14 @@
+import io.github.slimjar.func.slimjar
+
 plugins {
     java
     id("com.github.johnrengelman.shadow").version("6.1.0")
     `maven-publish`
+    id("io.github.slimjar").version("1.3.0")
 }
 
 group = "us.ajg0702"
-version = "2.3.2"
+version = "2.3.3-pre2"
 
 repositories {
     mavenCentral()
@@ -21,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation(slimjar("1.2.6"))
     testImplementation("junit:junit:4.12")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
@@ -39,6 +43,7 @@ dependencies {
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
     implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 
+    implementation("com.h2database:h2:2.1.212")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -60,6 +65,7 @@ tasks.shadowJar {
     relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
     relocate("org.yaml", "us.ajg0702.leaderboards.libs")
     relocate("io.leangen", "us.ajg0702.leaderboards.libs")
+    relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")
     exclude("junit/**/*")

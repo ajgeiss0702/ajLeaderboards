@@ -62,6 +62,11 @@ public class LeaderboardPlugin extends JavaPlugin {
     private boolean shuttingDown = false;
 
     @Override
+    public void onLoad() {
+        //ApplicationBuilder.appending("ajLeaderboards").build();
+    }
+
+    @Override
     public void onEnable() {
 
         if(isShuttingDown()) {

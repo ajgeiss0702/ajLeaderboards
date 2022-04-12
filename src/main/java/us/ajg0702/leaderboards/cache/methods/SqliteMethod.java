@@ -122,6 +122,11 @@ public class SqliteMethod implements CacheMethod {
         return "sqlite";
     }
 
+    @Override
+    public boolean requiresClose() {
+        return false;
+    }
+
     public void newConnection() {
         shutdown();
         init(plugin, config, cacheInstance);

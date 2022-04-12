@@ -40,7 +40,7 @@ public class TopManager {
         fetchService.allowCoreThreadTimeOut(true);
         fetchService.setThreadFactory(new DefaultThreadFactory("AJLBFETCH"));
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            rolling.add(fetching.get()+getQueuedTasks());
+            rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
                 rolling.remove(0);
             }

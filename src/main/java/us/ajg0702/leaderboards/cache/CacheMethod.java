@@ -14,4 +14,5 @@ public interface CacheMethod {
     void shutdown();
     String formatStatement(String s);
     String getName();
+    boolean requiresClose();
 }

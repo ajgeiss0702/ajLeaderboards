@@ -155,4 +155,9 @@ public class MysqlMethod implements CacheMethod {
     public String getName() {
         return "mysql";
     }
+
+    @Override
+    public boolean requiresClose() {
+        return true;
+    }
 }

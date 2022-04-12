@@ -56,9 +56,10 @@ public class H2Method implements CacheMethod {
                 int version;
                 if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
                 try {
-                    ResultSet rs = conn.createStatement().executeQuery("show table status where Name='"+tableName+"'");
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT TABLE_NAME,COLUMN_NAME,REMARKS\n" +
+                            " FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='"+tableName+"'");
                     rs.next();
-                    version = Integer.parseInt(rs.getString("COMMENT"));
+                    version = Integer.parseInt(rs.getString("REMARKS"));
                     rs.close();
                 } catch(NumberFormatException e) {
                     version = 0;
@@ -70,34 +71,6 @@ public class H2Method implements CacheMethod {
                     }
                 }
                 Debug.info("Table version for "+tableName+" is: "+version);
-
-                if(version == 0) {
-                    plugin.getLogger().info("Running H2 table updater for table "+tableName+" (pv"+version+")");
-
-                    for(TimedType typeEnum : TimedType.values()) {
-                        if(typeEnum == TimedType.ALLTIME) continue;
-                        String type = typeEnum.name().toLowerCase(Locale.ROOT);
-                        try {
-                            statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_delta BIGINT");
-                            statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_lasttotal BIGINT");
-                            statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_timestamp BIGINT");
-                        } catch(SQLException e) {
-                            if(e.getMessage().contains("Duplicate")) {
-                                plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
-                                try {
-                                    conn.createStatement().executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '1';");
-                                } catch (SQLException er) {
-                                    er.printStackTrace();
-                                    throw e;
-                                }
-                            } else {
-                                throw e;
-                            }
-                        }
-                    }
-
-                    statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '1';");
-                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -129,6 +102,11 @@ public class H2Method implements CacheMethod {
     @Override
     public String getName() {
         return "h2";
+    }
+
+    @Override
+    public boolean requiresClose() {
+        return false;
     }
 
     public void newConnection() {
