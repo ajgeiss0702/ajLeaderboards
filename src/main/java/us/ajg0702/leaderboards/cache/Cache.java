@@ -359,7 +359,7 @@ public class Cache {
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
 		String displayName = player.getName();
-		if(player.isOnline()) {
+		if(player.isOnline() && player.getPlayer() != null) {
 			displayName = player.getPlayer().getDisplayName();
 		}
 
