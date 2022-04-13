@@ -1,12 +1,14 @@
 package us.ajg0702.leaderboards;
 
+import io.github.slimjar.app.builder.ApplicationBuilder;
+import io.github.slimjar.resolver.data.Repository;
+import io.github.slimjar.resolver.mirrors.SimpleMirrorSelector;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.chat.Chat;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -26,17 +28,22 @@ import us.ajg0702.leaderboards.displays.heads.HeadManager;
 import us.ajg0702.leaderboards.displays.heads.HeadUtils;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
+import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,7 +70,17 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        //ApplicationBuilder.appending("ajLeaderboards").build();
+        try {
+            Path downloadPath = Paths.get(getDataFolder().getPath() + File.separator + "libs");
+            ApplicationBuilder.appending("ajLeaderboards")
+                    .logger(new SlimJarLogger(this))
+                    .downloadDirectoryPath(downloadPath)
+                    .mirrorSelector((a, b) -> a)
+                    .internalRepositories(Collections.singleton(new Repository(new URL(SimpleMirrorSelector.ALT_CENTRAL_URL))))
+                    .build();
+        } catch (IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

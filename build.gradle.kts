@@ -1,9 +1,7 @@
-import io.github.slimjar.func.slimjar
-
 plugins {
     java
-    id("com.github.johnrengelman.shadow").version("6.1.0")
     `maven-publish`
+    id("com.github.johnrengelman.shadow").version("6.1.0")
     id("io.github.slimjar").version("1.3.0")
 }
 
@@ -24,15 +22,15 @@ repositories {
 }
 
 dependencies {
-    implementation(slimjar("1.2.6"))
     testImplementation("junit:junit:4.12")
+
+    implementation("io.github.slimjar:slimjar:1.2.7")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.10.4")
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
 
-    implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.bstats:bstats-bukkit:1.7")
 
     implementation("net.kyori:adventure-api:4.10.0")
@@ -43,7 +41,9 @@ dependencies {
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
     implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 
-    implementation("com.h2database:h2:2.1.212")
+
+    slim("com.zaxxer:HikariCP:3.4.5")
+    slim("com.h2database:h2:2.1.212")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -56,20 +56,26 @@ tasks.withType<ProcessResources> {
     )
 }
 
+tasks.slimJar {
+    relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
+    relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
+}
+
 tasks.shadowJar {
-    relocate("net.kyori", "us.ajg0702.leaderboards.libs.kyori")
-    relocate("org.bstats", "us.ajg0702.leaderboards.libs.bstats")
     relocate("us.ajg0702.utils", "us.ajg0702.leaderboards.libs.utils")
     relocate("us.ajg0702.commands", "us.ajg0702.leaderboards.commands.base")
-    relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
+    relocate("io.github.slimjar", "us.ajg0702.leaderboards.libs.slimjar")
+    relocate("net.kyori", "us.ajg0702.leaderboards.libs.kyori")
+    relocate("org.bstats", "us.ajg0702.leaderboards.libs.bstats")
     relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
     relocate("org.yaml", "us.ajg0702.leaderboards.libs")
     relocate("io.leangen", "us.ajg0702.leaderboards.libs")
-    relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
+
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")
     exclude("junit/**/*")
     exclude("org/junit/**/*")
+    exclude("org/slf4j/**/*")
     exclude("org/hamcrest/**/*")
     exclude("LICENSE-junit.txt")
 }
