@@ -24,6 +24,6 @@ public class DisplayName extends Placeholder {
         String board = matcher.group(1);
         String typeRaw = matcher.group(3).toUpperCase(Locale.ROOT);
         StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, TimedType.valueOf(typeRaw));
-        return r.getPlayerName();
+        return r.getPlayerDisplayName();
     }
 }
