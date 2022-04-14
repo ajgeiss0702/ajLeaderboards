@@ -7,7 +7,9 @@ import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.PlaceholderExpansion {
@@ -40,14 +42,21 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new Fetching(plugin));
     }
 
+    Map<String, CachedPlaceholder> placeholderCache = new HashMap<>();
+
     @Override
     public String onRequest(OfflinePlayer p, String params) {
-        for(Placeholder placeholder : placeholders) {
-            Matcher matcher = placeholder.getPattern().matcher(params);
-            if(!matcher.matches()) continue;
-            return placeholder.parse(matcher, p);
-        }
-        return null;
+        CachedPlaceholder cachedPlaceholder = placeholderCache.computeIfAbsent(params, s -> {
+            for(Placeholder placeholder : placeholders) {
+                Matcher matcher = placeholder.getPattern().matcher(params);
+                if(!matcher.matches()) continue;
+                return new CachedPlaceholder(matcher, placeholder);
+            }
+            return null;
+        });
+        if(cachedPlaceholder == null) return null;
+
+        return cachedPlaceholder.getPlaceholder().parse(cachedPlaceholder.getMatcher(), p);
     }
 
 
