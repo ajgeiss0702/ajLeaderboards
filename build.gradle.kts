@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.3.3-pre2"
+version = "2.4.0-pre1"
 
 repositories {
     mavenCentral()
@@ -37,7 +37,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.10.0")
     implementation("net.kyori:adventure-platform-bukkit:4.0.1")
 
-    implementation("us.ajg0702:ajUtils:1.1.25")
+    implementation("us.ajg0702:ajUtils:1.1.33")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
     implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
 
