@@ -29,8 +29,8 @@ import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput
 public class Cache {
 	private String q = "'";
 
-	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' desc, namecache desc limit 1 offset %d";
-	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' desc, namecache desc";
+	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
+	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
 			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT))",
 			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(255))",
@@ -109,6 +109,7 @@ public class Cache {
 			}
 			return StatEntry.boardNotFound(plugin, position, board, type);
 		}
+		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		try {
 			Connection conn = method.getConnection();
 			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
@@ -116,6 +117,7 @@ public class Cache {
 					method.formatStatement(SELECT_POSITION),
 					tablePrefix+board,
 					sortBy,
+					reverse ? "asc" : "desc",
 					position-1
 			));
 
@@ -139,6 +141,7 @@ public class Cache {
 			}
 			return StatEntry.boardNotFound(plugin, -3, board, type);
 		}
+		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		StatEntry r = null;
 		try {
 			Connection conn = method.getConnection();
@@ -146,7 +149,8 @@ public class Cache {
 			PreparedStatement ps = conn.prepareStatement(String.format(
 					method.formatStatement(SELECT_PLAYER),
 					tablePrefix+board,
-					sortBy
+					sortBy,
+					reverse ? "asc" : "desc"
 			));
 
 			ResultSet rs = ps.executeQuery();

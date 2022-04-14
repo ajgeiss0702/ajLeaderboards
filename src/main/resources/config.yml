@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 14
+config-version: 15
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -67,3 +67,6 @@ update-on-join: true
 # Note this is case-sensitive
 #  Default: []
 only-update: []
+
+# Boards listed here will be sorted in reverse order
+reverse-sort: []
