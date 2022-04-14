@@ -300,7 +300,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         }
         updateTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             if(!config.getBoolean("update-stats")) return;
-            if(getTopManager().getQueuedTasks() > 100) {
+            if(getTopManager().getFetchingAverage() > 100) {
                 getLogger().warning("Database is overloaded! Skipping update of players.");
                 return;
             }
