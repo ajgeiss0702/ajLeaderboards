@@ -216,4 +216,7 @@ public class StatEntry {
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
 		return new StatEntry(plugin, -2, board, "", "Loading", "Loading", null, "", 0, type);
 	}
+	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
+		return new StatEntry(plugin, -2, boardType.getBoard(), "", "Loading", "Loading", null, "", 0, boardType.getType());
+	}
 }

@@ -47,8 +47,7 @@ public class TopManager {
         }, 0, 2);
     }
 
-    private final HashMap<String, HashMap<TimedType, HashMap<Integer, Long>>> lastGet = new HashMap<>();
-    private final HashMap<String, HashMap<TimedType, HashMap<Integer, StatEntry>>> cache = new HashMap<>();
+    private final Map<BoardType, Map<Integer, Cached<StatEntry>>> cache = new HashMap<>();
 
     /**
      * Get a leaderboard position
@@ -57,51 +56,41 @@ public class TopManager {
      * @return The StatEntry representing the position on the board
      */
     public StatEntry getStat(int position, String board, TimedType type) {
-        if(!cache.containsKey(board)) {
-            cache.put(board, new HashMap<>());
-        }
-        if(!lastGet.containsKey(board)) {
-            lastGet.put(board, new HashMap<>());
+        BoardType boardType = new BoardType(board, type);
+        if(!cache.containsKey(boardType)) {
+            cache.put(boardType, new HashMap<>());
         }
 
-        if(!cache.get(board).containsKey(type)) {
-            cache.get(board).put(type, new HashMap<>());
-        }
-        if(!lastGet.get(board).containsKey(type)) {
-            lastGet.get(board).put(type, new HashMap<>());
-        }
-
-
-        if(cache.get(board).get(type).containsKey(position)) {
-            if(System.currentTimeMillis() - lastGet.get(board).get(type).get(position) > cacheTime()) {
-                lastGet.get(board).get(type).put(position, System.currentTimeMillis());
-                fetchPositionAsync(position, board, type);
+        if(cache.get(boardType).containsKey(position)) {
+            if(System.currentTimeMillis() - cache.get(boardType).get(position).getLastGet() > cacheTime()) {
+                cache.get(boardType).get(position).setLastGet(System.currentTimeMillis());
+                fetchPositionAsync(position, boardType);
             }
-            return cache.get(board).get(type).get(position);
+            return cache.get(boardType).get(position).getThing();
         }
 
-        lastGet.get(board).get(type).put(position, System.currentTimeMillis());
+        cache.get(boardType).put(position, new Cached<>(StatEntry.loading(plugin, board, type)));
         if(plugin.getAConfig().getBoolean("blocking-fetch")) {
-            return fetchPosition(position, board, type);
+            return fetchPosition(position, boardType);
         } else {
-            fetchPositionAsync(position, board, type);
+            fetchPositionAsync(position, boardType);
             return StatEntry.loading(plugin, board, type);
         }
     }
     AtomicInteger fetching = new AtomicInteger(0);
-    private void fetchPositionAsync(int position, String board, TimedType type) {
+    private void fetchPositionAsync(int position, BoardType boardType) {
         if(plugin.isShuttingDown()) return;
-        if(!cache.get(board).get(type).containsKey(position)) {
-            cache.get(board).get(type).put(position, StatEntry.loading(plugin, board, type));
+        if(!cache.get(boardType).containsKey(position)) {
+            cache.get(boardType).put(position, new Cached<>(StatEntry.loading(plugin, boardType)));
         }
         checkWrong();
-        fetchService.submit(() -> fetchPosition(position, board, type));
+        fetchService.submit(() -> fetchPosition(position, boardType));
     }
-    private StatEntry fetchPosition(int position, String board, TimedType type) {
+    private StatEntry fetchPosition(int position, BoardType boardType) {
         int f = fetching.getAndIncrement();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (pos): "+f);
-        StatEntry te = plugin.getCache().getStat(position, board, type);
-        cache.get(board).get(type).put(position, te);
+        StatEntry te = plugin.getCache().getStat(position, boardType.getBoard(), boardType.getType());
+        cache.get(boardType).put(position, new Cached<>(te));
         removeFetching();
         return te;
     }

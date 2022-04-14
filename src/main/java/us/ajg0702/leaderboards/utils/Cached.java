@@ -3,8 +3,8 @@ package us.ajg0702.leaderboards.utils;
 import java.util.concurrent.Future;
 
 public class Cached<T> {
-    private final long lastGet;
-    private final T thing;
+    private long lastGet;
+    private T thing;
 
     public Cached(T thing) {
         this(System.currentTimeMillis(), thing);
@@ -20,6 +20,14 @@ public class Cached<T> {
 
     public T getThing() {
         return thing;
+    }
+
+    public void setLastGet(long lastGet) {
+        this.lastGet = lastGet;
+    }
+
+    public void setThing(T thing) {
+        this.thing = thing;
     }
 
     public static Cached<Future<Long>> none() {
