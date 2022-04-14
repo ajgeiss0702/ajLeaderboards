@@ -38,6 +38,7 @@ public class StatEntry {
 	String q = "q";
 	
 	final double score;
+	final String scorePretty;
 	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.plugin = plugin;
 		this.playerName = playerName;
@@ -63,6 +64,21 @@ public class StatEntry {
 		
 		this.position = position;
 		this.board = board;
+
+		scorePretty = calcPrettyScore();
+	}
+	private String calcPrettyScore() {
+		if(cache != null) {
+			Config config = cache.getPlugin().getAConfig();
+			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
+				return config.getString("no-data-score");
+			}
+		} else {
+			if(score == 0 && playerName.equals("---")) {
+				return "---";
+			}
+		}
+		return addCommas(score);
 	}
 
 	public boolean hasPlayer() {
@@ -148,17 +164,7 @@ public class StatEntry {
 	}
 	
 	public String getScorePretty() {
-		if(cache != null) {
-			Config config = cache.getPlugin().getAConfig();
-			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
-				return config.getString("no-data-score");
-			}
-		} else {
-			if(score == 0 && playerName.equals("---")) {
-				return "---";
-			}
-		}
-		return addCommas(score);
+		return scorePretty;
 	}
 
 	public String getTime() {
