@@ -145,11 +145,12 @@ public class SignManager {
                 "TIMEDTYPE:"+sign.getType().lowerName()
         ).toArray(new String[]{});
 
-        List<Component> lines = Arrays.asList(
-                msgs.getComponent("signs.top.1", placeholders),
-                msgs.getComponent("signs.top.2", placeholders),
-                msgs.getComponent("signs.top.3", placeholders),
-                msgs.getComponent("signs.top.4", placeholders));
+        List<Component> lines;
+        if(msgs.hasMessage("signs.top."+sign.getBoard())) {
+            lines = msgs.getComponentList("signs.top."+sign.getBoard(), placeholders);
+        } else {
+            lines = msgs.getComponentList("signs.top.default", placeholders);
+        }
 
 
         List<String> pLines = new ArrayList<>();

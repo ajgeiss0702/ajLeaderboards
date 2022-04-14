@@ -14,7 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitWorker;
+import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
@@ -52,6 +54,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("ConfusingArgumentToVarargsMethod")
 public class LeaderboardPlugin extends JavaPlugin {
 
     private Config config;
@@ -109,12 +112,14 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.setDebug(config.getBoolean("debug"));
         Debug.setParticles(config.getBoolean("particles"));
 
-        LinkedHashMap<String, String> dmsgs = new LinkedHashMap<>();
+        Map<String, Object> dmsgs = new LinkedHashMap<>();
 
-        dmsgs.put("signs.top.1", "&7&m       &r #{POSITION} &7&m       ");
-        dmsgs.put("signs.top.2", "&6{NAME}");
-        dmsgs.put("signs.top.3", "&e{VALUE} {VALUENAME}");
-        dmsgs.put("signs.top.4", "&7&m                   ");
+        dmsgs.put("signs.top.default", Arrays.asList(
+                "&7&m       &r #{POSITION} &7&m       ",
+                "&6{NAME}",
+                "&e{VALUE} {VALUENAME}",
+                "&7&m                   "
+        ));
 
         dmsgs.put("formatted.k", "k");
         dmsgs.put("formatted.m", "m");
@@ -134,6 +139,30 @@ public class LeaderboardPlugin extends JavaPlugin {
         dmsgs.put("commands.reload.fail", "&cAn error occurred while reloading one of your configs. Check the console for more info.");
 
         messages = new Messages(getDataFolder(), getLogger(), dmsgs);
+
+        CommentedConfigurationNode msgs = messages.getRootNode();
+
+        if(msgs.hasChild("signs.top.1".split("\\."))) {
+            List<String> linesList = new ArrayList<>();
+
+            linesList.add(msgs.node("signs.top.1".split("\\.")).getString());
+            linesList.add(msgs.node("signs.top.2".split("\\.")).getString());
+            linesList.add(msgs.node("signs.top.3".split("\\.")).getString());
+            linesList.add(msgs.node("signs.top.4".split("\\.")).getString());
+
+            try {
+                msgs.node("signs.top.default".split("\\.")).setList(String.class, linesList);
+                msgs.node("signs.top.1".split("\\.")).set(null);
+                msgs.node("signs.top.2".split("\\.")).set(null);
+                msgs.node("signs.top.3".split("\\.")).set(null);
+                msgs.node("signs.top.4".split("\\.")).set(null);
+                messages.save();
+            } catch (SerializationException e) {
+                getLogger().log(Level.SEVERE, "Unable to move sign messages: ", e);
+            }
+
+        }
+
 
         TimeUtils.setStrings(messages);
 
