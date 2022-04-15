@@ -43,6 +43,7 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -345,12 +346,16 @@ public class LeaderboardPlugin extends JavaPlugin {
             secsTilNextReset = 0;
         }
 
-        if(lastReset < type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset())) {
-            Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset!");
+
+        LocalDateTime lastResetDate = LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC);
+        long estLastReset = type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
+        long lastResetConverted = lastResetDate.toEpochSecond(TimeUtils.getDefaultZoneOffset());
+        if(lastResetConverted < estLastReset) {
+            Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset! "+lastReset+" < "+estLastReset);
             secsTilNextReset = 0;
         }
 
-        Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (next: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" last: "+ LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME) +" last: "+lastReset+" next: "+nextReset+")");
+        Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (next: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" last: "+ lastResetDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME) +" last: "+lastReset+" next: "+nextReset+")");
 
         if(isShuttingDown()) return;
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
