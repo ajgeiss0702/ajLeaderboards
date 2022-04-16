@@ -1,6 +1,6 @@
 # In this file, you can control where the cache is stored.
 
-# The method to use. mysql or sqlite
+# The method to use. h2, sqlite, or mysql
 # If you select mysql, you will need to configure the settings below
 #  Default: sqlite
 method: sqlite
@@ -30,4 +30,4 @@ useSSL: false
 
 
 # Dont touch me
-config-version: 3
+config-version: 4
