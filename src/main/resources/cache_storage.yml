@@ -22,7 +22,7 @@ table_prefix: ajlb_
 # These settings are for mysql only
 # If you dont know what these are for, I reccomend leaving them as default
 minConnections: 1
-maxConnections: 10
+maxConnections: 20
 
 allowPublicKeyRetrieval: false
 useSSL: false
