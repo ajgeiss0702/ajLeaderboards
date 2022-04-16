@@ -41,7 +41,7 @@ public class MysqlMethod implements CacheMethod {
         int maxCount = config.getInt("maxConnections");
         String charEncoding = config.getString("characterEncoding");
 
-        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding="+charEncoding+"&useInformationSchema=true";
+        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&useUnicode=true&character_set_server="+charEncoding+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding="+charEncoding+"&useInformationSchema=true";
         hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
         hikariConfig.setJdbcUrl(url);
         hikariConfig.setUsername(username);
@@ -53,7 +53,7 @@ public class MysqlMethod implements CacheMethod {
         //hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
 
         ds = new HikariDataSource(hikariConfig);
-        ds.setLeakDetectionThreshold(25 * 1000);
+        ds.setLeakDetectionThreshold(60 * 1000);
 
         List<String> tables = cacheInstance.getDbTableList();
 
