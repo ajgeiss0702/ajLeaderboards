@@ -1,12 +1,12 @@
 package us.ajg0702.leaderboards.boards;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
+import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class TopManager {
                 new ArrayBlockingQueue<>(1000000, true)
         );
         fetchService.allowCoreThreadTimeOut(true);
-        fetchService.setThreadFactory(new DefaultThreadFactory("AJLBFETCH"));
+        fetchService.setThreadFactory(ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH"));
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {

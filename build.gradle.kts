@@ -26,7 +26,8 @@ dependencies {
 
     implementation("io.github.slimjar:slimjar:1.2.7")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
+    //compileOnly(group = "org.spigotmc", name = "spigot", version = "1.18.2-R0.1-SNAPSHOT")
+    compileOnly(group = "org.spigotmc", name = "spigot-api", version = "1.18.2-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.10.4")
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
@@ -40,6 +41,8 @@ dependencies {
     implementation("us.ajg0702:ajUtils:1.1.33")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0-pre14")
     implementation("us.ajg0702.commands.api:api:1.0.0-pre14")
+
+    implementation(project(":nms"))
 
 
     slim("com.zaxxer:HikariCP:3.4.5")

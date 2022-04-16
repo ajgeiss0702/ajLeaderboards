@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.displays.armorstands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -18,8 +19,6 @@ import us.ajg0702.utils.spigot.VersionSupport;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
-
-import static us.ajg0702.leaderboards.displays.heads.HeadUtils.debugParticles;
 
 public class ArmorStandManager {
 
@@ -177,5 +176,11 @@ public class ArmorStandManager {
                 () -> future.complete(world.getNearbyEntities(loc, 1, 1, 1))
         );
         return future;
+    }
+    public static void debugParticles(Location curloc) {
+        if(!Debug.particles()) return;
+        World world = curloc.getWorld();
+        if(world == null) return;
+        world.spawnParticle(Particle.FLAME, curloc.add(0.5, 0.5, 0.5).toVector().toLocation(curloc.getWorld()), 20, 0.25, 0.25, 0.25, 0);
     }
 }

@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.displays.heads;
+package us.ajg0702.leaderboards.nms;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -7,7 +7,6 @@ import com.mojang.authlib.properties.Property;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.BufferedReader;
@@ -32,12 +31,6 @@ public class HeadUtils {
      block.getState().update(true);
      }**/
 
-    public static void debugParticles(Location curloc) {
-        if(!Debug.particles()) return;
-        World world = curloc.getWorld();
-        if(world == null) return;
-        world.spawnParticle(Particle.FLAME, curloc.add(0.5, 0.5, 0.5).toVector().toLocation(curloc.getWorld()), 20, 0.25, 0.25, 0.25, 0);
-    }
 
 
     public ItemStack getHeadItem(String name) {

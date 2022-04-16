@@ -1,6 +1,5 @@
 package us.ajg0702.leaderboards.boards;
 
-import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.NotImplementedException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
