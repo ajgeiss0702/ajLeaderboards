@@ -243,7 +243,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         });
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
-            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" ");
+            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" "+bukkitWorker.getTaskId());
             for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
                 Debug.info(" - "+stackTraceElement);
             }

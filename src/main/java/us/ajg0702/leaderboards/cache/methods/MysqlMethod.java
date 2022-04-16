@@ -39,8 +39,9 @@ public class MysqlMethod implements CacheMethod {
         boolean allowPublicKeyRetrieval = config.getBoolean("allowPublicKeyRetrieval");
         int minCount = config.getInt("minConnections");
         int maxCount = config.getInt("maxConnections");
+        String charEncoding = config.getString("characterEncoding");
 
-        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8&useInformationSchema=true";
+        String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding="+charEncoding+"&useInformationSchema=true";
         hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
         hikariConfig.setJdbcUrl(url);
         hikariConfig.setUsername(username);

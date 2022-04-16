@@ -12,6 +12,9 @@ username: mc
 password: password
 database: mc
 
+# Currently only used with mysql
+characterEncoding: "utf8mb4"
+
 # Note that if you change this after already saving data in the db, ajleaderboards will not be able to see it.
 # In this case, you should either stick with the default or go through and rename the tables to use the new prefix
 table_prefix: ajlb_
@@ -27,4 +30,4 @@ useSSL: false
 
 
 # Dont touch me
-config-version: 2
+config-version: 3
