@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 15
+config-version: 16
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -70,3 +70,6 @@ only-update: []
 
 # Boards listed here will be sorted in reverse order
 reverse-sort: []
+
+# How often (in ticks) should we update leaderboard signs?
+sign-update: 20

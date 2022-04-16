@@ -32,12 +32,14 @@ public class SignManager {
 
         Bukkit.getScheduler().runTask(plugin, this::reload);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateSigns, 10*20, 20);
+
     }
 
     public List<BoardSign> getSigns() {
         return signs;
     }
+
+    int updateIntervalId = -1;
 
     public void reload() {
         cfgFile = new File(plugin.getDataFolder(), "displays.yml");
@@ -56,6 +58,16 @@ public class SignManager {
             }
         }
         updateNameCache();
+
+        if(updateIntervalId != -1) {
+            try {
+                Bukkit.getScheduler().cancelTask(updateIntervalId);
+                updateIntervalId = -1;
+            } catch(IllegalStateException e) {
+                updateIntervalId = -1;
+            }
+        }
+        updateIntervalId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateSigns, 10*20, plugin.getAConfig().getInt("sign-update")).getTaskId();
     }
 
     public boolean removeSign(Location l) {
