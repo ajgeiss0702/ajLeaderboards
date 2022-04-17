@@ -11,7 +11,8 @@ public enum TimedType {
     HOURLY,
     DAILY,
     WEEKLY,
-    MONTHLY;
+    MONTHLY,
+    YEARLY;
 
     public String lowerName() {
         return name().toLowerCase(Locale.ROOT);
@@ -38,6 +39,8 @@ public enum TimedType {
                 return now.plusDays(7-now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case MONTHLY:
                 return now.plusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case YEARLY:
+                return now.plusYears(1).withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         }
         throw new IllegalStateException();
     }
@@ -54,6 +57,8 @@ public enum TimedType {
                 return now.minusDays(now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case MONTHLY:
                 return now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            case YEARLY:
+                return now.withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         }
         throw new IllegalStateException();
     }

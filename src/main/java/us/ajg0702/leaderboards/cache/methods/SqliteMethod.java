@@ -59,10 +59,12 @@ public class SqliteMethod implements CacheMethod {
                     statement.executeUpdate("alter table '"+b+"' add column suffixcache TEXT;");
                 }
                 statement.executeUpdate("PRAGMA user_version = 1;");
-            } else if(version == 1) {
+                version = 1;
+            }
+            if(version == 1) {
                 plugin.getLogger().info("Running SQLite table updater (pv"+version+")");
 
-                for(String b : cacheInstance.getBoards()) {
+                for(String b : cacheInstance.getDbTableList()) {
                     for(TimedType typeEnum : TimedType.values()) {
                         if(typeEnum == TimedType.ALLTIME) continue;
                         String type = typeEnum.name().toLowerCase(Locale.ROOT);
@@ -73,7 +75,9 @@ public class SqliteMethod implements CacheMethod {
                 }
 
                 statement.executeUpdate("PRAGMA user_version = 2;");
-            } else if(version == 2) {
+                version = 2;
+            }
+            if(version == 2) {
                 plugin.getLogger().info("Running SQLite table updater (pv"+version+")");
 
                 for(String b : cacheInstance.getDbTableList()) {
@@ -82,10 +86,20 @@ public class SqliteMethod implements CacheMethod {
 
                 statement.executeUpdate("PRAGMA user_version = 3;");
             }
+            if(version == 3) {
+                TimedType type = TimedType.YEARLY;
+                for(String b : cacheInstance.getDbTableList()) {
+                    statement.executeUpdate("alter table `"+b+"` add column "+type+"_delta BIGINT");
+                    statement.executeUpdate("alter table `"+b+"` add column "+type+"_lasttotal BIGINT");
+                    statement.executeUpdate("alter table `"+b+"` add column "+type+"_timestamp BIGINT");
+                }
+                statement.executeUpdate("PRAGMA user_version = 4;");
+                version = 4;
+            }
         } catch (SQLException e) {
             if(e.getMessage().contains("duplicate column name")) {
                 try(Statement statement = conn.createStatement()) {
-                    statement.executeUpdate("PRAGMA user_version = 3;");
+                    statement.executeUpdate("PRAGMA user_version = 4;");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }

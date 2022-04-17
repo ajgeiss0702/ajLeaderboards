@@ -71,6 +71,29 @@ public class H2Method implements CacheMethod {
                     }
                 }
                 Debug.info("Table version for "+tableName+" is: "+version);
+
+                if(version == 0) {
+                    TimedType type = TimedType.YEARLY;
+                    try {
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_delta BIGINT");
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_lasttotal BIGINT");
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_timestamp BIGINT");
+                    } catch(SQLException e) {
+                        if(e.getMessage().contains("Duplicate")) {
+                            plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
+                            try {
+                                conn.createStatement().executeUpdate("ALTER TABLE `"+tableName+"` REMARKS = '1';");
+                            } catch (SQLException er) {
+                                er.printStackTrace();
+                                throw e;
+                            }
+                        } else {
+                            throw e;
+                        }
+                    }
+                    statement.executeUpdate("ALTER TABLE `"+tableName+"` REMARKS = '1';");
+                    version = 1;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
