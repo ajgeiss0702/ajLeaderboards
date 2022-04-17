@@ -54,7 +54,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("ConfusingArgumentToVarargsMethod")
 public class LeaderboardPlugin extends JavaPlugin {
 
     private Config config;
@@ -142,20 +141,20 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         CommentedConfigurationNode msgs = messages.getRootNode();
 
-        if(msgs.hasChild("signs.top.1".split("\\."))) {
+        if(msgs.hasChild(getSignPath("1"))) {
             List<String> linesList = new ArrayList<>();
 
-            linesList.add(msgs.node("signs.top.1".split("\\.")).getString());
-            linesList.add(msgs.node("signs.top.2".split("\\.")).getString());
-            linesList.add(msgs.node("signs.top.3".split("\\.")).getString());
-            linesList.add(msgs.node("signs.top.4".split("\\.")).getString());
+            linesList.add(msgs.node(getSignPath("1")).getString());
+            linesList.add(msgs.node(getSignPath("2")).getString());
+            linesList.add(msgs.node(getSignPath("3")).getString());
+            linesList.add(msgs.node(getSignPath("4")).getString());
 
             try {
-                msgs.node("signs.top.default".split("\\.")).setList(String.class, linesList);
-                msgs.node("signs.top.1".split("\\.")).set(null);
-                msgs.node("signs.top.2".split("\\.")).set(null);
-                msgs.node("signs.top.3".split("\\.")).set(null);
-                msgs.node("signs.top.4".split("\\.")).set(null);
+                msgs.node(getSignPath("default")).setList(String.class, linesList);
+                msgs.node(getSignPath("1")).set(null);
+                msgs.node(getSignPath("2")).set(null);
+                msgs.node(getSignPath("3")).set(null);
+                msgs.node(getSignPath("4")).set(null);
                 messages.save();
             } catch (SerializationException e) {
                 getLogger().log(Level.SEVERE, "Unable to move sign messages: ", e);
@@ -205,6 +204,10 @@ public class LeaderboardPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
+    }
+
+    private Iterable<String> getSignPath(String end) {
+        return Arrays.asList("signs", "top", end);
     }
 
     @Override
