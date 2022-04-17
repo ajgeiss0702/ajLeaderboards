@@ -92,6 +92,7 @@ public class BoardSign {
             try {
                 setSign().get();
             } catch (InterruptedException | ExecutionException e) {
+                if(plugin.isShuttingDown()) return false;
                 plugin.getLogger().log(Level.SEVERE, "Interupted while trying to get sign data", e);
             }
         }

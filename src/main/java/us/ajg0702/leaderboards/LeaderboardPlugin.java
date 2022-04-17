@@ -322,6 +322,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                 try {
                     scheduleReset(board, type);
                 } catch (ExecutionException | InterruptedException e) {
+                    if(isShuttingDown()) return;
                     getLogger().log(Level.WARNING, "Scheduling reset interupted:", e);
                 }
             }
