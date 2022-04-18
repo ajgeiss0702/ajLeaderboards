@@ -367,6 +367,7 @@ public class LeaderboardPlugin extends JavaPlugin {
                     try {
                         cache.reset(board, type);
                     } catch (ExecutionException | InterruptedException e) {
+                        if(isShuttingDown()) return;
                         getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
                     }
                 },
