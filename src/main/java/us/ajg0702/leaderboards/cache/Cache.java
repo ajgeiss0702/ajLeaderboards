@@ -13,6 +13,7 @@ import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
+import us.ajg0702.leaderboards.utils.BoardPlayer;
 import us.ajg0702.leaderboards.utils.Partition;
 import us.ajg0702.utils.common.ConfigFile;
 
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -341,6 +343,8 @@ public class Cache {
 		}
 	}
 
+	List<BoardPlayer> zeroPlayers = new CopyOnWriteArrayList<>();
+
 	public void updateStat(String board, OfflinePlayer player) {
 		if(!plugin.getTopManager().boardExists(board)) {
 			return;
@@ -361,6 +365,20 @@ public class Cache {
 			return;
 		}
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
+
+		BoardPlayer boardPlayer = new BoardPlayer(board, player);
+
+		if(plugin.getAConfig().getBoolean("require-zero-validation")) {
+			if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
+				zeroPlayers.add(boardPlayer);
+				Debug.info("Skipping "+player.getName()+" because they returned 0 for "+board);
+				return;
+			} else if(output == 0 && zeroPlayers.contains(boardPlayer)) {
+				Debug.info("Not skipping "+player.getName()+" because they still returned 0 for "+board);
+			} else if(output != 0) {
+				zeroPlayers.remove(boardPlayer);
+			}
+		}
 
 		String displayName = player.getName();
 		if(player.isOnline() && player.getPlayer() != null) {

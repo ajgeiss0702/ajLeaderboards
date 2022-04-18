@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 16
+config-version: 17
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -72,4 +72,10 @@ only-update: []
 reverse-sort: []
 
 # How often (in ticks) should we update leaderboard signs?
+#  Default: 20
 sign-update: 20
+
+# If a player's score is 0 (and it wasnt 0 before) then ajLeaderboards will skip updating the player at first
+# This is to fix plugins that return 0 while theyre still loading stats
+#  Default: true
+require-zero-validation: true
