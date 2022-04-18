@@ -439,6 +439,7 @@ public class Cache {
 				plugin.getLogger().warning("Not closed!");
 			}
 		} catch(ExecutionException | InterruptedException | SQLException e) {
+			if(plugin.isShuttingDown()) return;
 			plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
 		}
 	}
