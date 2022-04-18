@@ -9,6 +9,7 @@ version = project(":").version
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.codemc.io/repository/nms/") }
+    maven { url = uri("https://repo.codemc.org/repository/maven-releases/") }
     maven { url = uri("https://repo.ajg0702.us/") }
 }
 
@@ -18,6 +19,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     //compileOnly(project(":"))
     compileOnly("us.ajg0702:ajUtils:1.1.33")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:14.1.10")
 }
 
 publishing {

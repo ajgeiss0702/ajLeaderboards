@@ -134,7 +134,7 @@ public class HeadManager {
 
         if(!(blockType.contains("SKULL") || blockType.contains("HEAD"))) return;
 
-        Debug.info("Updating head");
+        Debug.info("Updating head with "+id);
 
         OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 

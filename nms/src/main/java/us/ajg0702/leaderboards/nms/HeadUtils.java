@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import net.skinsrestorer.api.SkinsRestorerAPI;
+import net.skinsrestorer.api.property.IProperty;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -18,6 +20,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class HeadUtils {
 
@@ -31,9 +34,22 @@ public class HeadUtils {
      block.getState().update(true);
      }**/
 
+    private final SkinsRestorerAPI skinsRestorerAPI;
+
+    private final Logger logger;
+
+    public HeadUtils(Logger logger) {
+        this.logger = logger;
+        if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
+            skinsRestorerAPI = SkinsRestorerAPI.getApi();
+        } else {
+            skinsRestorerAPI = null;
+        }
+    }
 
 
-    public ItemStack getHeadItem(String name) {
+
+    public ItemStack getHeadItem(UUID uuid) {
         ItemStack skull = null;
         if(VersionSupport.getMinorVersion() <= 12) {
             //noinspection deprecation
@@ -41,7 +57,17 @@ public class HeadUtils {
         } else if(VersionSupport.getMinorVersion() > 12) {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
         }
-        String value = getHeadValue(name);
+        String value;
+        //if(skinsRestorerAPI == null) {
+            value = getHeadValue(Bukkit.getOfflinePlayer(uuid).getName());
+        /*} else {
+            IProperty profile = skinsRestorerAPI.getProfile(uuid.toString());
+            if(profile == null) {
+                logger.warning("SkinsRestorer profile for "+uuid+" is null!");
+                return skull;
+            }
+            value = profile.getValue();
+        }*/
         if(value.equals("")) return skull;
         UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
         //noinspection deprecation

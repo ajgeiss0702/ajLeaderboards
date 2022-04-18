@@ -39,7 +39,7 @@ public class ArmorStandManager {
             if (cacheEntity != null && !cacheEntity.isDead()) {
                 if (id != null && id.equals(cache.getId())) return;
                 cache.setId(id);
-                setArmorstandHead(cacheEntity, name);
+                setArmorstandHead(cacheEntity, name, id);
                 return;
             }
         }
@@ -56,12 +56,12 @@ public class ArmorStandManager {
         }
     }
 
-    private void setArmorstandHead(ArmorStand stand, String name) {
+    private void setArmorstandHead(ArmorStand stand, String name, UUID uuid) {
         Debug.info("Updating armorstand");
         if(VersionSupport.getMinorVersion() >= 10) {
             stand.setSilent(true);
         }
-        ItemStack item = plugin.getHeadUtils().getHeadItem(name);
+        ItemStack item = plugin.getHeadUtils().getHeadItem(uuid);
         //noinspection deprecation
         stand.setHelmet(item);
     }

@@ -180,7 +180,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         signManager = new SignManager(this);
         headManager = new HeadManager(this);
-        headUtils = new HeadUtils();
+        headUtils = new HeadUtils(getLogger());
         armorStandManager = new ArmorStandManager(this);
 
         cache = new Cache(this);
