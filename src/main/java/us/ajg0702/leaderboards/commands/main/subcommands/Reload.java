@@ -45,6 +45,7 @@ public class Reload extends SubCommand {
         } catch (ConfigurateException e) {
             plugin.getLogger().log(Level.WARNING, "Unable to reload the config:", e);
             sender.sendMessage(plugin.getMessages().getComponent("commands.reload.fail"));
+            return;
         }
 
 
