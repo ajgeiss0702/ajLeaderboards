@@ -46,7 +46,7 @@ public class ArmorStandManager {
 
         // The cache was not found. Find an armorstand and add it to the cache
         if (plugin.isShuttingDown()) return;
-        for (Entity entity : getNearbyEntities(loc).get(5, TimeUnit.SECONDS)) {
+        for (Entity entity : getNearbyEntities(loc).get(2, TimeUnit.SECONDS)) {
             if (!(entity instanceof ArmorStand)) continue;
             Location entityLoc = entity.getLocation();
             if (entityLoc.getBlockX() != loc.getBlockX() || entityLoc.getBlockZ() != loc.getBlockZ()) continue;
