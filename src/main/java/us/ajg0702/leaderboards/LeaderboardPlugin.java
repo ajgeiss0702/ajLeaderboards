@@ -217,7 +217,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         getTopManager().shutdown();
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(getCache().getMethod()::shutdown);
+        executorService.execute(() -> {
+            getLogger().info("Shutting down cache method..");
+            getCache().getMethod().shutdown();
+            getLogger().info("Cache method shut down");
+        });
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(15, TimeUnit.SECONDS)) {
@@ -225,6 +229,21 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getLogger().warning("Cache took too long to shut down. Skipping it.");
             }
         }catch(InterruptedException ignored){}
+        getLogger().info("Killing remaining workers");
+        killWorkers(1000);
+        Debug.info("1st kill pass done, retrying for remaining");
+        killWorkers(5000);
+        getLogger().info("Remaining workers killed");
+        getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" "+bukkitWorker.getTaskId());
+            for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
+                Debug.info(" - "+stackTraceElement);
+            }
+        });
+    }
+
+    private void killWorkers(int waitForDeath) {
         List<BukkitWorker> workers = new ArrayList<>(Bukkit.getScheduler().getActiveWorkers());
         List<Integer> killedWorkers = new ArrayList<>();
         workers.forEach(bukkitWorker -> {
@@ -235,7 +254,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             try {
                 bukkitWorker.getThread().interrupt();
                 Debug.info("Interupted");
-                bukkitWorker.getThread().join(1000);
+                bukkitWorker.getThread().join(waitForDeath);
                 Debug.info("Death");
             } catch(SecurityException e) {
                 Debug.info("denied: "+e.getMessage());
@@ -243,13 +262,6 @@ public class LeaderboardPlugin extends JavaPlugin {
                 Debug.info("threw interupted exception on "+id);
             }
             killedWorkers.add(id);
-        });
-        getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
-        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
-            Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" "+bukkitWorker.getTaskId());
-            for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
-                Debug.info(" - "+stackTraceElement);
-            }
         });
     }
 

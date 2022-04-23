@@ -86,8 +86,8 @@ public class BoardSign {
         return sign;
     }
 
-    public boolean isPlaced() {
-        boolean placed = getLocation().getBlock().getType().toString().contains("SIGN");
+    public boolean isPlaced() throws ExecutionException, InterruptedException {
+        boolean placed = getBlockType(location).get().contains("SIGN");
         if(placed && sign == null) {
             try {
                 setSign().get();
@@ -97,6 +97,16 @@ public class BoardSign {
             }
         }
         return placed;
+    }
+
+    private Future<String> getBlockType(Location location) {
+        CompletableFuture<String> future = new CompletableFuture<>();
+        if(plugin.isShuttingDown()) {
+            future.completeExceptionally(new InterruptedException());
+            return future;
+        }
+        Bukkit.getScheduler().runTask(plugin, () -> future.complete(location.getBlock().getType().toString()));
+        return future;
     }
 
     public void setText(String line1, String line2, String line3, String line4) {
