@@ -2,8 +2,8 @@
 
 # The method to use. h2, sqlite, or mysql
 # If you select mysql, you will need to configure the settings below
-#  Default: sqlite
-method: sqlite
+#  Default: h2
+method: h2
 
 
 # You only need to touch these settings if you are using mysql
