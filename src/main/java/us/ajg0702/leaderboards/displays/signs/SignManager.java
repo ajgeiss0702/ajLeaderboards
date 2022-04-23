@@ -9,12 +9,14 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.common.Messages;
+import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 
@@ -137,6 +139,7 @@ public class SignManager {
         }
     }
 
+    @SuppressWarnings("unused")
     public Map<String, String> getNames() {
         return new HashMap<>(names);
     }
@@ -144,7 +147,12 @@ public class SignManager {
     public void updateSign(BoardSign sign) {
         if(!isSignChunkLoaded(sign)) return;
 
-        if(!sign.isPlaced()) return;
+        try {
+            if(!sign.isPlaced()) return;
+        } catch (ExecutionException | InterruptedException e) {
+            if(plugin.isShuttingDown()) return;
+            plugin.getLogger().log(Level.SEVERE, "Interupted while trying to check if sign is palced:", e);
+        }
 
         String name = "";
         if(names.containsKey(sign.getBoard())) {
