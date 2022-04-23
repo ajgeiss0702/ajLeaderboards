@@ -10,9 +10,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.spigot.LocUtils;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 
 public class BoardSign {
@@ -86,8 +84,8 @@ public class BoardSign {
         return sign;
     }
 
-    public boolean isPlaced() throws ExecutionException, InterruptedException {
-        boolean placed = getBlockType(location).get().contains("SIGN");
+    public boolean isPlaced() throws ExecutionException, InterruptedException, TimeoutException {
+        boolean placed = getBlockType(location).get(10, TimeUnit.SECONDS).contains("SIGN");
         if(placed && sign == null) {
             try {
                 setSign().get();

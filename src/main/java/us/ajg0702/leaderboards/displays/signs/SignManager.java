@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 
@@ -149,7 +150,7 @@ public class SignManager {
 
         try {
             if(!sign.isPlaced()) return;
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
             if(plugin.isShuttingDown()) return;
             plugin.getLogger().log(Level.SEVERE, "Interupted while trying to check if sign is palced:", e);
         }
