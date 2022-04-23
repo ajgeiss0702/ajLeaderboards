@@ -5,7 +5,7 @@ import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.CacheMethod;
-import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
+import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
@@ -31,7 +31,7 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof SqliteMethod ? 50 : Math.max(10, method.getMaxConnections());
+        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : 50;
         fetchService = new ThreadPoolExecutor(
                 t, t,
                 30L, TimeUnit.SECONDS,
