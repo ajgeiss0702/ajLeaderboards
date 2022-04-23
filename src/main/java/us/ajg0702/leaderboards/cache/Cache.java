@@ -28,6 +28,7 @@ import java.util.logging.Level;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Cache {
 	private String q = "'";
 
@@ -448,7 +449,6 @@ public class Cache {
 					}
 					statement.setString(i, player.getUniqueId().toString());
 					statement.executeUpdate();
-					statement.close();
 				}
 				method.close(conn);
 			}
