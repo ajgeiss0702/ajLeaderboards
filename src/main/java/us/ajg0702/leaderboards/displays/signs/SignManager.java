@@ -168,6 +168,8 @@ public class SignManager {
                 "POSITION:"+sign.getPosition(),
                 "NAME:"+r.getPlayerName(),
                 "VALUE:"+r.getScorePretty(),
+                "FVALUE:"+r.getScoreFormatted(),
+                "TVALUE:"+r.getTime(),
                 "VALUENAME:"+Matcher.quoteReplacement(name),
                 "TIMEDTYPE:"+sign.getType().lowerName()
         ).toArray(new String[]{});
