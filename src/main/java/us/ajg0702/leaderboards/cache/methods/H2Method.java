@@ -82,7 +82,8 @@ public class H2Method implements CacheMethod {
                         if(e.getMessage().contains("42121")) {
                             plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                             try {
-                                conn.createStatement().executeUpdate("ALTER TABLE `"+tableName+"` REMARKS = '1';");
+                                //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=`"+tableName+"` SET REMARKS = '1';");
+                                conn.createStatement().executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '1';");
                             } catch (SQLException er) {
                                 er.printStackTrace();
                                 throw e;
@@ -91,7 +92,7 @@ public class H2Method implements CacheMethod {
                             throw e;
                         }
                     }
-                    statement.executeUpdate("ALTER TABLE `"+tableName+"` REMARKS = '1';");
+                    statement.executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '1';");
                     version = 1;
                 }
             }
