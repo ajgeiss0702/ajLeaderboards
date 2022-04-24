@@ -36,7 +36,11 @@ public enum TimedType {
             case DAILY:
                 return now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case WEEKLY:
-                return now.plusDays(7-now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                LocalDateTime weekly = now.plusDays(7-now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                if(weekly.isBefore(now)) {
+                    weekly = weekly.plusWeeks(1);
+                }
+                return weekly;
             case MONTHLY:
                 return now.plusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case YEARLY:
