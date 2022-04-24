@@ -8,6 +8,7 @@ import us.ajg0702.leaderboards.commands.main.subcommands.*;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
@@ -28,10 +29,14 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new ListBoards(plugin));
         addSubCommand(new Signs(plugin));
         addSubCommand(new Export(plugin));
+        addSubCommand(new Import(plugin));
     }
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
+        if(!checkPermission(sender)) {
+            return Collections.emptyList();
+        }
         return subCommandAutoComplete(sender, args);
     }
 

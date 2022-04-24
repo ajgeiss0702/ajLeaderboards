@@ -591,6 +591,44 @@ public class Cache {
 		Debug.info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
 	}
 
+	public void insertRows(String board, List<DbRow> rows) throws SQLException {
+		Connection conn = method.getConnection();
+		for(DbRow row : rows) {
+			PreparedStatement statement = conn.prepareStatement(String.format(
+					method.formatStatement(INSERT_PLAYER),
+					tablePrefix+board
+			));
+			statement.setString(1, row.getId().toString());
+			statement.setDouble(2, row.getValue());
+			statement.setString(3, row.getNamecache());
+			statement.setString(4, row.getPrefixcache());
+			statement.setString(5, row.getSuffixcache());
+			statement.setString(6, row.getDisplaynamecache());
+			int i = 6;
+			for(TimedType type : TimedType.values()) {
+				if(type == TimedType.ALLTIME) continue;
+				if(plugin.isShuttingDown()) {
+					method.close(conn);
+				}
+				statement.setDouble(++i, row.getDeltas().get(type));
+				statement.setDouble(++i, row.getLastTotals().get(type));
+				statement.setLong(++i, row.getTimestamps().get(type));
+			}
+
+			try {
+				statement.executeUpdate();
+			} catch(SQLException e) {
+				if(e.getMessage().contains("23505") || e.getMessage().contains("Duplicate entry") || e.getMessage().contains("PRIMARY KEY constraint failed")) {
+					statement.close();
+					continue;
+				}
+				throw e;
+			}
+			statement.close();
+		}
+		method.close(conn);
+	}
+
 	public List<DbRow> getRows(String board) throws SQLException {
 		Connection conn = method.getConnection();
 		PreparedStatement ps = conn.prepareStatement(String.format(
@@ -607,6 +645,7 @@ public class Cache {
 
 		ps.close();
 		resultSet.close();
+		method.close(conn);
 		return out;
 	}
 

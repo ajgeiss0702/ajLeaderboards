@@ -54,6 +54,7 @@ public class Export extends SubCommand {
             List<String> boards = plugin.getCache().getBoards();
             for(String board : boards) {
                 try {
+                    DbRow.clearPositionCache();
                     rows.put(board, plugin.getCache().getRows(board));
                     sender.sendMessage(plugin.getMessages().getComponent("commands.export.progress", "DONE:"+ ++i, "TOTAL:"+boards.size()));
                 } catch (SQLException e) {

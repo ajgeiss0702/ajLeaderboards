@@ -37,6 +37,10 @@ public class DbRow {
         );
     }
 
+    public static void clearPositionCache() {
+        positionCache.clear();
+    }
+
     private DbRow(UUID id, double value, List<Object> typeMaps, String namecache, String prefixcache, String suffixcache, String displaynamecache) {
         //noinspection unchecked
         this(
@@ -130,7 +134,7 @@ public class DbRow {
         out.add("namecache", getNamecache());
         out.add("prefixcache", getPrefixcache());
         out.add("suffixcache", getSuffixcache());
-        out.add("displaynamecache", getDisplaynamecache());
+        out.add("displaynamecache", getDisplaynamecache() == null ? getNamecache() : getDisplaynamecache());
         return out.getHandle();
     }
 

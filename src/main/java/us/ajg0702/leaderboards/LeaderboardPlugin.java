@@ -143,6 +143,12 @@ public class LeaderboardPlugin extends JavaPlugin {
         dmsgs.put("commands.export.progress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards fetched");
         dmsgs.put("commands.export.success", "&aThe cache has been exported to the file &f{FILE}&a!");
 
+        dmsgs.put("commands.import.nofile", "&cThe file &f{FILE}&c doesnt exist!");
+        dmsgs.put("commands.import.starting", "&7Loading all cached stats from &f{FILE}");
+        dmsgs.put("commands.import.fail", "&cAn error occurred while importing. Check the console for more info.");
+        dmsgs.put("commands.import.insertprogress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards imported");
+        dmsgs.put("commands.import.success", "&aThe cache has been imported from the file &f{FILE}&a!");
+
 
 
         messages = new Messages(getDataFolder(), getLogger(), dmsgs);
