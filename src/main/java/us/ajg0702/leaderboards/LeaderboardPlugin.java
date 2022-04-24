@@ -137,6 +137,14 @@ public class LeaderboardPlugin extends JavaPlugin {
         dmsgs.put("commands.reload.success", "&aConfigs reloaded!");
         dmsgs.put("commands.reload.fail", "&cAn error occurred while reloading one of your configs. Check the console for more info.");
 
+        dmsgs.put("commands.export.fileexists", "&cThe file &f{FILE}&c already exists!");
+        dmsgs.put("commands.export.starting", "&7Fetching all players from the datbase. This might take a bit.");
+        dmsgs.put("commands.export.fail", "&cAn error occurred while exporting. Check the console for more info.");
+        dmsgs.put("commands.export.progress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards fetched");
+        dmsgs.put("commands.export.success", "&aThe cache has been exported to the file &f{FILE}&a!");
+
+
+
         messages = new Messages(getDataFolder(), getLogger(), dmsgs);
 
         CommentedConfigurationNode msgs = messages.getRootNode();

@@ -27,6 +27,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Remove(plugin));
         addSubCommand(new ListBoards(plugin));
         addSubCommand(new Signs(plugin));
+        addSubCommand(new Export(plugin));
     }
 
     @Override

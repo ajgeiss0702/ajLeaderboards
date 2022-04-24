@@ -10,6 +10,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
+import us.ajg0702.leaderboards.cache.helpers.DbRow;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
@@ -50,6 +51,7 @@ public class Cache {
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
 	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
 	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
+	private final String QUERY_ALL = "select * from '%s'";
 
 
 
@@ -587,6 +589,25 @@ public class Cache {
 			plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);
 		}
 		Debug.info("Reset of "+board+" "+type.lowerName()+" took "+(System.currentTimeMillis()-startTime)+"ms");
+	}
+
+	public List<DbRow> getRows(String board) throws SQLException {
+		Connection conn = method.getConnection();
+		PreparedStatement ps = conn.prepareStatement(String.format(
+				method.formatStatement(QUERY_ALL),
+				tablePrefix+board
+		));
+		ResultSet resultSet = ps.executeQuery();
+
+		List<DbRow> out = new ArrayList<>();
+
+		while(resultSet.next()) {
+			out.add(new DbRow(resultSet));
+		}
+
+		ps.close();
+		resultSet.close();
+		return out;
 	}
 
 	public CacheMethod getMethod() {
