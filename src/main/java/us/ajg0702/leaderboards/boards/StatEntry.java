@@ -1,9 +1,11 @@
 package us.ajg0702.leaderboards.boards;
 
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.utils.EasyJsonObject;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
@@ -218,5 +220,34 @@ public class StatEntry {
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
 		return new StatEntry(plugin, -2, boardType.getBoard(), "", "Loading", "Loading", null, "", 0, boardType.getType());
+	}
+
+	public JsonObject toJsonObject() {
+		return new EasyJsonObject()
+				.add("playerName", playerName)
+				.add("playerDisplayName", playerDisplayName)
+				.add("prefix", prefix)
+				.add("suffix", suffix)
+				.add("playerID", playerID.toString())
+				.add("position", position)
+				.add("board", board)
+				.add("type", type.toString())
+				.add("score", score)
+				.getHandle();
+	}
+
+	public static StatEntry fromJsonObject(LeaderboardPlugin plugin, JsonObject object) {
+		return new StatEntry(
+				plugin,
+				object.get("position").getAsInt(),
+				object.get("board").getAsString(),
+				object.get("prefix").getAsString(),
+				object.get("playerName").getAsString(),
+				object.get("playerDisplayName").getAsString(),
+				UUID.fromString(object.get("playerID").getAsString()),
+				object.get("suffix").getAsString(),
+				object.get("score").getAsDouble(),
+				TimedType.valueOf(object.get("type").getAsString().toUpperCase(Locale.ROOT))
+		);
 	}
 }
