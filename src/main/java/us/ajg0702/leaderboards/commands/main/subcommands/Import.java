@@ -12,10 +12,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.helpers.DbRow;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
@@ -56,7 +53,15 @@ public class Import extends SubCommand {
                 Gson gson = new Gson();
                 Reader fileReader = new FileReader(file);
                 JsonObject object = gson.fromJson(fileReader, JsonObject.class);
-                Set<String> boards = object.keySet();
+                Set<String> boards;
+                try {
+                    boards = object.keySet();
+                } catch(NoSuchMethodError e) {
+                    boards = new HashSet<>();
+                    for(Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                        boards.add(entry.getKey());
+                    }
+                }
 
                 int i = 0;
                 for(String board : boards) {
