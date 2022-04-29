@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.4.3"
+version = "2.4.4"
 
 repositories {
     mavenCentral()
@@ -28,7 +28,7 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     //compileOnly(group = "org.spigotmc", name = "spigot", version = "1.18.2-R0.1-SNAPSHOT")
     compileOnly(group = "org.spigotmc", name = "spigot-api", version = "1.18.2-R0.1-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.10.4")
+    compileOnly("me.clip:placeholderapi:2.11.1")
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
 
