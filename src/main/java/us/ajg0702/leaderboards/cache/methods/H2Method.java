@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.cache.methods;
 
+import org.h2.jdbc.JdbcConnection;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 public class H2Method implements CacheMethod {
     private Connection conn;
@@ -42,7 +44,8 @@ public class H2Method implements CacheMethod {
         }
         String url = "jdbc:h2:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"cache;DATABASE_TO_UPPER=false";
         try {
-            conn = DriverManager.getConnection(url);
+            //conn = DriverManager.getConnection(url);
+            conn = new JdbcConnection(url, new Properties(), null, null, false);
         } catch (SQLException e) {
             plugin.getLogger().severe("Unnable to create cache file! The plugin will not work correctly!");
             e.printStackTrace();
@@ -72,18 +75,18 @@ public class H2Method implements CacheMethod {
                 }
                 Debug.info("Table version for "+tableName+" is: "+version);
 
-                if(version == 0) {
+                if(version == 0 || version == 1) {
                     TimedType type = TimedType.YEARLY;
                     try {
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_delta BIGINT");
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_lasttotal BIGINT");
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type+"_timestamp BIGINT");
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_delta BIGINT");
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_lasttotal BIGINT");
+                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_timestamp BIGINT");
                     } catch(SQLException e) {
                         if(e.getMessage().contains("42121")) {
                             plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                             try {
                                 //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=`"+tableName+"` SET REMARKS = '1';");
-                                conn.createStatement().executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '1';");
+                                conn.createStatement().executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '2';");
                             } catch (SQLException er) {
                                 er.printStackTrace();
                                 throw e;
@@ -92,8 +95,8 @@ public class H2Method implements CacheMethod {
                             throw e;
                         }
                     }
-                    statement.executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '1';");
-                    version = 1;
+                    statement.executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '2';");
+                    version = 2;
                 }
             }
         } catch (SQLException e) {
