@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -720,7 +721,7 @@ public class Cache {
 		return addUpdates.toString();
 	}
 
-	Map<String, Integer> dataSortByIndexes = new HashMap<>();
+	Map<String, Integer> dataSortByIndexes = new ConcurrentHashMap<>();
 	private StatEntry processData(ResultSet r, String sortBy, int position, String board, TimedType type) throws SQLException {
 		String uuidRaw = null;
 		double value = -1;
