@@ -17,6 +17,10 @@ import java.util.UUID;
 
 public class StatEntry {
 
+	public static final String BOARD_DOES_NOT_EXIST = "Board does not exist";
+	public static final String AN_ERROR_OCCURRED = "An error occurred";
+	public static final String LOADING = "Loading";
+
 	private final LeaderboardPlugin plugin;
 	
 	final String playerName;
@@ -80,6 +84,9 @@ public class StatEntry {
 				return "---";
 			}
 		}
+		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+			return "BDNE";
+		}
 		return addCommas(score);
 	}
 
@@ -125,6 +132,9 @@ public class StatEntry {
 	}
 
 	public String getScoreFormatted() {
+		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+			return "BDNE";
+		}
 		if(cache != null) {
 			Config config = cache.getPlugin().getAConfig();
 			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
@@ -170,6 +180,9 @@ public class StatEntry {
 	}
 
 	public String getTime() {
+		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+			return "BDNE";
+		}
 		return TimeUtils.formatTimeSeconds(Math.round(getScore()));
 	}
 	
@@ -207,21 +220,22 @@ public class StatEntry {
 
 
 	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", "Board does not exist", "Board does not exist", null, "", 0, type);
+		return new StatEntry(plugin, position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
 	}
 	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", "An error occured", "An error occured", null, "", 0, type);
+		return new StatEntry(plugin, position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
 		return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
-		return new StatEntry(plugin, -2, board, "", "Loading", "Loading", null, "", 0, type);
+		return new StatEntry(plugin, -2, board, "", LOADING, LOADING, null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
-		return new StatEntry(plugin, -2, boardType.getBoard(), "", "Loading", "Loading", null, "", 0, boardType.getType());
+		return new StatEntry(plugin, -2, boardType.getBoard(), "", LOADING, LOADING, null, "", 0, boardType.getType());
 	}
 
+	@SuppressWarnings("unused")
 	public JsonObject toJsonObject() {
 		return new EasyJsonObject()
 				.add("playerName", playerName)
@@ -236,6 +250,7 @@ public class StatEntry {
 				.getHandle();
 	}
 
+	@SuppressWarnings("unused")
 	public static StatEntry fromJsonObject(LeaderboardPlugin plugin, JsonObject object) {
 		return new StatEntry(
 				plugin,
