@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
@@ -187,10 +188,11 @@ public class StatEntry {
 	}
 	
 	
-	private String addCommas(double number) {
+	public static String addCommas(double number) {
 		boolean useComma = true;
 		char comma = 0;
 		char decimal;
+		LeaderboardPlugin plugin = (LeaderboardPlugin) Bukkit.getPluginManager().getPlugin("ajLeaderboards");
 		if(plugin != null) {
 			String commaString = plugin.getAConfig().getString("comma");
 			useComma = !commaString.isEmpty();

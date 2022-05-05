@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.placeholders.placeholders.player;
 
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.placeholders.Placeholder;
 
@@ -22,6 +23,8 @@ public class PlayerPosition extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        return plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getPosition()+"";
+        return StatEntry.addCommas(
+                plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getPosition()
+        );
     }
 }
