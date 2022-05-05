@@ -206,7 +206,8 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 15 * 60 * 20);
 
-        new Metrics(this, 9338);
+        Metrics metrics = new Metrics(this, 9338);
+        metrics.addCustomChart(new Metrics.SimplePie("storage_method", () -> getCache().getMethod().getName()));
 
         PlaceholderExpansion placeholders = new PlaceholderExpansion(this);
         if(placeholders.register()) {
