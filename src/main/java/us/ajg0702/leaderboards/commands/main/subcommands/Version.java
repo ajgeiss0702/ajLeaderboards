@@ -15,7 +15,7 @@ import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 public class Version extends SubCommand {
     private final LeaderboardPlugin plugin;
     public Version(LeaderboardPlugin plugin) {
-        super("version", Collections.emptyList(), null, "Show the version of ajLeaderboards");
+        super("version", Collections.singletonList("ver"), null, "Show the version of ajLeaderboards");
         this.plugin = plugin;
     }
 
