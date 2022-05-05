@@ -294,6 +294,10 @@ public class TopManager {
         return r;
     }
 
+    public List<Integer> getRolling() {
+        return rolling;
+    }
+
     public int getQueuedTasks() {
         return fetchService.getQueue().size();
     }

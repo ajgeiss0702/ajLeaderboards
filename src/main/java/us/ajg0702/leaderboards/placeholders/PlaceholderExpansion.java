@@ -2,7 +2,8 @@ package us.ajg0702.leaderboards.placeholders;
 
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.placeholders.placeholders.Fetching;
+import us.ajg0702.leaderboards.placeholders.placeholders.debug.Fetching;
+import us.ajg0702.leaderboards.placeholders.placeholders.debug.Rolling;
 import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.*;
 
@@ -40,6 +41,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new PlayerTime(plugin));
 
         placeholders.add(new Fetching(plugin));
+        placeholders.add(new Rolling(plugin));
     }
 
     Map<String, CachedPlaceholder> placeholderCache = new HashMap<>();

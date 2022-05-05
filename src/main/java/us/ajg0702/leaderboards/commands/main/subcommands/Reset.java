@@ -56,6 +56,7 @@ public class Reset extends SubCommand {
 
             }, 15*20);
         } else {
+            long start = System.currentTimeMillis();
             confirmResets.remove(sender.getHandle());
             if(!plugin.getCache().removeBoard(board)) {
                 sender.sendMessage(message("&cSomething went wrong. Check the console for more info."));
@@ -66,6 +67,7 @@ public class Reset extends SubCommand {
                 return;
             }
             sender.sendMessage(message("&aThe board has been reset!"));
+            Debug.info("Reset took " + (System.currentTimeMillis() - start) + "ms");
         }
     }
 }
