@@ -30,6 +30,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Signs(plugin));
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
+        addSubCommand(new Reset(plugin));
     }
 
     @Override
