@@ -43,6 +43,7 @@ public class UpdatePlayer extends SubCommand {
             @SuppressWarnings("deprecation")
             OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
             plugin.getCache().updateStat(args[0], p);
+            boolean attemptHasWarning = !p.isOnline() || p.getPlayer() != null && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]);
             if(!p.isOnline()) {
                 sender.sendMessage(message("&6Warning: &7The player you requested to update appears to be offline. Not all placeholders support this. I'll still try, but if there is an error or nothing is updated, the placeholder probably doesn't support it."));
             } else if(p.getPlayer() != null && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0])) {
@@ -55,7 +56,7 @@ public class UpdatePlayer extends SubCommand {
                                 "</hover>\n"
                 ));
             }
-            sender.sendMessage(message("&aAttempted to update stat for "+p.getName()+" on board "+args[0]));
+            sender.sendMessage(message("&"+ (attemptHasWarning ? "e" : "a") +"Attempted to update stat for "+p.getName()+" on board "+args[0]));
         });
     }
 }
