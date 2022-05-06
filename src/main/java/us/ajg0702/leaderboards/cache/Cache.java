@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.helpers.DbRow;
@@ -197,7 +196,7 @@ public class Cache {
 				}
 				if(uuidraw == null) break;
 				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
-				r = new StatEntry(plugin, i, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
+				r = new StatEntry(i, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 				break;
 			}
 			rs.close();
@@ -763,7 +762,7 @@ public class Cache {
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {
-			return new StatEntry(plugin, position, board, prefix, name, displayName, UUID.fromString(uuidRaw), suffix, value, type);
+			return new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidRaw), suffix, value, type);
 		}
 	}
 

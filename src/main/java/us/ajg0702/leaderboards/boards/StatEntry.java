@@ -1,8 +1,6 @@
 package us.ajg0702.leaderboards.boards;
 
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.cache.Cache;
@@ -22,7 +20,7 @@ public class StatEntry {
 	public static final String AN_ERROR_OCCURRED = "An error occurred";
 	public static final String LOADING = "Loading";
 
-	private final LeaderboardPlugin plugin;
+	private static LeaderboardPlugin plugin;
 	
 	final String playerName;
 	final String playerDisplayName;
@@ -46,8 +44,7 @@ public class StatEntry {
 	
 	final double score;
 	final String scorePretty;
-	public StatEntry(@Nullable LeaderboardPlugin plugin, int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
-		this.plugin = plugin;
+	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.playerName = playerName;
 		this.playerDisplayName = playerDisplayName;
 		this.score = score;
@@ -192,7 +189,6 @@ public class StatEntry {
 		boolean useComma = true;
 		char comma = 0;
 		char decimal;
-		LeaderboardPlugin plugin = (LeaderboardPlugin) Bukkit.getPluginManager().getPlugin("ajLeaderboards");
 		if(plugin != null) {
 			String commaString = plugin.getAConfig().getString("comma");
 			useComma = !commaString.isEmpty();
@@ -222,19 +218,19 @@ public class StatEntry {
 
 
 	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
+		return new StatEntry(position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
 	}
 	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
+		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(plugin, position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+		return new StatEntry(position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
-		return new StatEntry(plugin, -2, board, "", LOADING, LOADING, null, "", 0, type);
+		return new StatEntry(-2, board, "", LOADING, LOADING, null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
-		return new StatEntry(plugin, -2, boardType.getBoard(), "", LOADING, LOADING, null, "", 0, boardType.getType());
+		return new StatEntry(-2, boardType.getBoard(), "", LOADING, LOADING, null, "", 0, boardType.getType());
 	}
 
 	@SuppressWarnings("unused")
@@ -255,7 +251,6 @@ public class StatEntry {
 	@SuppressWarnings("unused")
 	public static StatEntry fromJsonObject(LeaderboardPlugin plugin, JsonObject object) {
 		return new StatEntry(
-				plugin,
 				object.get("position").getAsInt(),
 				object.get("board").getAsString(),
 				object.get("prefix").getAsString(),
@@ -266,5 +261,9 @@ public class StatEntry {
 				object.get("score").getAsDouble(),
 				TimedType.valueOf(object.get("type").getAsString().toUpperCase(Locale.ROOT))
 		);
+	}
+
+	public static void setPlugin(LeaderboardPlugin leaderboardPlugin) {
+		plugin = leaderboardPlugin;
 	}
 }

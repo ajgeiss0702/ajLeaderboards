@@ -21,6 +21,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
 import us.ajg0702.leaderboards.boards.BoardType;
+import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
@@ -91,6 +92,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         if(isShuttingDown()) {
             throw new IllegalStateException("Reload was used! ajLeaderboards does not support this!");
         }
+        StatEntry.setPlugin(this);
 
         BukkitCommand bukkitMainCommand = new BukkitCommand(new MainCommand(this));
 
