@@ -48,9 +48,9 @@ public class UpdatePlayer extends SubCommand {
             } else if(p.getPlayer() != null && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0])) {
                 sender.sendMessage(message(
                         "&6Warning: &7The player you requested to update has the &fdontupdate&7 permission. This player will not be automatically updated!\n" +
-                                "<hover:show_text:'<yellow>Click to go to https://wiki.ajg0702.us/ajleaderboards/setup/permissions'>" +
-                                "<click:open_url:'https://wiki.ajg0702.us/ajleaderboards/setup/permissions'>" +
-                                "<white><underlined>Read more on the wiki (click)" +
+                                "<hover:show_text:'<yellow>Click to go to https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
+                                "<click:open_url:'https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
+                                "<white><underlined>Read more on the wiki (click me)" +
                                 "</click>" +
                                 "</hover>\n"
                 ));
