@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.cache.methods;
 
 import org.h2.jdbc.JdbcConnection;
+import org.h2.message.DbException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -9,10 +10,15 @@ import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.io.File;
-import java.sql.*;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
+import java.util.logging.Level;
 
 public class H2Method implements CacheMethod {
     private Connection conn;
@@ -42,6 +48,17 @@ public class H2Method implements CacheMethod {
         } catch (ClassNotFoundException e1) {
             e1.printStackTrace();
         }
+
+        // fix h2 error messages not being found (due to relocation)
+        try {
+            Field field = DbException.class.getDeclaredField("MESSAGES");
+            field.setAccessible(true);
+            ((Properties) (field.get(new Properties())))
+                    .load(getClass().getResourceAsStream("/h2_messages.prop"));
+        } catch (IllegalAccessException | NoSuchFieldException | IOException e) {
+            plugin.getLogger().log(Level.WARNING, "Unable to set h2 messages file! Error messages from h2 might not be very useful!", e);
+        }// */
+
         String url = "jdbc:h2:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"cache;DATABASE_TO_UPPER=false";
         try {
             //conn = DriverManager.getConnection(url);

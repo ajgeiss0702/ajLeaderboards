@@ -52,6 +52,8 @@ dependencies {
 
 tasks.withType<ProcessResources> {
     include("**/*.yml")
+    include("**/*.prop")
+    include("**/*.zip")
     filter<org.apache.tools.ant.filters.ReplaceTokens>(
             "tokens" to mapOf(
                     "VERSION" to project.version.toString()
