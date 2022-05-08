@@ -95,13 +95,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         StatEntry.setPlugin(this);
 
         BukkitCommand bukkitMainCommand = new BukkitCommand(new MainCommand(this));
-
-        PluginCommand mainCommand = getCommand("ajleaderboards");
-        assert mainCommand != null;
-        mainCommand.setExecutor(bukkitMainCommand);
-        mainCommand.setTabCompleter(bukkitMainCommand);
+        bukkitMainCommand.register(this);
 
         BukkitSender.setAdventure(this);
+
+
 
         try {
             config = new Config(getDataFolder(), getLogger());
