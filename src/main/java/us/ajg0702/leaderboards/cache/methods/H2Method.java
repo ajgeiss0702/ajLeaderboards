@@ -95,15 +95,15 @@ public class H2Method implements CacheMethod {
                 if(version == 0 || version == 1) {
                     TimedType type = TimedType.YEARLY;
                     try {
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_delta BIGINT");
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_lasttotal BIGINT");
-                        statement.executeUpdate("alter table `"+tableName+"` add column "+type.lowerName()+"_timestamp BIGINT");
+                        statement.executeUpdate("alter table \""+tableName+"\" add column "+type.lowerName()+"_delta BIGINT");
+                        statement.executeUpdate("alter table \""+tableName+"\" add column "+type.lowerName()+"_lasttotal BIGINT");
+                        statement.executeUpdate("alter table \""+tableName+"\" add column "+type.lowerName()+"_timestamp BIGINT");
                     } catch(SQLException e) {
                         if(e.getMessage().contains("42121")) {
                             plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                             try {
-                                //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=`"+tableName+"` SET REMARKS = '1';");
-                                conn.createStatement().executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '2';");
+                                //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=\""+tableName+"\" SET REMARKS = '1';");
+                                conn.createStatement().executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");
                             } catch (SQLException er) {
                                 er.printStackTrace();
                                 throw e;
@@ -112,7 +112,7 @@ public class H2Method implements CacheMethod {
                             throw e;
                         }
                     }
-                    statement.executeUpdate("COMMENT ON TABLE `"+tableName+"` IS '2';");
+                    statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");
                     version = 2;
                 }
             }
