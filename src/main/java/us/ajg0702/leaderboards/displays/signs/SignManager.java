@@ -79,13 +79,31 @@ public class SignManager {
         updateIntervalId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateSigns, 10*20, plugin.getAConfig().getInt("sign-update")).getTaskId();
     }
 
+    /**
+     * Remove a sign
+     * Clears the text on the sign by default
+     * (schedules a task to remove the text on the next tick)
+     * @param l The location of the sign to remove
+     * @return If the sign was removed or not. If false, the target location was not an ajLeaderboards sign
+     */
     public boolean removeSign(Location l) {
+        return removeSign(l, true);
+    }
+
+    /**
+     * Remove a sign
+     * @param l The location of the sign to remove
+     * @param removeText If a task should be scheduled to remove the sign text on the next tick
+     * @return If the sign was removed or not. If false, the target location was not an ajLeaderboards sign
+     */
+    public boolean removeSign(Location l, boolean removeText) {
         boolean save = false;
         for(BoardSign s : signs) {
             if(l.equals(s.getLocation())) {
                 signs.remove(s);
                 save = true;
-                s.setText("", "", "", "");
+                s.setRemoved(true);
+                if(removeText) Bukkit.getScheduler().runTask(plugin, () -> s.setText("", "", "", ""));
                 break;
             }
         }
@@ -112,6 +130,7 @@ public class SignManager {
     public void saveFile() {
         List<String> signsraw = new ArrayList<>();
         for(BoardSign sign : signs) {
+            if(sign.isRemoved()) continue;
             signsraw.add(sign.serialize());
         }
         cfg.set("signs", signsraw);
@@ -126,6 +145,7 @@ public class SignManager {
     public void updateSigns() {
         updateNameCache();
         for(BoardSign sign : signs) {
+            if(sign.isRemoved()) continue;
             updateSign(sign);
         }
     }

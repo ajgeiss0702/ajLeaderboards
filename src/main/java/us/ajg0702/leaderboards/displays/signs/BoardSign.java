@@ -25,6 +25,8 @@ public class BoardSign {
     private final int z;
     private final World world;
 
+    private boolean removed;
+
     private final LeaderboardPlugin plugin;
 
     public BoardSign(Location location, String board, int position, TimedType type) {
@@ -82,6 +84,13 @@ public class BoardSign {
 
     public Sign getSign() {
         return sign;
+    }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
     }
 
     public boolean isPlaced() throws ExecutionException, InterruptedException, TimeoutException {
