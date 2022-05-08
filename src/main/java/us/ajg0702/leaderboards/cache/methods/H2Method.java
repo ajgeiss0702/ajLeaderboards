@@ -140,7 +140,7 @@ public class H2Method implements CacheMethod {
 
     @Override
     public String formatStatement(String s) {
-        return s.replaceAll("'", "`");
+        return s.replaceAll("'", "\"");
     }
 
     @Override
