@@ -18,7 +18,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     //compileOnly(project(":"))
-    compileOnly("us.ajg0702:ajUtils:1.1.33")
+    compileOnly("us.ajg0702:ajUtils:1.1.36")
     compileOnly("net.skinsrestorer:skinsrestorer-api:14.1.10")
 }
 
