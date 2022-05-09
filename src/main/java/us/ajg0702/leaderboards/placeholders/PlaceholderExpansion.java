@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.placeholders;
 
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.placeholders.placeholders.debug.Fetching;
 import us.ajg0702.leaderboards.placeholders.placeholders.debug.Rolling;
@@ -32,6 +33,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new Value(plugin));
         placeholders.add(new Time(plugin));
         placeholders.add(new DisplayName(plugin));
+        placeholders.add(new Extra(plugin));
 
         placeholders.add(new PlayerPosition(plugin));
         placeholders.add(new PlayerValueFormatted(plugin));
@@ -39,6 +41,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new PlayerValueTime(plugin));
         placeholders.add(new PlayerValue(plugin));
         placeholders.add(new PlayerTime(plugin));
+        placeholders.add(new PlayerExtra(plugin));
 
         placeholders.add(new Fetching(plugin));
         placeholders.add(new Rolling(plugin));
@@ -47,7 +50,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
     Map<String, CachedPlaceholder> placeholderCache = new HashMap<>();
 
     @Override
-    public String onRequest(OfflinePlayer p, String params) {
+    public String onRequest(OfflinePlayer p, @NotNull String params) {
         CachedPlaceholder cachedPlaceholder = placeholderCache.computeIfAbsent(params, s -> {
             for(Placeholder placeholder : placeholders) {
                 Matcher matcher = placeholder.getPattern().matcher(params);
@@ -64,17 +67,17 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
 
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "ajlb";
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "ajgeiss0702";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return plugin.getDescription().getVersion();
     }
 

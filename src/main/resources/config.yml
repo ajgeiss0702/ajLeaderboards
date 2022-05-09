@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 17
+config-version: 18
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -79,3 +79,9 @@ sign-update: 20
 # This is to fix plugins that return 0 while theyre still loading stats
 #  Default: true
 require-zero-validation: true
+
+# These are "extra" placeholders that can be parsed to be displayed alongside the leaderboard
+# For example, you can have a KDR leaderboard, then next to each player on the leaderboard,
+#  you can show their actual kills and deaths
+extras:
+- "statistic_player_kills"

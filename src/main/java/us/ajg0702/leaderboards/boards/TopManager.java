@@ -9,10 +9,7 @@ import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -232,8 +229,37 @@ public class TopManager {
         });
         lastResetCache.put(key, new Cached<>(System.currentTimeMillis(), future));
         return future;
-
     }
+
+
+    Map<ExtraKey, Cached<String>> extraCache = new HashMap<>();
+    public String getExtra(UUID id, String placeholder) {
+        ExtraKey key = new ExtraKey(id, placeholder);
+        Cached<String> cached = extraCache.get(key);
+        if(cached == null) {
+            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+                return fetchExtra(id, placeholder);
+            } else {
+                extraCache.put(key, new Cached<>(System.currentTimeMillis(), StatEntry.LOADING));
+                fetchExtraAsync(id, placeholder);
+                return StatEntry.LOADING;
+            }
+        } else {
+            if(System.currentTimeMillis() - cached.getLastGet() > cacheTime()) {
+                fetchExtraAsync(id, placeholder);
+            }
+            return cached.getThing();
+        }
+    }
+    public String fetchExtra(UUID id, String placeholder) {
+        String value = plugin.getExtraManager().getExtra(id, placeholder);
+        extraCache.put(new ExtraKey(id, placeholder), new Cached<>(System.currentTimeMillis(), value));
+        return value;
+    }
+    public void fetchExtraAsync(UUID id, String placeholder) {
+        fetchService.submit(() -> fetchExtra(id, placeholder));
+    }
+
 
     public int getActiveFetchers() {
         return fetchService.getActiveCount();

@@ -25,6 +25,7 @@ import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
 import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.cache.ExtraManager;
 import us.ajg0702.leaderboards.commands.main.MainCommand;
 import us.ajg0702.leaderboards.displays.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.displays.heads.HeadManager;
@@ -59,6 +60,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     private Config config;
     private Cache cache;
+    private ExtraManager extraManager;
     private Messages messages;
     private TopManager topManager;
     private SignManager signManager;
@@ -200,6 +202,9 @@ public class LeaderboardPlugin extends JavaPlugin {
         cache = new Cache(this);
         getLogger().info("Loaded "+cache.getBoards().size()+" boards");
 
+        extraManager = new ExtraManager(this);
+
+
         topManager = new TopManager(this);
 
         reloadInterval();
@@ -286,6 +291,10 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public Cache getCache() {
         return cache;
+    }
+
+    public ExtraManager getExtraManager() {
+        return extraManager;
     }
 
     public TopManager getTopManager() {

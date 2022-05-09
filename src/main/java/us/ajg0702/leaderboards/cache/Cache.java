@@ -271,7 +271,9 @@ public class Cache {
 
 		for(String table : getDbTableList()) {
 			if(table.indexOf(tablePrefix) != 0) continue;
-			o.add(table.substring(tablePrefix.length()));
+			String name = table.substring(tablePrefix.length());
+			if(name.equals("extras")) continue;
+			o.add(name);
 		}
 
 		return o;
@@ -292,6 +294,8 @@ public class Cache {
 			while(r.next()) {
 				String e = r.getString(1);
 				if(e.indexOf(tablePrefix) != 0) continue;
+				String name = e.substring(tablePrefix.length());
+				if(name.equals("extras")) continue;
 				b.add(e);
 			}
 
@@ -343,6 +347,17 @@ public class Cache {
 				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
 			}
 			updateStat(b, player);
+		}
+
+		for (String extra : plugin.getExtraManager().getExtras()) {
+			String value;
+			try {
+				value = PlaceholderAPI.setPlaceholders(player, "%"+extra+"%");
+			} catch(Exception e) {
+				plugin.getLogger().log(Level.WARNING, "Placeholder %"+extra+"% threw an error for "+player.getName()+":", e);
+				continue;
+			}
+			plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
 		}
 	}
 
