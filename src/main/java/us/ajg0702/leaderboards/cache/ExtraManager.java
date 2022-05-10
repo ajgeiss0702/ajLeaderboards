@@ -110,30 +110,29 @@ public class ExtraManager {
     public void setExtra(UUID id, String placeholder, String value) {
         try {
             Connection conn = method.getConnection();
-            try {
-                PreparedStatement statement = conn.prepareStatement(String.format(
-                        method.formatStatement(UPDATE_PLAYER),
-                        tableName
-                ));
-                statement.setString(1, value);
-                statement.setString(2, id.toString());
-                statement.setString(3, placeholder);
 
-                statement.executeUpdate();
-                statement.close();
-            } catch(SQLException e) {
-                Debug.info(e.getMessage());
-                PreparedStatement statement = conn.prepareStatement(String.format(
+            PreparedStatement statement = conn.prepareStatement(String.format(
+                    method.formatStatement(UPDATE_PLAYER),
+                    tableName
+            ));
+            statement.setString(1, value);
+            statement.setString(2, id.toString());
+            statement.setString(3, placeholder);
+
+            int rowsChanged = statement.executeUpdate();
+            statement.close();
+            if(rowsChanged == 0) {
+                PreparedStatement insertStmt = conn.prepareStatement(String.format(
                         method.formatStatement(INSERT_PLAYER),
                         tableName
                 ));
 
-                statement.setString(1, id.toString());
-                statement.setString(2, placeholder);
-                statement.setString(3, value);
+                insertStmt.setString(1, id.toString());
+                insertStmt.setString(2, placeholder);
+                insertStmt.setString(3, value);
 
-                statement.executeUpdate();
-                statement.close();
+                insertStmt.executeUpdate();
+                insertStmt.close();
             }
             method.close(conn);
         } catch(SQLException e) {
