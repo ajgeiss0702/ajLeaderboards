@@ -349,6 +349,8 @@ public class Cache {
 			updateStat(b, player);
 		}
 
+		boolean fetchingDebug = plugin.getAConfig().getBoolean("fetching-de-bug");
+
 		for (String extra : plugin.getExtraManager().getExtras()) {
 			String value;
 			try {
@@ -357,6 +359,7 @@ public class Cache {
 				plugin.getLogger().log(Level.WARNING, "Placeholder %"+extra+"% threw an error for "+player.getName()+":", e);
 				continue;
 			}
+			if(fetchingDebug) Debug.info("Got '"+value+"' from extra "+extra);
 			plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
 		}
 	}
