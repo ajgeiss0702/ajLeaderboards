@@ -20,6 +20,6 @@ public class Fetching extends Placeholder {
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
         TopManager tm = plugin.getTopManager();
-        return tm.getFetching()+" ("+tm.getActiveFetchers()+"+"+tm.getQueuedTasks()+"/"+tm.getMaxFetchers()+") "+tm.getFetchingAverage()+" "+tm.cacheTime();
+        return tm.getFetching()+" ("+tm.getActiveFetchers()+"+"+tm.getQueuedTasks()+" "+tm.getWorkers()+"/"+tm.getMaxFetchers()+") "+tm.getFetchingAverage()+" "+tm.cacheTime();
     }
 }

@@ -28,10 +28,10 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : 50;
+        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : 100;
         fetchService = new ThreadPoolExecutor(
                 t, t,
-                30L, TimeUnit.SECONDS,
+                10, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1000000, true)
         );
         fetchService.allowCoreThreadTimeOut(true);
@@ -264,13 +264,6 @@ public class TopManager {
     }
 
 
-    public int getActiveFetchers() {
-        return fetchService.getActiveCount();
-    }
-    public int getMaxFetchers() {
-        return fetchService.getMaximumPoolSize();
-    }
-
     private void checkWrong() {
         if(fetching.get() > 5000) {
             plugin.getLogger().warning("Something might be going wrong, printing some useful info");
@@ -327,8 +320,19 @@ public class TopManager {
         return rolling;
     }
 
+    public int getActiveFetchers() {
+        return fetchService.getActiveCount();
+    }
+    public int getMaxFetchers() {
+        return fetchService.getMaximumPoolSize();
+    }
+
     public int getQueuedTasks() {
         return fetchService.getQueue().size();
+    }
+
+    public int getWorkers() {
+        return fetchService.getPoolSize();
     }
 
     public boolean boardExists(String board) {
