@@ -130,6 +130,7 @@ public class TopManager {
             return fetchStatEntry(player, board, type);
         } else {
             fetchStatEntryAsync(player, board, type);
+            lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
             return new StatEntry(-2, board, "", player.getName(), player.getName(), player.getUniqueId(), "", 0, type);
         }
     }
@@ -158,6 +159,7 @@ public class TopManager {
                 return fetchBoards();
             } else {
                 fetchBoardsAsync();
+                lastGetBoard = System.currentTimeMillis();
                 return new ArrayList<>();
             }
         }
@@ -246,6 +248,7 @@ public class TopManager {
             }
         } else {
             if(System.currentTimeMillis() - cached.getLastGet() > cacheTime()) {
+                cached.setLastGet(System.currentTimeMillis());
                 fetchExtraAsync(id, placeholder);
             }
             return cached.getThing();
