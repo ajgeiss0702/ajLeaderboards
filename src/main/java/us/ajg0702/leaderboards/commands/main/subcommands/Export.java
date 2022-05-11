@@ -47,9 +47,9 @@ public class Export extends SubCommand {
             }
 
             sender.sendMessage(plugin.getMessages().getComponent("commands.export.starting"));
+            plugin.getLogger().info("Starting export to file "+fileName);
 
             HashMap<String, List<DbRow>> rows = new HashMap<>();
-
             int i = 0;
             List<String> boards = plugin.getCache().getBoards();
             for(String board : boards) {
@@ -57,6 +57,7 @@ public class Export extends SubCommand {
                     DbRow.clearPositionCache();
                     rows.put(board, plugin.getCache().getRows(board));
                     sender.sendMessage(plugin.getMessages().getComponent("commands.export.progress", "DONE:"+ ++i, "TOTAL:"+boards.size()));
+                    plugin.getLogger().info(String.format("Export progress: %d/%d fetched", i, boards.size()));
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, "An error occurred while fetching rows from the database:", e);
                     sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
@@ -82,7 +83,7 @@ public class Export extends SubCommand {
             }
 
             sender.sendMessage(plugin.getMessages().getComponent("commands.export.success", "FILE:"+fileName));
-
+            plugin.getLogger().info("Exporting to file "+fileName+" complete!");
         });
     }
 

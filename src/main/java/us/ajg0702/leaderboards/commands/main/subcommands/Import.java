@@ -48,6 +48,7 @@ public class Import extends SubCommand {
                 sender.sendMessage(plugin.getMessages().getComponent("commands.import.nofile", "FILE:"+file.getName()));
                 return;
             }
+            plugin.getLogger().info("Starting import from "+args[0]);
             sender.sendMessage(plugin.getMessages().getComponent("commands.import.starting", "FILE:"+file.getName()));
             try {
                 Gson gson = new Gson();
@@ -80,11 +81,13 @@ public class Import extends SubCommand {
 
                     plugin.getCache().insertRows(board, rows);
                     sender.sendMessage(plugin.getMessages().getComponent("commands.import.insertprogress", "DONE:"+ ++i, "TOTAL:"+boards.size()));
+                    plugin.getLogger().info(String.format("Import progress: %d/%d fetched", i, boards.size()));
                 }
 
                 fileReader.close();
 
                 sender.sendMessage(plugin.getMessages().getComponent("commands.import.success", "FILE:"+file.getName()));
+                plugin.getLogger().info("Import from "+args[0]+" finished");
             } catch (Exception e) {
                 plugin.getLogger().log(Level.SEVERE, "Error while importing cache:", e);
                 sender.sendMessage(plugin.getMessages().getComponent("commands.import.fail"));
