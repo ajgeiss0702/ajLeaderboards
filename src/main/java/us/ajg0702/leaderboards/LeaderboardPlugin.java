@@ -160,17 +160,15 @@ public class LeaderboardPlugin extends JavaPlugin {
         if(msgs.hasChild(getSignPath("1"))) {
             List<String> linesList = new ArrayList<>();
 
-            linesList.add(msgs.node(getSignPath("1")).getString());
-            linesList.add(msgs.node(getSignPath("2")).getString());
-            linesList.add(msgs.node(getSignPath("3")).getString());
-            linesList.add(msgs.node(getSignPath("4")).getString());
+            for (int i = 1; i <= 4; i++) {
+                linesList.add(msgs.node(getSignPath(i)).getString());
+            }
 
             try {
                 msgs.node(getSignPath("default")).setList(String.class, linesList);
-                msgs.node(getSignPath("1")).set(null);
-                msgs.node(getSignPath("2")).set(null);
-                msgs.node(getSignPath("3")).set(null);
-                msgs.node(getSignPath("4")).set(null);
+                for(int i = 1; i <= 4; i++) {
+                    msgs.node(getSignPath(i)).set(null);
+                }
                 messages.save();
             } catch (SerializationException e) {
                 getLogger().log(Level.SEVERE, "Unable to move sign messages: ", e);
@@ -226,6 +224,9 @@ public class LeaderboardPlugin extends JavaPlugin {
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" by ajgeiss0702 enabled!");
     }
 
+    private Iterable<String> getSignPath(int i) {
+        return getSignPath(i+"");
+    }
     private Iterable<String> getSignPath(String end) {
         return Arrays.asList("signs", "top", end);
     }
