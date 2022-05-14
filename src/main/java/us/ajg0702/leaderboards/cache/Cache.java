@@ -200,6 +200,7 @@ public class Cache {
 				break;
 			}
 			rs.close();
+			ps.close();
 			method.close(conn);
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
@@ -501,6 +502,8 @@ public class Cache {
 					rs.next();
 				}
 				last = rs.getDouble(1);
+				rs.close();
+				ps.close();
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
@@ -529,6 +532,7 @@ public class Cache {
 					rs.next();
 				}
 				last = rs.getLong(1);
+				ps.close();
 				method.close(conn);
 			} catch(SQLException e) {
 				method.close(conn);
@@ -570,6 +574,7 @@ public class Cache {
 				uuids.put(rs.getString(1), rs.getDouble(2));
 			}
 			rs.close();
+			ps.close();
 			method.close(conn);
 			Partition<String> partition = Partition.ofSize(new ArrayList<>(uuids.keySet()), Math.max(uuids.size()/(int) Math.ceil(method.getMaxConnections()/2D), 1));
 			Debug.info("Partition length: "+partition.size()+" uuids size: "+ uuids.size()+" partition chunk size: "+partition.getChunkSize());
@@ -597,6 +602,7 @@ public class Cache {
 						p.setLong(3, newTime);
 						p.setString(4, idRaw);
 						p.executeUpdate();
+						p.close();
 					}
 					method.close(con);
 				} catch (SQLException e) {
