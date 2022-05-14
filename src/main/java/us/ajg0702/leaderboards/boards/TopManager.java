@@ -281,6 +281,9 @@ public class TopManager {
             return r;
         }
 
+        if(fetchingAverage == 0 && getActiveFetchers() == 0) {
+            return 500;
+        }
         if(fetchingAverage > 0) {
             r = 2000;
         }
