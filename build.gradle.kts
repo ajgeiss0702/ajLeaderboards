@@ -42,6 +42,8 @@ dependencies {
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
     implementation("us.ajg0702.commands.api:api:1.0.0")
 
+    compileOnly("net.luckperms:api:5.4")
+
     implementation(project(":nms"))
 
 
