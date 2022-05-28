@@ -49,7 +49,7 @@ public class Reload extends SubCommand {
         }
 
 
-
+        plugin.getContextLoader().checkReload();
 
         sender.sendMessage(plugin.getMessages().getComponent("commands.reload.success"));
     }

@@ -68,6 +68,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadManager headManager;
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
+    private LuckpermsContextLoader contextLoader;
 
     private boolean vault;
     private Chat vaultChat;
@@ -220,7 +221,8 @@ public class LeaderboardPlugin extends JavaPlugin {
             getLogger().warning("Failed to register ajlb PAPI placeholders!");
         }
 
-        LuckpermsContextLoader.load(this);
+        contextLoader = new LuckpermsContextLoader(this);
+        contextLoader.checkReload();
 
         Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
 
@@ -331,6 +333,10 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public Chat getVaultChat() {
         return vaultChat;
+    }
+
+    public LuckpermsContextLoader getContextLoader() {
+        return contextLoader;
     }
 
     int updateTaskId = -1;
