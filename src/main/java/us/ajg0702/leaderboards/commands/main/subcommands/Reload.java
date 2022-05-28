@@ -49,6 +49,8 @@ public class Reload extends SubCommand {
         }
 
 
+
+
         sender.sendMessage(plugin.getMessages().getComponent("commands.reload.success"));
     }
 }

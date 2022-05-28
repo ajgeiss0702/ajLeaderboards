@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 18
+config-version: 19
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -85,3 +85,9 @@ require-zero-validation: true
 #  you can show their actual kills and deaths
 extras:
 - "statistic_player_kills"
+
+# Should we use luckperms contexts?
+# Disable this if you are having issues with high db usage
+# See how to use it here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
+#  Default: true
+register-lp-contexts: true

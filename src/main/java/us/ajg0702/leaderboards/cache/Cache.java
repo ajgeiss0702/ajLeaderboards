@@ -138,8 +138,11 @@ public class Cache {
 		}
 	}
 
+	public List<Integer> rolling = new ArrayList<>();
+
 	private final Map<String, Integer> sortByIndexes = new HashMap<>();
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
+		long start = System.currentTimeMillis();
 		if(!plugin.getTopManager().boardExists(board)) {
 			if(!nonExistantBoards.contains(board)) {
 				nonExistantBoards.add(board);
@@ -205,6 +208,10 @@ public class Cache {
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
 			return StatEntry.error(plugin, -1, board, type);
+		}
+		rolling.add((int) (System.currentTimeMillis()-start));
+		if(rolling.size() > 50) {
+			rolling.remove(0);
 		}
 		if(r == null) {
 			return StatEntry.noData(plugin, -1, board, type);
