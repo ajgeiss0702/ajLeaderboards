@@ -30,6 +30,8 @@ import us.ajg0702.leaderboards.commands.main.MainCommand;
 import us.ajg0702.leaderboards.displays.armorstands.ArmorStandManager;
 import us.ajg0702.leaderboards.displays.heads.HeadManager;
 import us.ajg0702.leaderboards.displays.lpcontext.LuckpermsContextLoader;
+import us.ajg0702.leaderboards.displays.lpcontext.WithLPCtx;
+import us.ajg0702.leaderboards.displays.lpcontext.WithoutLPCtx;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.leaderboards.nms.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
@@ -221,7 +223,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             getLogger().warning("Failed to register ajlb PAPI placeholders!");
         }
 
-        contextLoader = new LuckpermsContextLoader(this);
+        contextLoader = Bukkit.getPluginManager().isPluginEnabled("LuckPerms") ? new WithLPCtx(this) : new WithoutLPCtx(this);
         contextLoader.checkReload();
 
         Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
