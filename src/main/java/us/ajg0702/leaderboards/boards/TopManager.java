@@ -118,7 +118,7 @@ public class TopManager {
         }
 
         if(cacheSE.get(board).get(type).containsKey(player)) {
-            if(System.currentTimeMillis() - lastGetSE.get(board).get(type).get(player) > cacheTime()) {
+            if(System.currentTimeMillis() - lastGetSE.get(board).get(type).get(player) > Math.max(cacheTime(), 5000)) {
                 lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
                 fetchStatEntryAsync(player, board, type);
             }
