@@ -150,6 +150,14 @@ public class MysqlMethod implements CacheMethod {
                     statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '3';");
                     version = 3;
                 }
+                if(version == 3) {
+                    for (TimedType type : TimedType.values()) {
+                        if(type == TimedType.ALLTIME) continue;
+                        conn.createStatement().executeUpdate("create index "+type.lowerName()+"_timestamp on `"+tableName+"` ("+type.lowerName()+"_timestamp)");
+                    }
+                    statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '4';");
+                    version = 4;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

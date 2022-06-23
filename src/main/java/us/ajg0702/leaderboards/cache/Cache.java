@@ -22,9 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
@@ -36,9 +34,9 @@ public class Cache {
 	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
 	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value NUMERIC"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' BIGINT"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' VARCHAR(512))"
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(20, 2)"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(20, 2)"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(20, 2)"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' VARCHAR(512))"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
@@ -52,6 +50,7 @@ public class Cache {
 	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
 	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
 	private final String QUERY_ALL = "select * from '%s'";
+	private final String CREATE_TIMESTAMP_INDEX = "create index %s_timestamp on '%s' (%s_timestamp)";
 
 
 
@@ -138,7 +137,7 @@ public class Cache {
 		}
 	}
 
-	public List<Integer> rolling = new ArrayList<>();
+	public List<Integer> rolling = new CopyOnWriteArrayList<>();
 
 	private final Map<String, Integer> sortByIndexes = new HashMap<>();
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
@@ -230,6 +229,20 @@ public class Cache {
 			ps.executeUpdate();
 
 			ps.close();
+
+			for (TimedType type : TimedType.values()) {
+				if(type == TimedType.ALLTIME) continue;
+				ps = conn.prepareStatement(method.formatStatement(String.format(
+						CREATE_TIMESTAMP_INDEX,
+						type.lowerName(),
+						tablePrefix+name,
+						type.lowerName()
+						)));
+
+				ps.executeUpdate();
+				ps.close();
+			}
+
 			method.close(conn);
 			plugin.getTopManager().fetchBoards();
 			nonExistantBoards.remove(name);
@@ -367,7 +380,14 @@ public class Cache {
 				plugin.getLogger().log(Level.WARNING, "Placeholder %"+extra+"% threw an error for "+player.getName()+":", e);
 				continue;
 			}
-			if(updateDebug) Debug.info("Got '"+value+"' from extra "+extra);
+			if(updateDebug) Debug.info("Got '"+value+"' from extra "+extra+" for "+player.getName());
+
+			String cached = plugin.getTopManager().getCachedExtra(player.getUniqueId(), extra);
+			if(cached != null && cached.equals(value)) {
+				if(updateDebug) Debug.info("Skipping updating extra of "+player.getName()+" for "+extra+" because their cached score is the same as their current score");
+				continue;
+			}
+
 			plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
 		}
 	}
@@ -396,6 +416,12 @@ public class Cache {
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
 		BoardPlayer boardPlayer = new BoardPlayer(board, player);
+
+		StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
+		if(cached != null && cached.getScore() == output) {
+			if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
+			return;
+		}
 
 		if(plugin.getAConfig().getBoolean("require-zero-validation")) {
 			if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
@@ -447,7 +473,7 @@ public class Cache {
 				int i = 6;
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
-					long lastReset = plugin.getTopManager().getLastReset(board, type).get();
+					long lastReset = plugin.getTopManager().getLastReset(board, type);
 					if(plugin.isShuttingDown()) {
 						method.close(conn);
 					}
@@ -484,7 +510,7 @@ public class Cache {
 			if(!conn.isClosed() && method.requiresClose()) {
 				plugin.getLogger().warning("Not closed!");
 			}
-		} catch(ExecutionException | InterruptedException | SQLException e) {
+		} catch(SQLException e) {
 			if(plugin.isShuttingDown()) return;
 			plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
 		}
@@ -562,7 +588,7 @@ public class Cache {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
-		long lastReset = plugin.getTopManager().getLastReset(board, type).get()*1000L;
+		long lastReset = plugin.getTopManager().getLastReset(board, type)*1000L;
 		if(plugin.isShuttingDown()) {
 			return;
 		}
