@@ -203,34 +203,29 @@ public class TopManager {
         return sum/snap.size();
     }
 
-    Map<String, Cached<Future<Long>>> lastResetCache = new HashMap<>();
+    LoadingCache<BoardType, Long> lastResetCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofHours(12))
+            .refreshAfterWrite(Duration.ofSeconds(30))
+            .build(new CacheLoader<BoardType, Long>() {
+                @Override
+                public @NotNull Long load(@NotNull BoardType key) {
+                    long start = System.nanoTime();
+                    long lastReset = plugin.getCache().getLastReset(key.getBoard(), key.getType())/1000;
+                    long took = System.nanoTime() - start;
+                    long tookms = took/1000000;
+                    //if(tookms > 500) {
+                        if(tookms < 5) {
+                            Debug.info("lastReset fetch took " + tookms + "ms ("+took+"ns)");
+                        } else {
+                            Debug.info("lastReset fetch took " + tookms + "ms");
+                        }
+                    //}
+                    return lastReset;
+                }
+            });
 
-    public Future<Long> getLastReset(String board, TimedType type) {
-        String key = board+type.toString();
-        Cached<Future<Long>> cached = lastResetCache.getOrDefault(key, Cached.none());
-        if(System.currentTimeMillis() - cached.getLastGet() < 30000) return cached.getThing();
-        if(cached.getThing() != null && !cached.getThing().isDone()) {
-            plugin.getLogger().warning("Not fetching new lastReset because the old one hasnt returned yet! (database overloaded?) " +
-                    "(f: "+getFetching()+" avg: "+getFetchingAverage()+")");
-            return cached.getThing();
-        }
-        CompletableFuture<Long> future = new CompletableFuture<>();
-        long start = System.currentTimeMillis();
-        if(plugin.isShuttingDown()) {
-            future.complete(-1L);
-            return future;
-        }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            long lastReset = plugin.getCache().getLastReset(board, type)/1000;
-            if(future.isDone()) return;
-            future.complete(lastReset);
-            long took = System.currentTimeMillis()-start;
-            if(took > 500) {
-                Debug.info("lastReset fetch took "+took+"ms");
-            }
-        });
-        lastResetCache.put(key, new Cached<>(System.currentTimeMillis(), future));
-        return future;
+    public long getLastReset(String board, TimedType type) {
+        return lastResetCache.getUnchecked(new BoardType(board, type));
     }
 
 
