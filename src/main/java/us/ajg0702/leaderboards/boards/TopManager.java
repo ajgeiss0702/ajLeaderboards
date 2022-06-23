@@ -14,7 +14,6 @@ import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -235,8 +234,8 @@ public class TopManager {
     }
 
     LoadingCache<BoardType, Long> lastResetCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofHours(12))
-            .refreshAfterWrite(Duration.ofSeconds(30))
+            .expireAfterAccess(12, TimeUnit.HOURS)
+            .refreshAfterWrite(30, TimeUnit.SECONDS)
             .build(new CacheLoader<BoardType, Long>() {
                 @Override
                 public @NotNull Long load(@NotNull BoardType key) {
