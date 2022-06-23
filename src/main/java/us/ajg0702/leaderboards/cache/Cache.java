@@ -239,7 +239,11 @@ public class Cache {
 						type.lowerName()
 						)));
 
-				ps.executeUpdate();
+				try {
+					ps.executeUpdate();
+				} catch(SQLException e) {
+					if(!e.getMessage().contains("already exists")) throw e;
+				}
 				ps.close();
 			}
 
