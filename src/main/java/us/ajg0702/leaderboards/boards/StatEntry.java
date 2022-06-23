@@ -74,11 +74,11 @@ public class StatEntry {
 	private String calcPrettyScore() {
 		if(cache != null) {
 			Config config = cache.getPlugin().getAConfig();
-			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
+			if(!hasPlayer()) {
 				return config.getString("no-data-score");
 			}
 		} else {
-			if(score == 0 && playerName.equals("---")) {
+			if(!hasPlayer()) {
 				return "---";
 			}
 		}
@@ -224,7 +224,7 @@ public class StatEntry {
 		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", 0, type);
+		return new StatEntry(position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", -1, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
 		return new StatEntry(-2, board, "", LOADING, LOADING, null, "", 0, type);

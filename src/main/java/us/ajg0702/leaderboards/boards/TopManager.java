@@ -1,7 +1,12 @@
 package us.ajg0702.leaderboards.boards;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.cache.CacheMethod;
@@ -9,6 +14,7 @@ import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -135,6 +141,30 @@ public class TopManager {
         }
     }
 
+    List<UUID> fetchingPlayers = new CopyOnWriteArrayList<>();
+    public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type) {
+        if(!cacheSE.containsKey(board)) {
+            cacheSE.put(board, new HashMap<>());
+        }
+        if(!lastGetSE.containsKey(board)) {
+            lastGetSE.put(board, new HashMap<>());
+        }
+
+        if(!cacheSE.get(board).containsKey(type)) {
+            cacheSE.get(board).put(type, new HashMap<>());
+        }
+        if(!lastGetSE.get(board).containsKey(type)) {
+            lastGetSE.get(board).put(type, new HashMap<>());
+        }
+        StatEntry r = cacheSE.get(board).get(type).get(player);
+        if(r == null && !fetchingPlayers.contains(player.getUniqueId())) {
+            fetchingPlayers.add(player.getUniqueId());
+            fetchStatEntryAsync(player, board, type);
+        }
+        return r;
+    }
+
+
     private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
         if(!cacheSE.get(board).get(type).containsKey(player)) {
             cacheSE.get(board).get(type).put(player, StatEntry.loading(plugin, board, type));
@@ -147,6 +177,7 @@ public class TopManager {
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+f);
         StatEntry te = plugin.getCache().getStatEntry(player, board, type);
         cacheSE.get(board).get(type).put(player, te);
+        fetchingPlayers.remove(player.getUniqueId());
         removeFetching();
         return te;
     }
@@ -256,6 +287,15 @@ public class TopManager {
     }
     public void fetchExtraAsync(UUID id, String placeholder) {
         fetchService.submit(() -> fetchExtra(id, placeholder));
+    }
+
+    public String getCachedExtra(UUID id, String placeholder) {
+        Cached<String> r = extraCache.get(new ExtraKey(id, placeholder));
+        if(r == null) {
+            fetchExtraAsync(id, placeholder);
+            return null;
+        }
+        return r.getThing();
     }
 
 

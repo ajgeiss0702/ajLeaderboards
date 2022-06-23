@@ -108,6 +108,7 @@ public class ExtraManager {
     }
 
     public void setExtra(UUID id, String placeholder, String value) {
+        if(plugin.isShuttingDown()) return;
         try {
             Connection conn = method.getConnection();
 

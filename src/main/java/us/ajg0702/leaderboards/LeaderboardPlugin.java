@@ -386,7 +386,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         long now = Instant.now().getEpochSecond();
 
 
-        long lastReset = topManager.getLastReset(board, type).get();
+        long lastReset = topManager.getLastReset(board, type);
         long nextReset = type.getNextReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
 
         if(isShuttingDown()) return;
