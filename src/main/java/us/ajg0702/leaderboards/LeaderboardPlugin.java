@@ -241,6 +241,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         shuttingDown = true;
+        getContextLoader().checkReload(false);
         Bukkit.getScheduler().cancelTasks(this);
         getTopManager().shutdown();
 

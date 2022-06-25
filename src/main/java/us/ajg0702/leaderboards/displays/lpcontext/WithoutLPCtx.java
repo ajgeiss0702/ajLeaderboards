@@ -11,5 +11,5 @@ public class WithoutLPCtx extends LuckpermsContextLoader {
     public void load() {}
 
     @Override
-    public void checkReload() {}
+    public void checkReload(boolean register) {}
 }
