@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.boards;
+package us.ajg0702.leaderboards.boards.keys;
 
 import java.util.Objects;
 import java.util.UUID;
