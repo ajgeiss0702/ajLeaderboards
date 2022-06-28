@@ -243,13 +243,13 @@ public class TopManager {
                     long lastReset = plugin.getCache().getLastReset(key.getBoard(), key.getType())/1000;
                     long took = System.nanoTime() - start;
                     long tookms = took/1000000;
-                    //if(tookms > 500) {
-                        if(tookms < 5) {
+                    if(tookms > 500) {
+                        /*if(tookms < 5) {
                             Debug.info("lastReset fetch took " + tookms + "ms ("+took+"ns)");
-                        } else {
+                        } else {*/
                             Debug.info("lastReset fetch took " + tookms + "ms");
-                        }
-                    //}
+                        //}
+                    }
                     return lastReset;
                 }
             });
