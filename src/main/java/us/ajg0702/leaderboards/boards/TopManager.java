@@ -355,6 +355,7 @@ public class TopManager {
         return getBoards().contains(board);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Future<?> submit(Runnable task) {
         return fetchService.submit(task);
     }
