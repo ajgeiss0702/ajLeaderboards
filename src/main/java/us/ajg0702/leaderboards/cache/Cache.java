@@ -477,7 +477,7 @@ public class Cache {
 				int i = 6;
 				for(TimedType type : TimedType.values()) {
 					if(type == TimedType.ALLTIME) continue;
-					long lastReset = plugin.getTopManager().getLastReset(board, type);
+					long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
 					if(plugin.isShuttingDown()) {
 						method.close(conn);
 					}
