@@ -139,7 +139,7 @@ public class Cache {
 
 	public List<Integer> rolling = new CopyOnWriteArrayList<>();
 
-	private final Map<String, Integer> sortByIndexes = new HashMap<>();
+	private final Map<String, Integer> sortByIndexes = new ConcurrentHashMap<>();
 	public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
 		long start = System.currentTimeMillis();
 		if(!plugin.getTopManager().boardExists(board)) {
