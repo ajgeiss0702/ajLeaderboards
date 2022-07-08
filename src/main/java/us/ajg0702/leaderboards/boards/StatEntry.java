@@ -135,13 +135,10 @@ public class StatEntry {
 		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
 			return "BDNE";
 		}
-		if(cache != null) {
-			Config config = cache.getPlugin().getAConfig();
-			if(score == 0 && playerName.equals(config.getString("no-data-name"))) {
-				return config.getString("no-data-score");
-			}
-		} else {
-			if(score == 0 && playerName.equals("---")) {
+		if(!hasPlayer()) {
+			if(cache != null) {
+				return cache.getPlugin().getAConfig().getString("no-data-score");
+			} else {
 				return "---";
 			}
 		}
