@@ -1,4 +1,6 @@
-package us.ajg0702.leaderboards.boards;
+package us.ajg0702.leaderboards.boards.keys;
+
+import us.ajg0702.leaderboards.boards.TimedType;
 
 import java.util.Objects;
 

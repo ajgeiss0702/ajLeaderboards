@@ -1,8 +1,10 @@
 package us.ajg0702.leaderboards.boards;
 
 import com.google.gson.JsonObject;
+import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
+import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.utils.EasyJsonObject;
 import us.ajg0702.utils.common.Config;
@@ -231,6 +233,9 @@ public class StatEntry {
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", LOADING, LOADING, null, "", 0, boardType.getType());
+	}
+	public static StatEntry loading(LeaderboardPlugin plugin, OfflinePlayer player, BoardType boardType) {
+		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType());
 	}
 
 	@SuppressWarnings("unused")

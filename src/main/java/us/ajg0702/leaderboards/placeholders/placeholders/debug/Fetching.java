@@ -27,7 +27,9 @@ public class Fetching extends Placeholder {
                 if(i == null) continue;
                 add += i;
             }
-            return tm.getFetching()+" ("+tm.getActiveFetchers()+"+"+tm.getQueuedTasks()+" "+tm.getWorkers()+"/"+tm.getMaxFetchers()+") "+tm.getFetchingAverage()+" "+tm.cacheTime()+" "+(add/plugin.getCache().rolling.size());
+            int rollingSize = plugin.getCache().rolling.size();
+            if(rollingSize == 0) rollingSize = 1;
+            return tm.getFetching()+" ("+tm.getActiveFetchers()+"+"+tm.getQueuedTasks()+" "+tm.getWorkers()+"/"+tm.getMaxFetchers()+") "+tm.getFetchingAverage()+" "+tm.cacheTime()+" "+(add/rollingSize);
         } catch(Exception e) {
             plugin.getLogger().log(Level.WARNING, "Error while parsing fetching placeholder:", e);
             return null;

@@ -1,14 +1,19 @@
 package us.ajg0702.leaderboards.boards;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.boards.keys.BoardType;
+import us.ajg0702.leaderboards.boards.keys.ExtraKey;
+import us.ajg0702.leaderboards.boards.keys.PlayerBoardType;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
@@ -97,9 +102,29 @@ public class TopManager {
         return te;
     }
 
+    Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
+    LoadingCache<PlayerBoardType, StatEntry> statEntryCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(5, TimeUnit.HOURS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .build(new CacheLoader<PlayerBoardType, StatEntry>() {
+                @Override
+                public @NotNull StatEntry load(@NotNull PlayerBoardType key) {
+                    return plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType());
+                }
 
-    private final HashMap<String, HashMap<TimedType, HashMap<OfflinePlayer, Long>>> lastGetSE = new HashMap<>();
-    private final HashMap<String, HashMap<TimedType, HashMap<OfflinePlayer, StatEntry>>> cacheSE = new HashMap<>();
+                @Override
+                public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
+                    if(System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime(), 5000)) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
+                        statEntryLastRefresh.put(key, System.currentTimeMillis());
+                        return plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType());
+                    });
+                    fetchService.execute(task);
+                    return task;
+                }
+            });
 
     /**
      * Get a leaderboard position
@@ -108,78 +133,32 @@ public class TopManager {
      * @return The StatEntry representing the position on the board
      */
     public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
-        if(!cacheSE.containsKey(board)) {
-            cacheSE.put(board, new HashMap<>());
-        }
-        if(!lastGetSE.containsKey(board)) {
-            lastGetSE.put(board, new HashMap<>());
-        }
+        PlayerBoardType key = new PlayerBoardType(player, board, type);
+        StatEntry cached = statEntryCache.getIfPresent(key);
 
-        if(!cacheSE.get(board).containsKey(type)) {
-            cacheSE.get(board).put(type, new HashMap<>());
-        }
-        if(!lastGetSE.get(board).containsKey(type)) {
-            lastGetSE.get(board).put(type, new HashMap<>());
-        }
-
-        if(cacheSE.get(board).get(type).containsKey(player)) {
-            if(System.currentTimeMillis() - lastGetSE.get(board).get(type).get(player) > Math.max(cacheTime(), 5000)) {
-                lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
-                fetchStatEntryAsync(player, board, type);
+        if(cached == null) {
+            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+                cached = statEntryCache.getUnchecked(key);
+            } else {
+                fetchService.submit(() -> statEntryCache.getUnchecked(key));
+                return StatEntry.loading(plugin, player, key.getBoardType());
             }
-            return cacheSE.get(board).get(type).get(player);
         }
 
-        lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
-        if(plugin.getAConfig().getBoolean("blocking-fetch")) {
-            return fetchStatEntry(player, board, type);
-        } else {
-            fetchStatEntryAsync(player, board, type);
-            lastGetSE.get(board).get(type).put(player, System.currentTimeMillis());
-            return new StatEntry(-2, board, "", player.getName(), player.getName(), player.getUniqueId(), "", 0, type);
-        }
+        return cached;
+
     }
 
-    List<UUID> fetchingPlayers = new CopyOnWriteArrayList<>();
     public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type) {
-        if(!cacheSE.containsKey(board)) {
-            cacheSE.put(board, new HashMap<>());
-        }
-        if(!lastGetSE.containsKey(board)) {
-            lastGetSE.put(board, new HashMap<>());
-        }
+        PlayerBoardType key = new PlayerBoardType(player, board, type);
 
-        if(!cacheSE.get(board).containsKey(type)) {
-            cacheSE.get(board).put(type, new HashMap<>());
-        }
-        if(!lastGetSE.get(board).containsKey(type)) {
-            lastGetSE.get(board).put(type, new HashMap<>());
-        }
-        StatEntry r = cacheSE.get(board).get(type).get(player);
-        if(r == null && !fetchingPlayers.contains(player.getUniqueId())) {
-            fetchingPlayers.add(player.getUniqueId());
-            fetchStatEntryAsync(player, board, type);
+        StatEntry r = statEntryCache.getIfPresent(key);
+        if(r == null) {
+            fetchService.submit(() -> statEntryCache.getUnchecked(key));
         }
         return r;
     }
 
-
-    private void fetchStatEntryAsync(OfflinePlayer player, String board, TimedType type) {
-        if(!cacheSE.get(board).get(type).containsKey(player)) {
-            cacheSE.get(board).get(type).put(player, StatEntry.loading(plugin, board, type));
-        }
-        checkWrong();
-        fetchService.submit(() -> fetchStatEntry(player, board, type));
-    }
-    private StatEntry fetchStatEntry(OfflinePlayer player, String board, TimedType type) {
-        int f = fetching.getAndIncrement();
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (statentry): "+f);
-        StatEntry te = plugin.getCache().getStatEntry(player, board, type);
-        cacheSE.get(board).get(type).put(player, te);
-        fetchingPlayers.remove(player.getUniqueId());
-        removeFetching();
-        return te;
-    }
 
     List<String> boardCache;
     long lastGetBoard = 0;
@@ -243,13 +222,13 @@ public class TopManager {
                     long lastReset = plugin.getCache().getLastReset(key.getBoard(), key.getType())/1000;
                     long took = System.nanoTime() - start;
                     long tookms = took/1000000;
-                    //if(tookms > 500) {
-                        if(tookms < 5) {
+                    if(tookms > 500) {
+                        /*if(tookms < 5) {
                             Debug.info("lastReset fetch took " + tookms + "ms ("+took+"ns)");
-                        } else {
+                        } else {*/
                             Debug.info("lastReset fetch took " + tookms + "ms");
-                        }
-                    //}
+                        //}
+                    }
                     return lastReset;
                 }
             });
@@ -376,6 +355,7 @@ public class TopManager {
         return getBoards().contains(board);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Future<?> submit(Runnable task) {
         return fetchService.submit(task);
     }

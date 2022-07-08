@@ -9,7 +9,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.chat.Chat;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +19,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
-import us.ajg0702.leaderboards.boards.BoardType;
+import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
@@ -241,6 +240,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         shuttingDown = true;
+        getContextLoader().checkReload(false);
         Bukkit.getScheduler().cancelTasks(this);
         getTopManager().shutdown();
 

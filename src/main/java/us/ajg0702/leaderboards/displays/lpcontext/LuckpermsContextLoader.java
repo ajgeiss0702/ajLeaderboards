@@ -14,7 +14,11 @@ public abstract class LuckpermsContextLoader {
 
     public abstract void load();
 
-    public abstract void checkReload();
+    public void checkReload() {
+        checkReload(plugin.getAConfig().getBoolean("register-lp-contexts"));
+    }
+
+    public abstract void checkReload(boolean register);
 
     public boolean isLoaded() {
         return loaded;

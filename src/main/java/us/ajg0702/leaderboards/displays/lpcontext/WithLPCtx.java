@@ -39,8 +39,7 @@ public class WithLPCtx extends LuckpermsContextLoader{
     }
 
     @Override
-    public void checkReload() {
-        boolean register = plugin.getAConfig().getBoolean("register-lp-contexts");
+    public void checkReload(boolean register) {
         if(loaded && !register) {
             api.getContextManager().unregisterCalculator(context);
             context = null;
