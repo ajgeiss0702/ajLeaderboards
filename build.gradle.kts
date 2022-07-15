@@ -44,7 +44,8 @@ dependencies {
 
     compileOnly("net.luckperms:api:5.4")
 
-    implementation(project(":nms"))
+    implementation(project(":nms:nms-legacy"))
+    implementation(project(":nms:nms-19"))
 
 
     slim("com.zaxxer:HikariCP:3.4.5")

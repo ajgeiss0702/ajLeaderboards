@@ -32,7 +32,7 @@ import us.ajg0702.leaderboards.displays.lpcontext.LuckpermsContextLoader;
 import us.ajg0702.leaderboards.displays.lpcontext.WithLPCtx;
 import us.ajg0702.leaderboards.displays.lpcontext.WithoutLPCtx;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
-import us.ajg0702.leaderboards.nms.HeadUtils;
+import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;

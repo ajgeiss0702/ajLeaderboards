@@ -139,18 +139,22 @@ public class HeadManager {
         OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            BlockState bs = loc.getBlock().getState();
-            if(!(bs instanceof Skull)) return;
-
-            Skull skull = (Skull) bs;
-            if(VersionSupport.getMinorVersion() > 9) {
-                assert op != null;
-                skull.setOwningPlayer(op);
+            if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
+                plugin.getHeadUtils().getVersionedHeadUtils().setHeadBlock(loc.getBlock(), id, name);
             } else {
-                //noinspection deprecation
-                skull.setOwner(name);
+                BlockState bs = loc.getBlock().getState();
+                if(!(bs instanceof Skull)) return;
+
+                Skull skull = (Skull) bs;
+                if(VersionSupport.getMinorVersion() > 9) {
+                    assert op != null;
+                    skull.setOwningPlayer(op);
+                } else {
+                    //noinspection deprecation
+                    skull.setOwner(name);
+                }
+                skull.update();
             }
-            skull.update();
             headLocationCache.put(loc, id);
         });
     }

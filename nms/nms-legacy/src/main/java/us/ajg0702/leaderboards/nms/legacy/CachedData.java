@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.nms;
+package us.ajg0702.leaderboards.nms.legacy;
 
 public class CachedData<T> {
     private final T data;

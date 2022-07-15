@@ -1,2 +1,3 @@
 rootProject.name = "ajLeaderboards"
-include(":nms")
+include(":nms:nms-legacy")
+include(":nms:nms-19")

@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "us.ajg0702.leaderboards"
+group = "us.ajg0702.leaderboards.nms-legacy"
 version = project(":").version
 
 repositories {
@@ -11,13 +11,13 @@ repositories {
     maven { url = uri("https://repo.codemc.io/repository/nms/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-releases/") }
     maven { url = uri("https://repo.ajg0702.us/") }
+    maven { url = uri("https://repo.minebench.de/") }
 }
 
 dependencies {
-    compileOnly(group = "org.spigotmc", name = "spigot", version = "1.16.4-R0.1-SNAPSHOT")
+    compileOnly(group = "org.spigotmc", name = "spigot", version = "1.19-R0.1-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    //compileOnly(project(":"))
     compileOnly("us.ajg0702:ajUtils:1.1.36")
     compileOnly("net.skinsrestorer:skinsrestorer-api:14.1.10")
 }

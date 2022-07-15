@@ -1,11 +1,10 @@
-package us.ajg0702.leaderboards.nms;
+package us.ajg0702.leaderboards.nms.legacy;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.skinsrestorer.api.SkinsRestorerAPI;
-import net.skinsrestorer.api.property.IProperty;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -14,6 +13,7 @@ import us.ajg0702.utils.spigot.VersionSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -36,20 +36,37 @@ public class HeadUtils {
 
     private final SkinsRestorerAPI skinsRestorerAPI;
 
+    private VersionedHeadUtils versionedHeadUtils = null;
+
     private final Logger logger;
 
     public HeadUtils(Logger logger) {
         this.logger = logger;
+
         if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
             skinsRestorerAPI = SkinsRestorerAPI.getApi();
         } else {
             skinsRestorerAPI = null;
         }
+
+        if(VersionSupport.getMinorVersion() >= 19) {
+            try {
+                versionedHeadUtils = (VersionedHeadUtils) Class.forName("us.ajg0702.leaderboards.nms.nms19.HeadUtils19")
+                        .getDeclaredConstructor()
+                        .newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException | ClassNotFoundException e) {
+                logger.warning("Unable to find 1.19 nms class: "+e.getMessage());
+            }
+        }
     }
 
+    public VersionedHeadUtils getVersionedHeadUtils() {
+        return versionedHeadUtils;
+    }
 
+    public ItemStack getHeadItem(UUID uuid, String name) {
 
-    public ItemStack getHeadItem(UUID uuid) {
         ItemStack skull = null;
         if(VersionSupport.getMinorVersion() <= 12) {
             //noinspection deprecation

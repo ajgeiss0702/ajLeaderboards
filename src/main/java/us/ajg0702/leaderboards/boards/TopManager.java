@@ -16,7 +16,7 @@ import us.ajg0702.leaderboards.boards.keys.ExtraKey;
 import us.ajg0702.leaderboards.boards.keys.PlayerBoardType;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
-import us.ajg0702.leaderboards.nms.ThreadFactoryProxy;
+import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
 import java.util.*;
