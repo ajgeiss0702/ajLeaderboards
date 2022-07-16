@@ -57,9 +57,21 @@ public class H2Method implements CacheMethod {
                     .load(getClass().getResourceAsStream("/h2_messages.prop"));
         } catch (IllegalAccessException | NoSuchFieldException | IOException e) {
             plugin.getLogger().log(Level.WARNING, "Unable to set h2 messages file! Error messages from h2 might not be very useful!", e);
-        }// */
+        }
 
-        String url = "jdbc:h2:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"cache;DATABASE_TO_UPPER=false";
+        File file = new File(plugin.getDataFolder(), "cache.trace.db");
+        if(file.exists()) {
+            plugin.getLogger().info("Deleting junk trace file");
+            try {
+                if(!file.delete()) {
+                    plugin.getLogger().warning("Failed to delete junk trace file!");
+                }
+            } catch(SecurityException e) {
+                plugin.getLogger().warning("Failed to delete junk trace file: " + e.getMessage());
+            }
+        }
+
+        String url = "jdbc:h2:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"cache;DATABASE_TO_UPPER=false;TRACE_LEVEL_FILE=0";
         try {
             //conn = DriverManager.getConnection(url);
             conn = new JdbcConnection(url, new Properties(), null, null, false);
