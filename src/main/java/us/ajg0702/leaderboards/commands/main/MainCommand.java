@@ -31,6 +31,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
         addSubCommand(new Reset(plugin));
+        addSubCommand(new Time());
     }
 
     @Override
@@ -54,6 +55,7 @@ public class MainCommand extends BaseCommand {
     public static void sendHelp(CommandSender sender, String label, List<SubCommand> subCommands) {
         sender.sendMessage(message(""));
         for(SubCommand subCommand : subCommands) {
+            if(!subCommand.showInTabComplete()) continue;
             String command = "/"+label+" "+subCommand.getName();
             sender.sendMessage(message(
                     "<hover:show_text:'<yellow>Click to start typing <gold>"+command+"'>" +
