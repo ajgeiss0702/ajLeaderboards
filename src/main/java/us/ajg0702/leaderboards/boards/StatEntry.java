@@ -228,6 +228,9 @@ public class StatEntry {
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", -1, type);
 	}
+	public static StatEntry loading(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+		return new StatEntry(position, board, "", LOADING, LOADING, null, "", 0, type);
+	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
 		return new StatEntry(-2, board, "", LOADING, LOADING, null, "", 0, type);
 	}
