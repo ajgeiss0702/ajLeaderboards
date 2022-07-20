@@ -71,13 +71,14 @@ public class TopManager {
 
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PositionBoardType key, @NotNull StatEntry oldValue) {
-                    if(System.currentTimeMillis() - positionLastRefresh.getOrDefault(key, 0L) < cacheTime()) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - positionLastRefresh.getOrDefault(key, 0L) < cacheTime()) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
                         positionLastRefresh.put(key, System.currentTimeMillis());
                         return plugin.getCache().getStat(key.getPosition(), key.getBoard(), key.getType());
                     });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
                     fetchService.execute(task);
                     return task;
                 }
@@ -126,13 +127,14 @@ public class TopManager {
 
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
-                    if(System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime(), 5000)) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime(), 5000)) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
                         statEntryLastRefresh.put(key, System.currentTimeMillis());
                         return plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType());
                     });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
                     fetchService.execute(task);
                     return task;
                 }
