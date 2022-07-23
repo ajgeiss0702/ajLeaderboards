@@ -369,7 +369,7 @@ public class Cache {
 			if(!updatableBoards.isEmpty() && !updatableBoards.contains(b)) continue;
 			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
-				if(player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
+				if(plugin.getAConfig().getBoolean("enable-dontupdate-permission") && player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
 			}
 			updateStat(b, player);
 		}

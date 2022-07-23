@@ -43,10 +43,10 @@ public class UpdatePlayer extends SubCommand {
             @SuppressWarnings("deprecation")
             OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
             plugin.getCache().updateStat(args[0], p);
-            boolean attemptHasWarning = !p.isOnline() || p.getPlayer() != null && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]);
+            boolean attemptHasWarning = !p.isOnline() || p.getPlayer() != null && (plugin.getAConfig().getBoolean("enable-dontupdate-permission") && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]));
             if(!p.isOnline()) {
                 sender.sendMessage(message("&6Warning: &7The player you requested to update appears to be offline. Not all placeholders support this. I'll still try, but if there is an error or nothing is updated, the placeholder probably doesn't support it."));
-            } else if(p.getPlayer() != null && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0])) {
+            } else if(p.getPlayer() != null && (plugin.getAConfig().getBoolean("enable-dontupdate-permission") && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]))) {
                 sender.sendMessage(message(
                         "&6Warning: &7The player you requested to update has the &fdontupdate&7 permission. This player will not be automatically updated!\n" +
                                 "<hover:show_text:'<yellow>Click to go to https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
