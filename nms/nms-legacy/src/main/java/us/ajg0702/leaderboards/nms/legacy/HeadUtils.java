@@ -28,7 +28,7 @@ public class HeadUtils {
     /**public void setSkullSkin (String name, Block block) {
      if(!(block.getState() instanceof Skull)) return;
      Skull skullData = (Skull)block.getState();
-     // TODO: figure out how to do this without nms
+     // : figure out how to do this without nms
      TileEntitySkull skullTile = (TileEntitySkull)((CraftWorld)block.getWorld()).getHandle().getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));
      skullTile.setGameProfile(getNonPlayerProfile(value));
      block.getState().update(true);
