@@ -42,7 +42,8 @@ public class Reset extends SubCommand {
         }
 
         if(!confirmResets.containsKey(sender.getHandle()) || (confirmResets.containsKey(sender.getHandle()) && !confirmResets.get(sender.getHandle()).equals(board))) {
-            sender.sendMessage(message("&cThis action will delete data! The top players will have to join again to show up  on the leaderboard.\n"
+            sender.sendMessage(message("&cThis action will delete data! The top players will have to join again to show up  on the leaderboard.\n" +
+                    "&cNOTE: &eThis will not reset every player to 0! You need to reset the data in the target placeholder first, then run this command.\n"
                     + "&7Repeat the command within 15 seconds to confirm this action\n" +
                     "&7Or click: <click:run_command:'/"+label+" reset "+board+"'><green><b>" +
                     "<hover:show_text:'<gray>Click to confirm resetting the board\n<red>WARNING: <yellow>This will delete the data for this leaderboard!'>[CONFIRM]</hover>" +
