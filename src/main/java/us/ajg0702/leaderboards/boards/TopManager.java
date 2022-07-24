@@ -43,7 +43,7 @@ public class TopManager {
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : 100;
         fetchService = new ThreadPoolExecutor(
                 t, t,
-                10, TimeUnit.MILLISECONDS,
+                500, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1000000, true)
         );
         fetchService.allowCoreThreadTimeOut(true);
