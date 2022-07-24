@@ -1,4 +1,4 @@
-package us.ajg0702.leaderboards.commands.main.subcommands;
+package us.ajg0702.leaderboards.commands.main.subcommands.debug;
 
 import net.kyori.adventure.text.Component;
 import us.ajg0702.commands.CommandSender;

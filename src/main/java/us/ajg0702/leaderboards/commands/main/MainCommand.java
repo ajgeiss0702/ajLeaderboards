@@ -5,6 +5,8 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.commands.main.subcommands.*;
+import us.ajg0702.leaderboards.commands.main.subcommands.debug.Resets;
+import us.ajg0702.leaderboards.commands.main.subcommands.debug.Time;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
 import java.util.Arrays;
@@ -31,7 +33,10 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
         addSubCommand(new Reset(plugin));
+
+        // Debug commands
         addSubCommand(new Time());
+        addSubCommand(new Resets(plugin));
     }
 
     @Override

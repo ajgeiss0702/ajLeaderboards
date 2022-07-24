@@ -35,6 +35,8 @@ public class Reload extends SubCommand {
 
         try {
             plugin.getAConfig().reload();
+            plugin.setWeeklyResetDay();
+
             plugin.getMessages().reload();
             plugin.getSignManager().reload();
 

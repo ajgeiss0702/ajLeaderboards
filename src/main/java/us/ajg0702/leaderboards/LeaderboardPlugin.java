@@ -45,6 +45,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -115,6 +116,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.setLogger(getLogger());
         Debug.setDebug(config.getBoolean("debug"));
         Debug.setParticles(config.getBoolean("particles"));
+
+        setWeeklyResetDay();
 
         Map<String, Object> dmsgs = new LinkedHashMap<>();
 
@@ -475,6 +478,18 @@ public class LeaderboardPlugin extends JavaPlugin {
             miniMessage = MiniMessage.miniMessage();
         }
         return miniMessage;
+    }
+
+    public void setWeeklyResetDay() {
+        String rawDay = config.getString("reset-weekly-on");
+        DayOfWeek day;
+        try {
+            day = DayOfWeek.valueOf(rawDay.toUpperCase(Locale.ROOT));
+        } catch(IllegalArgumentException e) {
+            getLogger().warning("Invalid day '"+rawDay+"' for reset-weekly-on in the config! Defaulting to sunday.");
+            day = DayOfWeek.SUNDAY;
+        }
+        TimedType.setWeeklyResetDay(day);
     }
 
 

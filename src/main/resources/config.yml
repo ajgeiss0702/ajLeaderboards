@@ -1,5 +1,5 @@
 # Dont touch this
-config-version: 20
+config-version: 21
 
 # What should we display for the name when there is no data available?
 #  Default: ---
@@ -97,3 +97,10 @@ register-lp-contexts: true
 # ajleaderboards.dontupdate.<board>
 #  Default: true
 enable-dontupdate-permission: true
+
+# What day of the week should WEEKLY leaderboards reset on?
+# Options are monday, tuesday, wednesday, thursday, friday, saturday, sunday
+# The weekly reset happens at midnight (12:00 am / 00:00) (the start of the day) of the day you put here
+# Caps don't matter
+#  Default: sunday
+reset-weekly-on: sunday

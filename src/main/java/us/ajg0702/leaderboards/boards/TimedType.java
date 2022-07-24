@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards.boards;
 
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,11 @@ public enum TimedType {
         return names;
     }
 
+    private static DayOfWeek weeklyResetDay = DayOfWeek.SUNDAY;
+    public static void setWeeklyResetDay(DayOfWeek dayOfWeek) {
+        weeklyResetDay = dayOfWeek;
+    }
+
     public LocalDateTime getNextReset() {
         LocalDateTime now = LocalDateTime.now();
         switch(this) {
@@ -36,7 +42,9 @@ public enum TimedType {
             case DAILY:
                 return now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case WEEKLY:
-                LocalDateTime weekly = now.plusDays(7-now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                LocalDateTime weekly = now
+                        .plusDays(weeklyResetDay.getValue() - now.getDayOfWeek().getValue())
+                        .withHour(0).withMinute(0).withSecond(0).withNano(0);
                 if(weekly.isBefore(now)) {
                     weekly = weekly.plusWeeks(1);
                 }
@@ -44,7 +52,8 @@ public enum TimedType {
             case MONTHLY:
                 return now.plusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case YEARLY:
-                return now.plusYears(1).withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                return now.plusYears(1).withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)
+                        .withNano(0);
         }
         throw new IllegalStateException();
     }
@@ -58,7 +67,8 @@ public enum TimedType {
             case DAILY:
                 return now.withHour(0).withMinute(0).withSecond(0).withNano(0);
             case WEEKLY:
-                return now.minusDays(now.getDayOfWeek().getValue()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                return now.minusDays(now.getDayOfWeek().getValue() - weeklyResetDay.getValue())
+                        .withHour(0).withMinute(0).withSecond(0).withNano(0);
             case MONTHLY:
                 return now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             case YEARLY:
