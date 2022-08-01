@@ -48,4 +48,10 @@ public class WithLPCtx extends LuckpermsContextLoader{
             load();
         }
     }
+
+    @Override
+    public void calculatePotentialContexts() {
+        if(!loaded || context == null) return;
+        context.calculatePotentialContexts();
+    }
 }

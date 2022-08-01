@@ -14,6 +14,8 @@ public class PositionContext implements ContextCalculator<Player> {
 
     public PositionContext(LeaderboardPlugin leaderboardPlugin) {
         plugin = leaderboardPlugin;
+
+        calculatePotentialContexts();
     }
 
     @Override
@@ -25,8 +27,13 @@ public class PositionContext implements ContextCalculator<Player> {
         }
     }
 
+    private ContextSet potentialContexts;
     @Override
     public @NonNull ContextSet estimatePotentialContexts() {
+        return potentialContexts;
+    }
+
+    public void calculatePotentialContexts() {
         ImmutableContextSet.Builder builder = ImmutableContextSet.builder();
         for (String board : plugin.getTopManager().getBoards()) {
             for (TimedType type : TimedType.values()) {
@@ -35,6 +42,6 @@ public class PositionContext implements ContextCalculator<Player> {
                 }
             }
         }
-        return builder.build();
+        potentialContexts = builder.build();
     }
 }

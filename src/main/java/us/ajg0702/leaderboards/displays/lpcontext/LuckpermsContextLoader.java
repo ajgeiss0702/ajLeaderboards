@@ -23,4 +23,6 @@ public abstract class LuckpermsContextLoader {
     public boolean isLoaded() {
         return loaded;
     }
+
+    public abstract void calculatePotentialContexts();
 }

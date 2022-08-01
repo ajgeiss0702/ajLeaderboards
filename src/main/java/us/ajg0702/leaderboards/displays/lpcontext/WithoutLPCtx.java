@@ -12,4 +12,7 @@ public class WithoutLPCtx extends LuckpermsContextLoader {
 
     @Override
     public void checkReload(boolean register) {}
+
+    @Override
+    public void calculatePotentialContexts() {}
 }

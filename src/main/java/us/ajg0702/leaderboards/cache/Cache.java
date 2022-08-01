@@ -249,6 +249,7 @@ public class Cache {
 
 			method.close(conn);
 			plugin.getTopManager().fetchBoards();
+			plugin.getContextLoader().calculatePotentialContexts();
 			nonExistantBoards.remove(name);
 			if(!plugin.getTopManager().boardExists(name)) {
 				plugin.getLogger().warning("Failed to create board: It wasnt created, but there was no error!");
@@ -352,6 +353,7 @@ public class Cache {
 			ps.close();
 			method.close(conn);
 			plugin.getTopManager().fetchBoards();
+			plugin.getContextLoader().calculatePotentialContexts();
 			if(plugin.getTopManager().boardExists(board)) {
 				plugin.getLogger().warning("Attempted to remove a board, but it didnt get removed!");
 				return false;
