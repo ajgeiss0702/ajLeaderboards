@@ -232,17 +232,17 @@ public class Cache {
 
 			for (TimedType type : TimedType.values()) {
 				if(type == TimedType.ALLTIME) continue;
-				ps = conn.prepareStatement(method.formatStatement(String.format(
-						CREATE_TIMESTAMP_INDEX,
-						type.lowerName(),
-						tablePrefix+name,
-						type.lowerName()
-						)));
 
 				try {
+					ps = conn.prepareStatement(method.formatStatement(String.format(
+							CREATE_TIMESTAMP_INDEX,
+							type.lowerName(),
+							tablePrefix+name,
+							type.lowerName()
+					)));
 					ps.executeUpdate();
 				} catch(SQLException e) {
-					if(!e.getMessage().contains("already exists")) throw e;
+					if(!e.getMessage().contains("already exists") && !e.getMessage().contains("Duplicate key") ) throw e;
 				}
 				ps.close();
 			}
