@@ -297,6 +297,10 @@ public class TopManager {
         }
         int position = playerStatEntry.getPosition() + difference;
 
+        if(position < 1) {
+            return StatEntry.noRelData(plugin, position, board, type);
+        }
+
         return getStat(position, board, type);
     }
 
