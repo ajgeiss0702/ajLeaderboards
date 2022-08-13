@@ -25,11 +25,11 @@ public class Extra extends Placeholder {
         String typeRaw = matcher.group(3).toUpperCase(Locale.ROOT);
         StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, TimedType.valueOf(typeRaw));
         if(!r.hasPlayer()) {
-            return plugin.getConfig().getString("no-data-score");
+            return plugin.getMessages().getString("no-data.extra");
         }
         String value = plugin.getTopManager().getExtra(r.getPlayerID(), matcher.group(4));
         if(value == null) {
-            return plugin.getConfig().getString("no-data-score");
+            return plugin.getMessages().getString("no-data.extra");
         }
         return value;
     }

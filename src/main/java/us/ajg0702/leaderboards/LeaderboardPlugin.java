@@ -32,6 +32,7 @@ import us.ajg0702.leaderboards.displays.lpcontext.LuckpermsContextLoader;
 import us.ajg0702.leaderboards.displays.lpcontext.WithLPCtx;
 import us.ajg0702.leaderboards.displays.lpcontext.WithoutLPCtx;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
+import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
@@ -119,47 +120,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         setWeeklyResetDay();
 
-        Map<String, Object> dmsgs = new LinkedHashMap<>();
-
-        dmsgs.put("signs.top.default", Arrays.asList(
-                "&7&m       &r #{POSITION} &7&m       ",
-                "&6{NAME}",
-                "&e{VALUE} {VALUENAME}",
-                "&7&m                   "
-        ));
-
-        dmsgs.put("formatted.k", "k");
-        dmsgs.put("formatted.m", "m");
-        dmsgs.put("formatted.t", "t");
-        dmsgs.put("formatted.b", "b");
-        dmsgs.put("formatted.q", "q");
-
-        dmsgs.put("time.w", "w ");
-        dmsgs.put("time.d", "d ");
-        dmsgs.put("time.h", "h ");
-        dmsgs.put("time.m", "m ");
-        dmsgs.put("time.s", "s");
-
-        dmsgs.put("noperm", "You don't have permission to do this!");
-
-        dmsgs.put("commands.reload.success", "&aConfigs reloaded!");
-        dmsgs.put("commands.reload.fail", "&cAn error occurred while reloading one of your configs. Check the console for more info.");
-
-        dmsgs.put("commands.export.fileexists", "&cThe file &f{FILE}&c already exists!");
-        dmsgs.put("commands.export.starting", "&7Fetching all players from the datbase. This might take a bit.");
-        dmsgs.put("commands.export.fail", "&cAn error occurred while exporting. Check the console for more info.");
-        dmsgs.put("commands.export.progress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards fetched");
-        dmsgs.put("commands.export.success", "&aThe cache has been exported to the file &f{FILE}&a!");
-
-        dmsgs.put("commands.import.nofile", "&cThe file &f{FILE}&c doesnt exist!");
-        dmsgs.put("commands.import.starting", "&7Loading all cached stats from &f{FILE}");
-        dmsgs.put("commands.import.fail", "&cAn error occurred while importing. Check the console for more info.");
-        dmsgs.put("commands.import.insertprogress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards imported");
-        dmsgs.put("commands.import.success", "&aThe cache has been imported from the file &f{FILE}&a!");
-
-
-
-        messages = new Messages(getDataFolder(), getLogger(), dmsgs);
+        messages = MessageLoader.loadMessages(this);
 
         CommentedConfigurationNode msgs = messages.getRootNode();
 

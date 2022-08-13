@@ -21,7 +21,7 @@ public class PlayerExtra extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String value = plugin.getTopManager().getExtra(p.getUniqueId(), matcher.group(1));
         if(value == null) {
-            return plugin.getConfig().getString("no-data-score");
+            return plugin.getMessages().getString("no-data.extra");
         }
         return value;
     }

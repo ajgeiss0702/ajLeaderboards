@@ -75,9 +75,15 @@ public class StatEntry {
 	}
 	private String calcPrettyScore() {
 		if(cache != null) {
-			Config config = cache.getPlugin().getAConfig();
+			Messages messages = cache.getPlugin().getMessages();
 			if(!hasPlayer()) {
-				return config.getString("no-data-score");
+				if(score == -1) {
+					return messages.getString("no-data.lb.value");
+				} else if(score == -2) {
+					return messages.getString("no-data.rel.value");
+				} else {
+					return "-?-";
+				}
 			}
 		} else {
 			if(!hasPlayer()) {
@@ -91,10 +97,7 @@ public class StatEntry {
 	}
 
 	public boolean hasPlayer() {
-		if(plugin == null) {
-			return !playerName.equals("---") && getPlayerID() != null;
-		}
-		return !playerName.equals(plugin.getAConfig().getString("no-data-name")) && getPlayerID() != null;
+		return getPlayerID() != null;
 	}
 	
 	public String getPrefix() {
@@ -137,7 +140,13 @@ public class StatEntry {
 		}
 		if(!hasPlayer()) {
 			if(cache != null) {
-				return cache.getPlugin().getAConfig().getString("no-data-score");
+				if(score == -1) {
+					return plugin.getMessages().getString("no-data.lb.value");
+				} else if(score == -2) {
+					return plugin.getMessages().getString("no-data.rel.value");
+				} else {
+					return "-?-";
+				}
 			} else {
 				return "---";
 			}
@@ -181,7 +190,13 @@ public class StatEntry {
 			return "BDNE";
 		}
 		if(!hasPlayer()) {
-			return cache.getPlugin().getAConfig().getString("no-data-score");
+			if(score == -1) {
+				return plugin.getMessages().getString("no-data.lb.value");
+			} else if(score == -2) {
+				return plugin.getMessages().getString("no-data.rel.value");
+			} else {
+				return "-?-";
+			}
 		}
 		return TimeUtils.formatTimeSeconds(Math.round(getScore()));
 	}
@@ -226,7 +241,10 @@ public class StatEntry {
 		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getAConfig().getString("no-data-name"), plugin.getAConfig().getString("no-data-name"), null, "", -1, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getString("no-data.lb.name"), plugin.getMessages().getString("no-data.lb.name"), null, "", -1, type);
+	}
+	public static StatEntry noRelData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+		return new StatEntry(position, board, "", plugin.getMessages().getString("no-data.rel.name"), plugin.getMessages().getString("no-data.rel.name"), null, "", -2, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", LOADING, LOADING, null, "", 0, type);

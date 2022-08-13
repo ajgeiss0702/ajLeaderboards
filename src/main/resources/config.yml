@@ -1,13 +1,5 @@
 # Dont touch this
-config-version: 21
-
-# What should we display for the name when there is no data available?
-#  Default: ---
-no-data-name: "---"
-
-# What should we display for the score when there is no data available?
-#  Default: ---
-no-data-score: "---"
+config-version: 22
 
 # What character should we use for the comma in long numbers.
 # You can also set this to be blank if you dont want a comma
@@ -104,3 +96,16 @@ enable-dontupdate-permission: true
 # Caps don't matter
 #  Default: sunday
 reset-weekly-on: sunday
+
+
+
+
+
+
+# ----- THESE OPTIONS HAVE MOVED -----
+# to messages.yml. They will be removed from here in the future.
+# They are only still here to ensure they can be copied from here to the messages file.
+# If you change these here, they WILL NOT work. Only change them in messages.yml
+no-data-name: "---"
+no-data-score: "---"
+# ^ Change those in messages.yml now
