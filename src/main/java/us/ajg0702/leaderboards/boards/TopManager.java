@@ -127,7 +127,7 @@ public class TopManager {
 
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
-                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime(), 5000)) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*1.5, 5000)) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
