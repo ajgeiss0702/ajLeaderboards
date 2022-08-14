@@ -97,7 +97,14 @@ enable-dontupdate-permission: true
 #  Default: sunday
 reset-weekly-on: sunday
 
-
+# How many threads should ajLeaderboards be allowed to use maxiumum for fetching from the db?
+# Most of the time, the number of threads used will be far less than this.
+# This is ignored on mysql (and maxConnections is used for this instead)
+# Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
+# I would __not__ recommend setting this below 20.
+# Requires a server restart to change
+#  Default: 70
+max-fetching-threads: 70
 
 
 
