@@ -12,7 +12,7 @@ repositories {
     mavenCentral()
 
     maven { url = uri("https://jitpack.io") }
-    maven { url = uri("https://repo.ajg0702.us/") }
+    maven { url = uri("https://repo.ajg0702.us/releases/") }
     maven { url = uri("https://repo.codemc.io/repository/nms/") }
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
