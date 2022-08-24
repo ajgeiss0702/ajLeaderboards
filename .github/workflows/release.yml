@@ -35,10 +35,13 @@ jobs:
       - name: Download changelogs
         run: |
           curl "https://ajg0702.us/pl/updater/changelogs.php?project=${{ github.repository }}" > changelogs.bb
+          curl "https://ajg0702.us/pl/updater/changelogs.php?project=${{ github.repository }}&format=html" > changelogs.html
       - name: Deploy to Polymart
         env:
           POLYMART_TOKEN: ${{ secrets.POLYMART_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
           export VERSION=`cat build.gradle.kts | grep "version " | awk -F'"' '{print $2}'`
           file build/libs/ajLeaderboards-$VERSION.jar
           curl -F "file=@build/libs/ajLeaderboards-$VERSION.jar" -F api_key=$POLYMART_TOKEN -F resource_id="2726" -F version="$VERSION" -F title="v$VERSION" -F message="$(cat changelogs.bb)" "https://api.polymart.org/v1/postUpdate"
+          curl -A "AJUPDATER/1.0" -H "Authorization: $MODRINTH_TOKEN" -F data="{\"project_id\": \"C9BKEl8Y\", \"version_number\": \"$VERSION\", \"name\": \"v$VERSION\", \"changelog\": \"$(cat changelogs.html)\", \"file_parts\": [\"file\"], \"version_type\": \"release\", \"loaders\": [\"paper\", \"spigot\"], \"featured\": true, \"game_versions\": $(curl https://ajg0702.us/pl/updater/mc-versions.php), \"dependencies\": [], \"primary_file\": \"file\"}" -F "file=@build/libs/ajLeaderboards-$VERSION.jar" "https://api.modrinth.com/v2/version"
