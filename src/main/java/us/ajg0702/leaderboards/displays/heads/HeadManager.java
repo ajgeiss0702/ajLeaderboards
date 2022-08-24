@@ -3,7 +3,6 @@ package us.ajg0702.leaderboards.displays.heads;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -132,7 +131,7 @@ public class HeadManager {
         if(id.equals(headLocationCache.get(loc))) return;
 
 
-        if(!(blockType.contains("SKULL") || blockType.contains("HEAD"))) return;
+        if(!(blockType.contains("SKULL") || (blockType.contains("HEAD") && !blockType.contains("PISTON")))) return;
 
         Debug.info("Updating head with "+id);
 
