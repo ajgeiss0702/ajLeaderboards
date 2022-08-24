@@ -204,29 +204,34 @@ public class LeaderboardPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         shuttingDown = true;
-        getContextLoader().checkReload(false);
+        if(getContextLoader() != null) getContextLoader().checkReload(false);
         Bukkit.getScheduler().cancelTasks(this);
-        getTopManager().shutdown();
+        if(getTopManager() != null) getTopManager().shutdown();
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> {
-            getLogger().info("Shutting down cache method..");
-            getCache().getMethod().shutdown();
-            getLogger().info("Cache method shut down");
-        });
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(15, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-                getLogger().warning("Cache took too long to shut down. Skipping it.");
-            }
-        }catch(InterruptedException ignored){}
+        if(getCache() != null) {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(() -> {
+                getLogger().info("Shutting down cache method..");
+                getCache().getMethod().shutdown();
+                getLogger().info("Cache method shut down");
+            });
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(15, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                    getLogger().warning("Cache took too long to shut down. Skipping it.");
+                }
+            }catch(InterruptedException ignored){}
+        }
+
         getLogger().info("Killing remaining workers");
         killWorkers(1000);
         Debug.info("1st kill pass done, retrying for remaining");
         killWorkers(5000);
         getLogger().info("Remaining workers killed");
+
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
+
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
             Debug.info("Active worker: "+bukkitWorker.getOwner().getDescription().getName()+" "+bukkitWorker.getTaskId());
             for (StackTraceElement stackTraceElement : bukkitWorker.getThread().getStackTrace()) {
