@@ -3,7 +3,7 @@ version: "@VERSION@"
 main: us.ajg0702.leaderboards.LeaderboardPlugin
 author: ajgeiss0702
 depend: [PlaceholderAPI]
-softdepend: [Vault]
+softdepend: [Vault, SkinsRestorer]
 description: Leaderboards for your server
 api-version: 1.13
 commands:
