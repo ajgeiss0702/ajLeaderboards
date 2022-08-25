@@ -1,17 +1,17 @@
 # Dont touch this
 config-version: 22
 
-# What character should we use for the comma in long numbers.
+# What character should we use for the comma in long numbers?
 # You can also set this to be blank if you dont want a comma
 comma: ","
 
-# What character should we use for the decimal
+# What character should we use for the decimal?
 decimal: "."
 
 # What should values be called?
-# In the default value, the ajtr_stats_wins_nocache board will have a name of "wins" to be displayed on signs
+# In the default value, the statistic_player_kills board will have a name of "kills" to be displayed on signs after the value
 value-names:
-- "ajtr_stats_wins_nocache%wins"
+- "statistic_player_kills%kills"
 
 # How often should we refresh the stats of online players?
 # this is in ticks, so 20 ticks = 1 second
@@ -64,10 +64,10 @@ only-update: []
 reverse-sort: []
 
 # How often (in ticks) should we update leaderboard signs?
-#  Default: 20
+#  Default: 20 (1 per second)
 sign-update: 20
 
-# If a player's score is 0 (and it wasnt 0 before) then ajLeaderboards will skip updating the player at first
+# If a player's score is 0 (and it wasn't 0 before) then ajLeaderboards will skip updating the player at first
 # This is to fix plugins that return 0 while theyre still loading stats
 #  Default: true
 require-zero-validation: true
@@ -79,7 +79,7 @@ extras:
 - "statistic_player_kills"
 
 # Should we use luckperms contexts?
-# Disable this if you are having issues with high db usage
+# Disable this if you are having issues with high database usage
 # See how to use it here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
 #  Default: true
 register-lp-contexts: true
