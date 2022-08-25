@@ -1,25 +1,17 @@
 # Dont touch this
-config-version: 21
+config-version: 22
 
-# What should we display for the name when there is no data available?
-#  Default: ---
-no-data-name: "---"
-
-# What should we display for the score when there is no data available?
-#  Default: ---
-no-data-score: "---"
-
-# What character should we use for the comma in long numbers.
+# What character should we use for the comma in long numbers?
 # You can also set this to be blank if you dont want a comma
 comma: ","
 
-# What character should we use for the decimal
+# What character should we use for the decimal?
 decimal: "."
 
 # What should values be called?
-# In the default value, the ajtr_stats_wins_nocache board will have a name of "wins" to be displayed on signs
+# In the default value, the statistic_player_kills board will have a name of "kills" to be displayed on signs after the value
 value-names:
-- "ajtr_stats_wins_nocache%wins"
+- "statistic_player_kills%kills"
 
 # How often should we refresh the stats of online players?
 # this is in ticks, so 20 ticks = 1 second
@@ -72,10 +64,10 @@ only-update: []
 reverse-sort: []
 
 # How often (in ticks) should we update leaderboard signs?
-#  Default: 20
+#  Default: 20 (1 per second)
 sign-update: 20
 
-# If a player's score is 0 (and it wasnt 0 before) then ajLeaderboards will skip updating the player at first
+# If a player's score is 0 (and it wasn't 0 before) then ajLeaderboards will skip updating the player at first
 # This is to fix plugins that return 0 while theyre still loading stats
 #  Default: true
 require-zero-validation: true
@@ -87,7 +79,7 @@ extras:
 - "statistic_player_kills"
 
 # Should we use luckperms contexts?
-# Disable this if you are having issues with high db usage
+# Disable this if you are having issues with high database usage
 # See how to use it here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
 #  Default: true
 register-lp-contexts: true
@@ -104,3 +96,23 @@ enable-dontupdate-permission: true
 # Caps don't matter
 #  Default: sunday
 reset-weekly-on: sunday
+
+# How many threads should ajLeaderboards be allowed to use maxiumum for fetching from the db?
+# Most of the time, the number of threads used will be far less than this.
+# This is ignored on mysql (and maxConnections is used for this instead)
+# Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
+# I would __not__ recommend setting this below 20.
+# Requires a server restart to change
+#  Default: 70
+max-fetching-threads: 70
+
+
+
+
+# ----- THESE OPTIONS HAVE MOVED -----
+# to messages.yml. They will be removed from here in the future.
+# They are only still here to ensure they can be copied from here to the messages file.
+# If you change these here, they WILL NOT work. Only change them in messages.yml
+no-data-name: "---"
+no-data-score: "---"
+# ^ Change those in messages.yml now

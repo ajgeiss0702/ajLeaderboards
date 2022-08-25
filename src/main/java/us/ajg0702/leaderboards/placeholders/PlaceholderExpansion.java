@@ -7,6 +7,7 @@ import us.ajg0702.leaderboards.placeholders.placeholders.debug.Fetching;
 import us.ajg0702.leaderboards.placeholders.placeholders.debug.Rolling;
 import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
 import us.ajg0702.leaderboards.placeholders.placeholders.player.*;
+import us.ajg0702.leaderboards.placeholders.placeholders.relative.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,18 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new PlayerValue(plugin));
         placeholders.add(new PlayerTime(plugin));
         placeholders.add(new PlayerExtra(plugin));
+
+        placeholders.add(new RelColor(plugin));
+        placeholders.add(new RelDisplayName(plugin));
+        placeholders.add(new RelExtra(plugin));
+        placeholders.add(new RelName(plugin));
+        placeholders.add(new RelPosition(plugin));
+        placeholders.add(new RelPrefix(plugin));
+        placeholders.add(new RelRawValue(plugin));
+        placeholders.add(new RelSuffix(plugin));
+        placeholders.add(new RelTime(plugin));
+        placeholders.add(new RelValue(plugin));
+        placeholders.add(new RelValueFormatted(plugin));
 
         placeholders.add(new Fetching(plugin));
         placeholders.add(new Rolling(plugin));

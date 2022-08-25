@@ -6,13 +6,13 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.6.0"
+version = "2.6.1"
 
 repositories {
     mavenCentral()
 
     maven { url = uri("https://jitpack.io") }
-    maven { url = uri("https://repo.ajg0702.us/") }
+    maven { url = uri("https://repo.ajg0702.us/releases/") }
     maven { url = uri("https://repo.codemc.io/repository/nms/") }
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
@@ -26,8 +26,7 @@ dependencies {
 
     implementation("io.github.slimjar:slimjar:1.2.7")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    //compileOnly(group = "org.spigotmc", name = "spigot", version = "1.18.2-R0.1-SNAPSHOT")
-    compileOnly(group = "org.spigotmc", name = "spigot-api", version = "1.18.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.1")
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
@@ -38,7 +37,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.11.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.1")
 
-    implementation("us.ajg0702:ajUtils:1.1.36")
+    implementation("us.ajg0702:ajUtils:1.2.11")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
     implementation("us.ajg0702.commands.api:api:1.0.0")
 
@@ -86,6 +85,7 @@ tasks.shadowJar {
     exclude("org/slf4j/**/*")
     exclude("org/hamcrest/**/*")
     exclude("LICENSE-junit.txt")
+    minimize()
 }
 
 publishing {

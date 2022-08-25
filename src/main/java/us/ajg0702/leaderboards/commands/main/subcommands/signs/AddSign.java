@@ -7,7 +7,6 @@ import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +74,10 @@ public class AddSign extends SubCommand {
             TimedType.lowerNames().forEach(s -> list.append(s).append(", "));
             list.delete(list.length()-2, list.length()-1);
             sender.sendMessage(message("&cInvalid timed type!\n&7Options: "+list));
+            return;
+        }
+        if(!plugin.getTopManager().boardExists(args[0])) {
+            sender.sendMessage(message("&cInvalid board name! &7Make sure to &cnot&7 put &f%&7 around the board name, and also make sure that you created the board.\n&7If you havent yet created the board, there are instructions here:<reset> https://wiki.ajg0702.us/ajleaderboards/setup/setup/ &7(make sure to not skip steps 1 and 2!)"));
             return;
         }
         plugin.getSignManager().addSign(target.getLocation(), args[0], pos, type);

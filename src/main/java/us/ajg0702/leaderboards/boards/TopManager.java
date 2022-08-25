@@ -40,7 +40,7 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : 100;
+        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
         fetchService = new ThreadPoolExecutor(
                 t, t,
                 500, TimeUnit.MILLISECONDS,
@@ -127,7 +127,7 @@ public class TopManager {
 
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
-                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime(), 5000)) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*1.5, 5000)) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
@@ -296,6 +296,10 @@ public class TopManager {
             return StatEntry.loading(plugin, board, type);
         }
         int position = playerStatEntry.getPosition() + difference;
+
+        if(position < 1) {
+            return StatEntry.noRelData(plugin, position, board, type);
+        }
 
         return getStat(position, board, type);
     }

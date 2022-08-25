@@ -423,8 +423,20 @@ public class Cache {
 
 		BoardPlayer boardPlayer = new BoardPlayer(board, player);
 
+		String displayName = player.getName();
+		if(player.isOnline() && player.getPlayer() != null) {
+			displayName = player.getPlayer().getDisplayName();
+		}
+
+		String prefix = "";
+		String suffix = "";
+		if(plugin.hasVault() && player instanceof Player) {
+			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
+			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
+		}
+
 		StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
-		if(cached != null && cached.getScore() == output) {
+		if(cached != null && cached.getScore() == output && cached.getPlayerDisplayName().equals(displayName) && cached.getPrefix().equals(prefix) && cached.getSuffix().equals(suffix)) {
 			if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
 			return;
 		}
@@ -440,19 +452,6 @@ public class Cache {
 				zeroPlayers.remove(boardPlayer);
 			}
 		}
-
-		String displayName = player.getName();
-		if(player.isOnline() && player.getPlayer() != null) {
-			displayName = player.getPlayer().getDisplayName();
-		}
-
-		String prefix = "";
-		String suffix = "";
-		if(plugin.hasVault() && player instanceof Player) {
-			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
-			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
-		}
-
 
 		Map<TimedType, Double> lastTotals = new HashMap<>();
 		for(TimedType type : TimedType.values()) {
