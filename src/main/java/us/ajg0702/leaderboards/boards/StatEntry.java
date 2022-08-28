@@ -93,6 +93,9 @@ public class StatEntry {
 		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
 			return "BDNE";
 		}
+		if(score == 0 && playerName.equals(LOADING)) {
+			return "...";
+		}
 		return addCommas(score);
 	}
 
