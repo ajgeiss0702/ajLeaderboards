@@ -75,6 +75,12 @@ public class StatEntry {
 		scorePretty = calcPrettyScore();
 	}
 	private String calcPrettyScore() {
+		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+			return "BDNE";
+		}
+		if(score == 0 && playerName.equals(LOADING)) {
+			return "...";
+		}
 		if(cache != null) {
 			Messages messages = cache.getPlugin().getMessages();
 			if(!hasPlayer()) {
@@ -90,12 +96,6 @@ public class StatEntry {
 			if(!hasPlayer()) {
 				return "---";
 			}
-		}
-		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
-			return "BDNE";
-		}
-		if(score == 0 && playerName.equals(LOADING)) {
-			return "...";
 		}
 		return addCommas(score);
 	}
