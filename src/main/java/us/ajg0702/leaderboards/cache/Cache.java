@@ -585,6 +585,12 @@ public class Cache {
 
 	public void reset(String board, TimedType type) throws ExecutionException, InterruptedException {
 		if(!plugin.getTopManager().boardExists(board)) return;
+
+		if(!plugin.getAConfig().getBoolean("update-stats")) return;
+
+		List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
+		if(!updatableBoards.isEmpty() && !updatableBoards.contains(board)) return;
+
 		long startTime = System.currentTimeMillis();
 		LocalDateTime startDateTime = LocalDateTime.now();
 		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
