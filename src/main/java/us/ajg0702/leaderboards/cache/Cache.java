@@ -491,7 +491,7 @@ public class Cache {
 				statement.close();
 				method.close(conn);
 			} catch(SQLException e) {
-				if(debug) Debug.info("in catch");
+				if(debug) Debug.info("in catch: " + e.getMessage());
 				try(PreparedStatement statement = conn.prepareStatement(String.format(
 						method.formatStatement(UPDATE_PLAYER),
 						tablePrefix+board
