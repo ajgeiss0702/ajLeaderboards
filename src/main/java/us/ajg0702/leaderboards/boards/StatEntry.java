@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.boards;
 
 import com.google.gson.JsonObject;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -48,7 +49,7 @@ public class StatEntry {
 	final String scorePretty;
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.playerName = playerName;
-		this.playerDisplayName = playerDisplayName;
+		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
 		this.score = score;
 		this.prefix = prefix;
 		this.suffix = suffix;
@@ -74,6 +75,12 @@ public class StatEntry {
 		scorePretty = calcPrettyScore();
 	}
 	private String calcPrettyScore() {
+		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+			return "BDNE";
+		}
+		if(score == 0 && playerName.equals(LOADING)) {
+			return "...";
+		}
 		if(cache != null) {
 			Messages messages = cache.getPlugin().getMessages();
 			if(!hasPlayer()) {
@@ -89,9 +96,6 @@ public class StatEntry {
 			if(!hasPlayer()) {
 				return "---";
 			}
-		}
-		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
-			return "BDNE";
 		}
 		return addCommas(score);
 	}
@@ -111,6 +115,7 @@ public class StatEntry {
 		return playerName;
 	}
 
+	@NotNull
 	public String getPlayerDisplayName() {
 		return playerDisplayName;
 	}

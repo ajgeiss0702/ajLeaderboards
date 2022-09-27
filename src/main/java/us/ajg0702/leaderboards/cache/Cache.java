@@ -436,7 +436,7 @@ public class Cache {
 		}
 
 		StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
-		if(cached != null && cached.getScore() == output && cached.getPlayerDisplayName().equals(displayName) && cached.getPrefix().equals(prefix) && cached.getSuffix().equals(suffix)) {
+		if(cached != null && cached.hasPlayer() && cached.getScore() == output && cached.getPlayerDisplayName().equals(displayName) && cached.getPrefix().equals(prefix) && cached.getSuffix().equals(suffix)) {
 			if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
 			return;
 		}
@@ -491,7 +491,7 @@ public class Cache {
 				statement.close();
 				method.close(conn);
 			} catch(SQLException e) {
-				if(debug) Debug.info("in catch");
+				if(debug) Debug.info("in catch: " + e.getMessage());
 				try(PreparedStatement statement = conn.prepareStatement(String.format(
 						method.formatStatement(UPDATE_PLAYER),
 						tablePrefix+board
@@ -585,6 +585,12 @@ public class Cache {
 
 	public void reset(String board, TimedType type) throws ExecutionException, InterruptedException {
 		if(!plugin.getTopManager().boardExists(board)) return;
+
+		if(!plugin.getAConfig().getBoolean("update-stats")) return;
+
+		List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
+		if(!updatableBoards.isEmpty() && !updatableBoards.contains(board)) return;
+
 		long startTime = System.currentTimeMillis();
 		LocalDateTime startDateTime = LocalDateTime.now();
 		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;

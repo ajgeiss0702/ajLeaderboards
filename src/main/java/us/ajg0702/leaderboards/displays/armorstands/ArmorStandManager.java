@@ -159,10 +159,10 @@ public class ArmorStandManager {
                     break;
 
             }
-        } catch(ExecutionException | InterruptedException | TimeoutException e) {
+        } catch(ExecutionException | InterruptedException e) {
             if(plugin.isShuttingDown()) return;
             plugin.getLogger().log(Level.WARNING, "Interupted while scanning for armorstand:", e);
-        }
+        } catch(TimeoutException ignored) {}
     }
 
     private Future<Collection<Entity>> getNearbyEntities(Location loc) {

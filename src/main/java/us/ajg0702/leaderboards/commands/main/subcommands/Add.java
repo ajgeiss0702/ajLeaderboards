@@ -34,6 +34,10 @@ public class Add extends SubCommand {
             }
             String placeholder = args[0];
             placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
+            if(placeholder.startsWith("ajlb")) {
+                sender.sendMessage(message("&cYou cannot create a leaderboard out of an ajLeaderboards placeholder!\n&7See how to set up the plugin &r<underlined><click:open_url:https://wiki.ajg0702.us/ajleaderboards/setup/setup>here</click></underlined>"));
+                return;
+            }
             if(!plugin.validatePlaceholder(placeholder, sender)) {
                 sender.sendMessage(message("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
                 return;
