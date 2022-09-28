@@ -834,6 +834,15 @@ public class Cache {
 		}
 	}
 
+	/**
+	 * Cleans a player from some variables to prevent memory leaks.
+	 * Should only be called when the player logs out
+	 * @param player the player to remove
+	 */
+	public void cleanPlayer(Player player) {
+		zeroPlayers.removeIf(boardPlayer -> boardPlayer.getPlayer().equals(player));
+	}
+
 	public List<String> getNonExistantBoards() {
 		return nonExistantBoards;
 	}
