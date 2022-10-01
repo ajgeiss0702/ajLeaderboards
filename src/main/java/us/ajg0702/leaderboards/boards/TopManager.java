@@ -42,9 +42,9 @@ public class TopManager {
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
         fetchService = new ThreadPoolExecutor(
-                t, t,
-                500, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true)
+                1, t,
+                100, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>()
         );
         fetchService.allowCoreThreadTimeOut(true);
         fetchService.setThreadFactory(ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH"));
