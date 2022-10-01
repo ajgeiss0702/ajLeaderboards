@@ -103,8 +103,8 @@ reset-weekly-on: sunday
 # Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
 # I would __not__ recommend setting this below 20.
 # Requires a server restart to change
-#  Default: 70
-max-fetching-threads: 70
+#  Default: 4
+max-fetching-threads: 4
 
 
 
