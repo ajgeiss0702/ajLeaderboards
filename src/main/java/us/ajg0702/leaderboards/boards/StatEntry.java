@@ -85,9 +85,9 @@ public class StatEntry {
 			Messages messages = cache.getPlugin().getMessages();
 			if(!hasPlayer()) {
 				if(score == -1) {
-					return messages.getString("no-data.lb.value");
+					return messages.getRawString("no-data.lb.value");
 				} else if(score == -2) {
-					return messages.getString("no-data.rel.value");
+					return messages.getRawString("no-data.rel.value");
 				} else {
 					return "-?-";
 				}
@@ -146,9 +146,9 @@ public class StatEntry {
 		if(!hasPlayer()) {
 			if(cache != null) {
 				if(score == -1) {
-					return plugin.getMessages().getString("no-data.lb.value");
+					return plugin.getMessages().getRawString("no-data.lb.value");
 				} else if(score == -2) {
-					return plugin.getMessages().getString("no-data.rel.value");
+					return plugin.getMessages().getRawString("no-data.rel.value");
 				} else {
 					return "-?-";
 				}
@@ -196,9 +196,9 @@ public class StatEntry {
 		}
 		if(!hasPlayer()) {
 			if(score == -1) {
-				return plugin.getMessages().getString("no-data.lb.value");
+				return plugin.getMessages().getRawString("no-data.lb.value");
 			} else if(score == -2) {
-				return plugin.getMessages().getString("no-data.rel.value");
+				return plugin.getMessages().getRawString("no-data.rel.value");
 			} else {
 				return "-?-";
 			}
@@ -246,10 +246,10 @@ public class StatEntry {
 		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getMessages().getString("no-data.lb.name"), plugin.getMessages().getString("no-data.lb.name"), null, "", -1, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.lb.name"), plugin.getMessages().getRawString("no-data.lb.name"), null, "", -1, type);
 	}
 	public static StatEntry noRelData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getMessages().getString("no-data.rel.name"), plugin.getMessages().getString("no-data.rel.name"), null, "", -2, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.rel.name"), plugin.getMessages().getRawString("no-data.rel.name"), null, "", -2, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", LOADING, LOADING, null, "", 0, type);
