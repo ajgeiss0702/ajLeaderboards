@@ -40,9 +40,16 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+
+        int t = plugin.getAConfig().getInt("max-fetching-threads");
+
+        if(method instanceof MysqlMethod)
+            t = Math.min(t, method.getMaxConnections());
+        if(t < 1)
+            t = 1;
+
         fetchService = new ThreadPoolExecutor(
-                1, t,
+                t, t,
                 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>()
         );
