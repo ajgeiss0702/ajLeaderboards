@@ -100,12 +100,15 @@ public class TopManager {
                 cached = positionCache.getUnchecked(key);
             } else {
                 if(!positionFetching.contains(key)) {
+                    if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Starting fetch on " + key);
                     positionFetching.add(key);
                     fetchService.submit(() -> {
                         positionCache.getUnchecked(key);
                         positionFetching.remove(key);
+                        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetch finished on " + key);
                     });
                 }
+                if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
                 return StatEntry.loading(plugin, position, board, type);
             }
         }
