@@ -184,6 +184,7 @@ public class TopManager {
             if(plugin.getAConfig().getBoolean("blocking-fetch")) {
                 return fetchBoards();
             } else {
+                if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("need to fetch boards");
                 fetchBoardsAsync();
                 lastGetBoard = System.currentTimeMillis();
                 return new ArrayList<>();
@@ -205,6 +206,7 @@ public class TopManager {
         int f = fetching.getAndIncrement();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
         boardCache = plugin.getCache().getBoards();
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Finished fetching boards");
         removeFetching();
         return boardCache;
     }
