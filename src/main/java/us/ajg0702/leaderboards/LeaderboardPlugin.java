@@ -165,12 +165,15 @@ public class LeaderboardPlugin extends JavaPlugin {
         armorStandManager = new ArmorStandManager(this);
 
         cache = new Cache(this);
-        getLogger().info("Loaded "+cache.getBoards().size()+" boards");
+
+        List<String> initialBoards = cache.getBoards();
+
+        getLogger().info("Loaded "+initialBoards.size()+" boards");
 
         extraManager = new ExtraManager(this);
 
 
-        topManager = new TopManager(this);
+        topManager = new TopManager(this, initialBoards);
 
         reloadInterval();
 

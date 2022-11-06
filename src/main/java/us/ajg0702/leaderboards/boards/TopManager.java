@@ -37,7 +37,7 @@ public class TopManager {
 
 
     private final LeaderboardPlugin plugin;
-    public TopManager(LeaderboardPlugin pl) {
+    public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
@@ -54,6 +54,8 @@ public class TopManager {
                 rolling.remove(0);
             }
         }, 0, 2);
+
+        boardCache = initialBoards;
     }
 
     Map<PositionBoardType, Long> positionLastRefresh = new HashMap<>();
