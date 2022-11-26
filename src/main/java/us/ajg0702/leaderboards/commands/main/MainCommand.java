@@ -9,6 +9,7 @@ import us.ajg0702.leaderboards.commands.main.subcommands.debug.Resets;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Time;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
+import javax.swing.text.View;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Signs(plugin));
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
+        addSubCommand(new Viewer(plugin));
         addSubCommand(new Reset(plugin));
 
         // Debug commands

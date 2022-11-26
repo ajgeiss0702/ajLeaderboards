@@ -46,30 +46,10 @@ public class Export extends SubCommand {
                 return;
             }
 
-            sender.sendMessage(plugin.getMessages().getComponent("commands.export.starting"));
-            plugin.getLogger().info("Starting export to file "+fileName);
-
-            HashMap<String, List<DbRow>> rows = new HashMap<>();
-            int i = 0;
-            List<String> boards = plugin.getCache().getBoards();
-            for(String board : boards) {
-                try {
-                    DbRow.clearPositionCache();
-                    rows.put(board, plugin.getCache().getRows(board));
-                    sender.sendMessage(plugin.getMessages().getComponent("commands.export.progress", "DONE:"+ ++i, "TOTAL:"+boards.size()));
-                    plugin.getLogger().info(String.format("Export progress: %d/%d fetched", i, boards.size()));
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, "An error occurred while fetching rows from the database:", e);
-                    sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
-                    return;
-                }
-            }
-
-            JsonObject obj = new JsonObject();
-            for(Map.Entry<String, List<DbRow>> entry : rows.entrySet()) {
-                JsonArray elements = new JsonArray();
-                entry.getValue().forEach((t) -> elements.add(t.toJsonObject()));
-                obj.add(entry.getKey(), elements);
+            JsonObject obj = plugin.getExporter().export(sender);
+            if(obj == null) {
+                sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
+                return;
             }
 
             try {

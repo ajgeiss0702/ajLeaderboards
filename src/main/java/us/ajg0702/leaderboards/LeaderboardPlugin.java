@@ -35,6 +35,7 @@ import us.ajg0702.leaderboards.displays.signs.SignManager;
 import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
+import us.ajg0702.leaderboards.utils.Exporter;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -72,6 +73,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
     private LuckpermsContextLoader contextLoader;
+    private Exporter exporter = new Exporter(this);
 
     private boolean vault;
     private Chat vaultChat;
@@ -311,6 +313,10 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public LuckpermsContextLoader getContextLoader() {
         return contextLoader;
+    }
+
+    public Exporter getExporter() {
+        return exporter;
     }
 
     int updateTaskId = -1;
