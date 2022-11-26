@@ -26,11 +26,12 @@ public class RemovePlayer extends SubCommand {
         if(args.length == 1) {
             List<String> players = new ArrayList<>();
             Bukkit.getOnlinePlayers().forEach(p -> players.add(p.getName()));
-            players.add("*");
             return players;
         }
         if(args.length == 2) {
-            return plugin.getTopManager().getBoards();
+            List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
+            boards.add("*");
+            return boards;
         }
 
         return new ArrayList<>();
