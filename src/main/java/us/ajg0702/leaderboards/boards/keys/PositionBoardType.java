@@ -36,6 +36,11 @@ public class PositionBoardType {
     }
 
     @Override
+    public String toString() {
+        return position + ":" + board + ":" + type;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(getPosition(), getBoard(), getType());
     }

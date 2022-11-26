@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.6.2"
+version = "2.6.3"
 
 repositories {
     mavenCentral()
@@ -19,6 +19,7 @@ repositories {
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://repo.citizensnpcs.co/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
 }
 
 dependencies {
@@ -33,9 +34,9 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:1.7")
 
-    implementation("net.kyori:adventure-api:4.11.0")
-    implementation("net.kyori:adventure-text-minimessage:4.11.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.2")
+    implementation("net.kyori:adventure-api:4.12.0-SNAPSHOT")
+    implementation("net.kyori:adventure-text-minimessage:4.12.0-SNAPSHOT")
+    implementation("net.kyori:adventure-platform-bukkit:4.1.3-SNAPSHOT")
 
     implementation("us.ajg0702:ajUtils:1.2.11")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")

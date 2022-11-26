@@ -37,7 +37,7 @@ public class TopManager {
 
 
     private final LeaderboardPlugin plugin;
-    public TopManager(LeaderboardPlugin pl) {
+    public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
@@ -54,6 +54,8 @@ public class TopManager {
                 rolling.remove(0);
             }
         }, 0, 2);
+
+        boardCache = initialBoards;
     }
 
     Map<PositionBoardType, Long> positionLastRefresh = new HashMap<>();
@@ -100,12 +102,15 @@ public class TopManager {
                 cached = positionCache.getUnchecked(key);
             } else {
                 if(!positionFetching.contains(key)) {
+                    if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Starting fetch on " + key);
                     positionFetching.add(key);
                     fetchService.submit(() -> {
                         positionCache.getUnchecked(key);
                         positionFetching.remove(key);
+                        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetch finished on " + key);
                     });
                 }
+                if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
                 return StatEntry.loading(plugin, position, board, type);
             }
         }
@@ -181,6 +186,7 @@ public class TopManager {
             if(plugin.getAConfig().getBoolean("blocking-fetch")) {
                 return fetchBoards();
             } else {
+                if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("need to fetch boards");
                 fetchBoardsAsync();
                 lastGetBoard = System.currentTimeMillis();
                 return new ArrayList<>();
@@ -202,6 +208,7 @@ public class TopManager {
         int f = fetching.getAndIncrement();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
         boardCache = plugin.getCache().getBoards();
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Finished fetching boards");
         removeFetching();
         return boardCache;
     }
@@ -380,7 +387,12 @@ public class TopManager {
     }
 
     public boolean boardExists(String board) {
-        return getBoards().contains(board);
+        boolean result = getBoards().contains(board);
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Checking " + board + ": " + result);
+        if(!result) {
+            if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Boards: " + String.join(", ", getBoards()));
+        }
+        return result;
     }
 
     @SuppressWarnings("UnusedReturnValue")

@@ -31,7 +31,7 @@ public class RelPosition extends Placeholder {
                 r.getPosition()
         );
         if(!r.hasPlayer() && r.getScore() == -2) {
-            return plugin.getMessages().getString(
+            return plugin.getMessages().getRawString(
                     "no-data.rel.position",
                     "POSITION:"+pos
             );

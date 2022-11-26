@@ -4,14 +4,13 @@ import org.bukkit.Bukkit;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.utils.spigot.Messages;
-
-import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 public class RemovePlayer extends SubCommand {
 
@@ -27,6 +26,7 @@ public class RemovePlayer extends SubCommand {
         if(args.length == 1) {
             List<String> players = new ArrayList<>();
             Bukkit.getOnlinePlayers().forEach(p -> players.add(p.getName()));
+            players.add("*");
             return players;
         }
         if(args.length == 2) {
@@ -48,17 +48,26 @@ public class RemovePlayer extends SubCommand {
         }
         String playername = args[0];
         String board = args[1];
-        if(!plugin.getCache().boardExists(board)) {
+        if(!plugin.getCache().boardExists(board) && !"*".equals(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }
+        List<String> boards = Collections.singletonList(board);
+        if("*".equals(board)) {
+            boards = plugin.getCache().getBoards();
+        }
+        List<String> finalBoards = boards;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if(plugin.getCache().removePlayer(board, playername)) {
-                sender.sendMessage(message("&aRemoved "+playername+" from "+board+"!"));
-            } else {
-                sender.sendMessage(message("&cUnable to remove "+playername+" from "+board+". &7Check the console for more info."));
+            for(String b : finalBoards) {
+                if(plugin.getCache().removePlayer(b, playername)) {
+                    sender.sendMessage(message("&aRemoved "+playername+" from "+b+"!"));
+                } else {
+                    sender.sendMessage(message("&cUnable to remove "+playername+" from "+b+". &7Check the console for more info."));
+                }
             }
-
+            if("*".equals(board)) {
+                sender.sendMessage(message("&aFinished removing "+playername+" from all boards!"));
+            }
         });
     }
 }

@@ -28,11 +28,11 @@ public class RelExtra extends Placeholder {
         if(posneg.equals("-")) position *= -1;
         StatEntry r = plugin.getTopManager().getRelative(p, position, board, TimedType.valueOf(typeRaw));
         if(!r.hasPlayer()) {
-            return plugin.getMessages().getString("no-data.rel.value");
+            return plugin.getMessages().getRawString("no-data.rel.value");
         }
         String value = plugin.getTopManager().getExtra(r.getPlayerID(), matcher.group(4));
         if(value == null) {
-            return plugin.getMessages().getString("no-data.rel.value");
+            return plugin.getMessages().getRawString("no-data.rel.value");
         }
         return value;
     }
