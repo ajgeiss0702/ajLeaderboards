@@ -387,7 +387,12 @@ public class TopManager {
     }
 
     public boolean boardExists(String board) {
-        return getBoards().contains(board);
+        boolean result = getBoards().contains(board);
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Checking " + board + ": " + result);
+        if(!result) {
+            if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Boards: " + String.join(", ", getBoards()));
+        }
+        return result;
     }
 
     @SuppressWarnings("UnusedReturnValue")
