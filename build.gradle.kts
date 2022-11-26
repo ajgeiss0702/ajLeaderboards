@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.6.2"
+version = "2.6.3"
 
 repositories {
     mavenCentral()
