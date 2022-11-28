@@ -22,6 +22,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
     private final LeaderboardPlugin plugin;
 
+    @SuppressWarnings("deprecated")
     public PlaceholderExpansion(LeaderboardPlugin plugin) {
 
         this.plugin = plugin;
@@ -34,16 +35,18 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new RawValue(plugin));
         placeholders.add(new ValueFormatted(plugin));
         placeholders.add(new Value(plugin));
-        placeholders.add(new Time(plugin));
         placeholders.add(new DisplayName(plugin));
+
+        placeholders.add(new Time(plugin));
 
         placeholders.add(new PlayerPosition(plugin));
         placeholders.add(new PlayerValueFormatted(plugin));
         placeholders.add(new PlayerValueRaw(plugin));
-        placeholders.add(new PlayerValueTime(plugin));
         placeholders.add(new PlayerValue(plugin));
-        placeholders.add(new PlayerTime(plugin));
         placeholders.add(new PlayerExtra(plugin));
+
+        placeholders.add(new PlayerValueTime(plugin));
+        placeholders.add(new PlayerTime(plugin));
 
         placeholders.add(new RelColor(plugin));
         placeholders.add(new RelDisplayName(plugin));
@@ -53,9 +56,10 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new RelPrefix(plugin));
         placeholders.add(new RelRawValue(plugin));
         placeholders.add(new RelSuffix(plugin));
-        placeholders.add(new RelTime(plugin));
         placeholders.add(new RelValue(plugin));
         placeholders.add(new RelValueFormatted(plugin));
+
+        placeholders.add(new RelTime(plugin));
 
         placeholders.add(new Reset(plugin));
 

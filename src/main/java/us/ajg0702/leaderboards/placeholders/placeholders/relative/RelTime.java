@@ -9,6 +9,7 @@ import us.ajg0702.leaderboards.placeholders.Placeholder;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
+@Deprecated
 public class RelTime extends Placeholder {
     public RelTime(LeaderboardPlugin plugin) {
         super(plugin);
@@ -21,6 +22,7 @@ public class RelTime extends Placeholder {
 
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
+        plugin.timePlaceholderUsed();
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
         String posneg = matcher.group(3);
