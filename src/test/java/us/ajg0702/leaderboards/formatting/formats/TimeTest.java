@@ -12,19 +12,22 @@ public class TimeTest extends TestCase {
                 "12h 31m",
                 "12w 2d 10h 51m 21s",
                 "31m",
-                "13 hours 21 minutes 15 seconds"
+                "13 hours 21 minutes 15 seconds",
+                "6d 15h 46m 8s"
         );
         List<String> shouldNotMatch = Arrays.asList(
                 "hello there",
                 "15e",
                 "12n 15b",
-                "[60]"
+                "[60]",
+                "123456"
         );
 
         Time timeFormat = new Time();
 
         for (String match : shouldMatch) {
-            if(!timeFormat.matches(match, "")) {
+            boolean res = timeFormat.matches(match, "");
+            if(!res) {
                 throw new Exception(match + " did not match when it should have!");
             }
         }
