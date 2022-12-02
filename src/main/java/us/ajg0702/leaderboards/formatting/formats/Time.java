@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.formatting.formats;
 
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.formatting.Format;
 
@@ -49,7 +50,9 @@ public class Time extends Format {
             temp = temp.replace(replacesEntry.getKey(), replacesEntry.getValue());
         }
 
-        return fullPattern.matcher(temp.replaceAll(" ", "")).matches();
+        boolean matches = fullPattern.matcher(temp.replaceAll(" ", "")).matches();
+        Debug.info("[Format: Time] '" + output + "' matches: " + matches);
+        return matches;
     }
 
     @Override

@@ -28,12 +28,14 @@ public class PlaceholderFormatter {
 
     public Format getFormatFor(@Nullable String output, String board) {
         if(output == null) {
-            Format possibleMatch = formatCache.computeIfAbsent(board, b -> {
+            Format possibleMatch = formatCache.get(board);
+            if(possibleMatch == null) {
                 for (Format format : formats) {
-                    if(format.matches(output, board)) return format;
+                    if(format.matches(null, board)) {
+                        possibleMatch = format;
+                    }
                 }
-                return null;
-            });
+            }
             if(possibleMatch == null) return defaultFormat;
             return possibleMatch;
         } else {
