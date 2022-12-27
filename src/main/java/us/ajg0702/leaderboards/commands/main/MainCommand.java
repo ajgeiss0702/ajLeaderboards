@@ -26,6 +26,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new Version(plugin));
         addSubCommand(new Reload(plugin));
         addSubCommand(new Add(plugin));
+        addSubCommand(new CheckUpdate(plugin));
         addSubCommand(new UpdatePlayer(plugin));
         addSubCommand(new RemovePlayer(plugin));
         addSubCommand(new Remove(plugin));

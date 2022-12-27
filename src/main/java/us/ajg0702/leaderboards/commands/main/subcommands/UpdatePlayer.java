@@ -42,37 +42,10 @@ public class UpdatePlayer extends SubCommand {
             }
             @SuppressWarnings("deprecation")
             OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
-            plugin.getCache().updateStat(args[0], p);
+            plugin.getCache().updateStat(board, p);
 
-            List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
-            boolean attemptHasWarning = !p.isOnline() || p.getPlayer() != null && (plugin.getAConfig().getBoolean("enable-dontupdate-permission") && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]));
-            if(!p.isOnline()) {
-                sender.sendMessage(message("&6Warning: &7The player you requested to update appears to be offline. Not all placeholders support this. I'll still try, but if there is an error or nothing is updated, the placeholder probably doesn't support it."));
-            } else if(p.getPlayer() != null && (plugin.getAConfig().getBoolean("enable-dontupdate-permission") && p.getPlayer().hasPermission("ajleaderboards.dontupdate."+args[0]))) {
-                sender.sendMessage(message(
-                        "&6Warning: &7The player you requested to update has the &fdontupdate&7 permission. This player will not be automatically updated!\n" +
-                                "<hover:show_text:'<yellow>Click to go to https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
-                                "<click:open_url:'https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
-                                "<white><underlined>Read more on the wiki (click me)" +
-                                "</click>" +
-                                "</hover>\n"
-                ));
-            } else if(!plugin.getAConfig().getBoolean("update-stats")) {
-                attemptHasWarning = true;
-                sender.sendMessage(message(
-                        "&6Warning: &7Updating all boards is disabled in the config! Nobody will be automatically updated on this server!\n" +
-                                "\n" +
-                                "&7If this is unintended, enable &fupdate-stats&7 in the config!\n"
-                ));
-            } else if(!updatableBoards.isEmpty() && !updatableBoards.contains(args[0])) {
-                attemptHasWarning = true;
-                sender.sendMessage(message(
-                        "&6Warning: &7Updating this board is disabled in the config! Nobody will be automatically updated (for this board) on this server!\n" +
-                                "\n" +
-                                "&7If this is unintended, add &f" + args[0] + "&7 to &fonly-update&7 in the config, or set it to &f[]\n"
-                ));
-            }
-            sender.sendMessage(message("&"+ (attemptHasWarning ? "e" : "a") +"Attempted to update stat for "+p.getName()+" on board "+args[0]));
+            boolean attemptHasWarning = CheckUpdate.checkUpdate(board, p, plugin, sender);
+            sender.sendMessage(message("&"+ (attemptHasWarning ? "e" : "a") +"Attempted to update stat for "+p.getName()+" on board "+board));
         });
     }
 }
