@@ -25,8 +25,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 
-import static us.ajg0702.leaderboards.LeaderboardPlugin.convertPlaceholderOutput;
-
 @SuppressWarnings("FieldCanBeLocal")
 public class Cache {
 	private String q = "'";
@@ -411,7 +409,7 @@ public class Cache {
 		try {
 			outputraw = PlaceholderAPI.setPlaceholders(player, "%"+alternatePlaceholders(board)+"%")
 					.replaceAll(",", "");
-			output = Double.parseDouble(convertPlaceholderOutput(outputraw));
+			output = plugin.getPlaceholderFormatter().toDouble(outputraw, board);
 		} catch(NumberFormatException e) {
 			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it.");
 			return;

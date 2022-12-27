@@ -4,6 +4,7 @@ import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.resolver.data.Repository;
 import io.github.slimjar.resolver.mirrors.SimpleMirrorSelector;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.chat.Chat;
@@ -32,9 +33,11 @@ import us.ajg0702.leaderboards.displays.lpcontext.LuckpermsContextLoader;
 import us.ajg0702.leaderboards.displays.lpcontext.WithLPCtx;
 import us.ajg0702.leaderboards.displays.lpcontext.WithoutLPCtx;
 import us.ajg0702.leaderboards.displays.signs.SignManager;
+import us.ajg0702.leaderboards.formatting.PlaceholderFormatter;
 import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
+import us.ajg0702.leaderboards.utils.Exporter;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -72,6 +75,8 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
     private LuckpermsContextLoader contextLoader;
+    private final Exporter exporter = new Exporter(this);
+    private final PlaceholderFormatter placeholderFormatter = new PlaceholderFormatter(this);
 
     private boolean vault;
     private Chat vaultChat;
@@ -104,7 +109,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         BukkitCommand bukkitMainCommand = new BukkitCommand(new MainCommand(this));
         bukkitMainCommand.register(this);
 
-        BukkitSender.setAdventure(this);
+        BukkitSender.setAdventure(getAdventure());
 
 
 
@@ -313,6 +318,14 @@ public class LeaderboardPlugin extends JavaPlugin {
         return contextLoader;
     }
 
+    public Exporter getExporter() {
+        return exporter;
+    }
+
+    public PlaceholderFormatter getPlaceholderFormatter() {
+        return placeholderFormatter;
+    }
+
     int updateTaskId = -1;
     public void reloadInterval() {
         if(updateTaskId != -1) {
@@ -404,7 +417,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         Player vp = Bukkit.getOnlinePlayers().iterator().next();
         String out = PlaceholderAPI.setPlaceholders(vp, "%"+ Cache.alternatePlaceholders(placeholder)+"%").replaceAll(",", "");
         try {
-            Double.valueOf(convertPlaceholderOutput(out));
+            getPlaceholderFormatter().toDouble(out, placeholder);
         } catch(NumberFormatException e) {
             if(sayOutput != null) {
                 sayOutput.sendMessage(message("&7Returned: "+out.replaceAll("§", "&")));
@@ -414,39 +427,21 @@ public class LeaderboardPlugin extends JavaPlugin {
         return true;
     }
 
-    private final static Pattern weekPattern = Pattern.compile("([1-9][0-9]*)w");
-    private final static Pattern dayPattern = Pattern.compile("([1-9][0-9]*)d");
-    private final static Pattern hourPattern = Pattern.compile("([1-9][0-9]*)h");
-    private final static Pattern minutePattern = Pattern.compile("([1-9][0-9]*)m");
-    private final static Pattern secondPattern = Pattern.compile("([1-9][0-9]*)s");
-    public static String convertPlaceholderOutput(String output) {
-        int seconds = -1;
-
-        seconds = getSeconds(output, 60*60*24*7, seconds, weekPattern);
-        seconds = getSeconds(output, 60*60*24, seconds, dayPattern);
-        seconds = getSeconds(output, 60*60, seconds, hourPattern);
-        seconds = getSeconds(output, 60, seconds, minutePattern);
-        seconds = getSeconds(output, 1, seconds, secondPattern);
-
-        if(seconds != -1) return seconds+"";
-        return output;
-    }
-
-    private static int getSeconds(String output, int multiplier, int seconds, Pattern pattern) {
-        Matcher matcher = pattern.matcher(output);
-        if(matcher.find()) {
-            if(seconds == -1) seconds = 0;
-            seconds += Integer.parseInt(matcher.group(1))*multiplier;
-        }
-        return seconds;
-    }
-
     private static MiniMessage miniMessage;
     public static MiniMessage getMiniMessage() {
         if(miniMessage == null) {
             miniMessage = MiniMessage.miniMessage();
         }
         return miniMessage;
+    }
+
+    private static BukkitAudiences adventure;
+
+    public BukkitAudiences getAdventure() {
+        if(adventure == null) {
+            adventure = BukkitAudiences.create(this);
+        }
+        return adventure;
     }
 
     public void setWeeklyResetDay() {
@@ -468,5 +463,33 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public boolean isShuttingDown() {
         return shuttingDown;
+    }
+
+    private long lastTimeAlert = 0;
+    private boolean doublePrevention = false; // without this, in testing, the message appeared twice about 90% of the time
+    public void timePlaceholderUsed() {
+        if(doublePrevention) return;
+        doublePrevention = true;
+        long timeAlertCooldown = 30 * TimeUtils.MINUTE;
+
+        if(lastTimeAlert == 0) { // delay first alert by 30 seconds
+            lastTimeAlert = System.currentTimeMillis() - (timeAlertCooldown - (30 * TimeUtils.SECOND));
+        }
+        if(System.currentTimeMillis() - lastTimeAlert > timeAlertCooldown) {
+            lastTimeAlert = System.currentTimeMillis();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if(!player.hasPermission("ajleaderboards.use")) continue;
+                getAdventure().player(player).sendMessage(message(
+                        "&6[&eajLeaderboards&6] &cYou are using a deprecated placeholder! " +
+                                "&7The time placeholder is no longer necessary, and will be removed in the future.\n" +
+                                "&fTo replace it&7, replace all time placeholders with value placeholders. " +
+                                "They will automatically format the time.\n" +
+                                "\n" +
+                                "&eFor more information, &6" +
+                                "<click:open_url:'https://wiki.ajg0702.us/ajleaderboards/time-deprecation'><underlined>click here</click>\n"
+                ));
+            }
+        }
+        doublePrevention = false;
     }
 }

@@ -39,6 +39,14 @@ public class MessageLoader {
                 "commands.export.progress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards fetched",
                 "commands.export.success", "&aThe cache has been exported to the file &f{FILE}&a!",
 
+                "commands.viewer.success", "\n&aThe cache has been uploaded and is viewable at&f " +
+                        "<hover:show_text:'<yellow>Click to go to&f {URL}'>" +
+                        "<click:open_url:'{URL}'>" +
+                        "<white><underlined>{URL}" +
+                        "</click>" +
+                        "</hover>\n",
+                "commands.viewer.uploading", "&7Uploading..",
+
                 "commands.import.nofile", "&cThe file &f{FILE}&c doesnt exist!",
                 "commands.import.starting", "&7Loading all cached stats from &f{FILE}",
                 "commands.import.fail", "&cAn error occurred while importing. Check the console for more info.",

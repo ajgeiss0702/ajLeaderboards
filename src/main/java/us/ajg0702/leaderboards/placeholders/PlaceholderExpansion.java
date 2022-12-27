@@ -22,6 +22,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
     private final LeaderboardPlugin plugin;
 
+    @SuppressWarnings("deprecated")
     public PlaceholderExpansion(LeaderboardPlugin plugin) {
 
         this.plugin = plugin;
@@ -44,6 +45,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new PlayerValue(plugin));
         placeholders.add(new PlayerTime(plugin));
         placeholders.add(new PlayerExtra(plugin));
+
 
         placeholders.add(new RelColor(plugin));
         placeholders.add(new RelDisplayName(plugin));

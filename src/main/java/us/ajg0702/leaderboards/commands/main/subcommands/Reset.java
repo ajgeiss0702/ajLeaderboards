@@ -6,6 +6,7 @@ import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,9 @@ public class Reset extends SubCommand {
     @Override
     public List<String> autoComplete(CommandSender ender, String[] args) {
         if(args.length > 1) return Collections.emptyList();
-        return plugin.getTopManager().getBoards();
+        List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
+        boards.add("*");
+        return boards;
     }
 
 
@@ -36,13 +39,13 @@ public class Reset extends SubCommand {
             return;
         }
         String board = args[0];
-        if(!plugin.getTopManager().boardExists(board)) {
+        if(!plugin.getTopManager().boardExists(board) && !board.equals("*")) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
             return;
         }
 
         if(!confirmResets.containsKey(sender.getHandle()) || (confirmResets.containsKey(sender.getHandle()) && !confirmResets.get(sender.getHandle()).equals(board))) {
-            sender.sendMessage(message("&cThis action will delete data! The top players will have to join again to show up  on the leaderboard.\n" +
+            sender.sendMessage(message("&cThis action will delete data! The top players will have to join again to show up on the leaderboard.\n" +
                     "&cNOTE: &eThis will not reset every player to 0! You need to reset the data in the target placeholder first, then run this command.\n"
                     + "&7Repeat the command within 15 seconds to confirm this action\n" +
                     "&7Or click: <click:run_command:'/"+label+" reset "+board+"'><green><b>" +
@@ -57,18 +60,21 @@ public class Reset extends SubCommand {
 
             }, 15*20);
         } else {
-            long start = System.currentTimeMillis();
-            confirmResets.remove(sender.getHandle());
-            if(!plugin.getCache().removeBoard(board)) {
-                sender.sendMessage(message("&cSomething went wrong. Check the console for more info."));
-                return;
+            List<String> removingBoards = board.equals("*") ? plugin.getCache().getBoards() : Collections.singletonList(board);
+            for (String removingBoard : removingBoards) {
+                long start = System.currentTimeMillis();
+                confirmResets.remove(sender.getHandle());
+                if(!plugin.getCache().removeBoard(removingBoard)) {
+                    sender.sendMessage(message("&cSomething went wrong while resetting " + removingBoard + ". Check the console for more info."));
+                    return;
+                }
+                if(!plugin.getCache().createBoard(removingBoard)) {
+                    sender.sendMessage(message("&cSomething went wrong while resetting " + removingBoard + ". Check the console for more info."));
+                    return;
+                }
+                sender.sendMessage(message("&aThe board &f" + removingBoard + "&a has been reset!"));
+                Debug.info("Reset of " + removingBoard + " took " + (System.currentTimeMillis() - start) + "ms");
             }
-            if(!plugin.getCache().createBoard(board)) {
-                sender.sendMessage(message("&cSomething went wrong. Check the console for more info."));
-                return;
-            }
-            sender.sendMessage(message("&aThe board has been reset!"));
-            Debug.info("Reset took " + (System.currentTimeMillis() - start) + "ms");
         }
     }
 }

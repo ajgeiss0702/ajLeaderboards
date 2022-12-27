@@ -81,23 +81,17 @@ public class StatEntry {
 		if(score == 0 && playerName.equals(LOADING)) {
 			return "...";
 		}
-		if(cache != null) {
-			Messages messages = cache.getPlugin().getMessages();
-			if(!hasPlayer()) {
-				if(score == -1) {
-					return messages.getRawString("no-data.lb.value");
-				} else if(score == -2) {
-					return messages.getRawString("no-data.rel.value");
-				} else {
-					return "-?-";
-				}
-			}
-		} else {
-			if(!hasPlayer()) {
-				return "---";
+		Messages messages = cache.getPlugin().getMessages();
+		if(!hasPlayer()) {
+			if(score == -1) {
+				return messages.getRawString("no-data.lb.value");
+			} else if(score == -2) {
+				return messages.getRawString("no-data.rel.value");
+			} else {
+				return "-?-";
 			}
 		}
-		return addCommas(score);
+		return plugin.getPlaceholderFormatter().toFormat(score, board);
 	}
 
 	public boolean hasPlayer() {

@@ -23,11 +23,11 @@ public class TimeUtils {
         TimeUtils.s = s;
     }
 
-    private static final long SECOND = 1000L;
-    private static final long MINUTE = SECOND * 60L;
-    private static final long HOUR = MINUTE * 60L;
-    private static final long DAY = HOUR * 24L;
-    private static final long WEEK = DAY * 7L;
+    public static final long SECOND = 1000L;
+    public static final long MINUTE = SECOND * 60L;
+    public static final long HOUR = MINUTE * 60L;
+    public static final long DAY = HOUR * 24L;
+    public static final long WEEK = DAY * 7L;
 
     public static String formatTimeSeconds(long timeSeconds) {
         return formatTimeMs(timeSeconds*1000);
