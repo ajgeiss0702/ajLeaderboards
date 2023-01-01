@@ -1,6 +1,6 @@
 # In this file, you can control where the cache is stored.
 
-# The method to use. h2, sqlite, or mysql
+# The method to use. h2 or mysql
 # If you select mysql, you will need to configure the settings below
 #  Default: h2
 method: h2
