@@ -6,6 +6,8 @@ import us.ajg0702.leaderboards.placeholders.Placeholder;
 
 import java.util.regex.Matcher;
 
+import static us.ajg0702.leaderboards.boards.StatEntry.addCommas;
+
 public class Size extends Placeholder {
     public Size(LeaderboardPlugin plugin) {
         super(plugin);
@@ -26,6 +28,6 @@ public class Size extends Placeholder {
         if(count == null) {
             return "...";
         }
-        return count+"";
+        return addCommas(count);
     }
 }
