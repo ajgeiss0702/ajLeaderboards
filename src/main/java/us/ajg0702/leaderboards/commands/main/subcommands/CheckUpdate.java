@@ -31,7 +31,7 @@ public class CheckUpdate extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
         if(args.length < 2) {
-            sender.sendMessage(message("&cPlease provide a board and player to update\n&7Usage: /"+label+" checkupdate <board> <player>"));
+            sender.sendMessage(message("&cPlease provide a board and player to check\n&7Usage: /"+label+" checkupdate <board> <player>"));
             return;
         }
         String board = args[0];
