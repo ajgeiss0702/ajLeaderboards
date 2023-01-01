@@ -30,6 +30,10 @@ public class CheckUpdate extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
+        if(args.length < 2) {
+            sender.sendMessage(message("&cPlease provide a board and player to update\n&7Usage: /"+label+" checkupdate <board> <player>"));
+            return;
+        }
         String board = args[0];
         if(!plugin.getCache().boardExists(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
