@@ -34,9 +34,9 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:1.7")
 
-    implementation("net.kyori:adventure-api:4.12.0-SNAPSHOT")
-    implementation("net.kyori:adventure-text-minimessage:4.12.0-SNAPSHOT")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.3-SNAPSHOT")
+    implementation("net.kyori:adventure-api:4.12.0")
+    implementation("net.kyori:adventure-text-minimessage:4.12.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.2.0")
 
     implementation("us.ajg0702:ajUtils:1.2.11")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
