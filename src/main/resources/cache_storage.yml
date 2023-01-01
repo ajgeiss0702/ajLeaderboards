@@ -30,4 +30,4 @@ useSSL: false
 
 
 # Dont touch me
-config-version: 4
+config-version: 5
