@@ -4,6 +4,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.placeholders.placeholders.Reset;
+import us.ajg0702.leaderboards.placeholders.placeholders.Size;
 import us.ajg0702.leaderboards.placeholders.placeholders.debug.Fetching;
 import us.ajg0702.leaderboards.placeholders.placeholders.debug.Rolling;
 import us.ajg0702.leaderboards.placeholders.placeholders.lb.*;
@@ -60,6 +61,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new RelValueFormatted(plugin));
 
         placeholders.add(new Reset(plugin));
+        placeholders.add(new Size(plugin));
 
         placeholders.add(new Fetching(plugin));
         placeholders.add(new Rolling(plugin));
