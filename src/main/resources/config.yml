@@ -1,94 +1,77 @@
-# Dont touch this
-config-version: 22
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                                                           #
+#                  _  _                       _              _                              _               #
+#                 (_)| |                     | |            | |                            | |              #
+#          __ _    _ | |      ___   __ _   __| |  ___  _ __ | |__    ___    __ _  _ __   __| | ___          #
+#         / _` |  | || |     / _ \ / _` | / _` | / _ \| '__|| '_ \  / _ \  / _` || '__| / _` |/ __|         #
+#        | (_| |  | || |____|  __/| (_| || (_| ||  __/| |   | |_) || (_) || (_| || |   | (_| |\__ \         #
+#         \__,_|  | |\_____/ \___| \__,_| \__,_| \___||_|   |_.__/  \___/  \__,_||_|    \__,_||___/         #
+#                _/ |                                                    by ajgeiss0702                     #
+#               |__/                                                                                        #
+#                                                                                                           #
+#          Welcome to the config for ajLeaderboards!                                                        #
+#                                                                                                           #
+#          Make sure to read the comments above each option to know what that option does.                  #
+#                                                                                                           #
+#          If you have any questions, first make sure you've read the comment above the option, then        #
+#           feel free to join my discord and ask there (invite link is on the plugin page)                  #
+#                                                                                                           #
+#          Happy configuring!                                                                               #
+#                                                                                                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# What character should we use for the comma in long numbers?
-# You can also set this to be blank if you dont want a comma
-comma: ","
 
-# What character should we use for the decimal?
-decimal: "."
-
-# What should values be called?
-# In the default value, the statistic_player_kills board will have a name of "kills" to be displayed on signs after the value
-value-names:
-- "statistic_player_kills%kills"
 
 # How often should we refresh the stats of online players?
 # this is in ticks, so 20 ticks = 1 second
 #  Default: 1200 (60 seconds)
 stat-refresh: 1200
 
-# Should this server update player stats?
-#  If disabled, stats will not be recorded to the database, and ajleaderboards will basically only read from it.
-#  This can be useful if you have a lobby where you want to display leaderboards, but want to make sure anything in the lobby
-#   doesnt override the stats from other servers
-update-stats: true
-
-# Debug option to print stuff that could be usefull to the developer.
-# You should probably keep this disabled unless you know what you are doing or are told to turn it on.
-#  Default: false
-debug: false
-
-# Should we send additional debug about updates?
-# Requires debug to be true
-#  Default: false
-update-de-bug: false
-
-# Should we use particles as debug to show where heads and armorstands are being looked for?
-#  Default: false
-particles: false
-
-# Should we block the server when loading placeholders?
-# If this is true, it can cause some lag when the placeholders first get loaded, but that only happens once
-#  (until the server restarts again)
-# Usually this isnt an issue, but if you see lag from ajLeaderboards and you dont have head blocks, maybe disable this
-blocking-fetch: true
-
-# Should we print some more stuff about the internals of fetching?
-# You really only need to use this if the dev asks for it.
-fetching-de-bug: false
-
-# Should ajLeaderboards update the stat as soon as the player joins?
-# You should only disable this if you have issues with the player's stat resetting when they join
-#  Default: true
-update-on-join: true
-
-# Only automatically update these boards.
-# If this is an empty list (the default), then all boards will be updated
-# update-stats, if disabled, will override this.
-# Note this is case-sensitive
-#  Default: []
-only-update: []
-
-# Boards listed here will be sorted in reverse order
-reverse-sort: []
-
-# How often (in ticks) should we update leaderboard signs?
-#  Default: 20 (1 per second)
-sign-update: 20
-
-# If a player's score is 0 (and it wasn't 0 before) then ajLeaderboards will skip updating the player at first
-# This is to fix plugins that return 0 while theyre still loading stats
-#  Default: true
-require-zero-validation: true
-
-# These are "extra" placeholders that can be parsed to be displayed alongside the leaderboard
-# For example, you can have a KDR leaderboard, then next to each player on the leaderboard,
-#  you can show their actual kills and deaths
-extras:
-- "statistic_player_kills"
-
-# Should we use luckperms contexts?
-# Disable this if you are having issues with high database usage
-# See how to use it here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
-#  Default: true
-register-lp-contexts: true
-
 # Should we check for the dontupdate permission?
 # The dontupdate permission will cause players (who have it) to not be added/updated on the leaderboard
 # ajleaderboards.dontupdate.<board>
 #  Default: true
 enable-dontupdate-permission: true
+
+# Should we block the server thread when loading placeholders?
+# If this is true, it can cause some lag when the placeholders first get loaded, but that only happens once
+#  (per player if you're using player placeholders, until the server restarts again)
+# Usually this isn't an issue, but if you see lag from ajLeaderboards (that mentions SQL), disable this
+blocking-fetch: true
+
+# Should we register luckperms contexts?
+# See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
+# Disable this if you are having issues with high database usage
+#  Default: true
+register-lp-contexts: true
+
+# Boards listed here will be sorted in reverse order
+# e.g. instead of showing the highest on top, boards listed here will show the lowest on top
+reverse-sort: []
+
+# How often (in ticks) should we update leaderboard signs?
+# Note that this updates from the cache. The cache update speed is controlled by stat-refresh
+#  Default: 20 (1 per second)
+sign-update: 20
+
+# Should ajLeaderboards update the stat as soon as the player joins?
+# If this is disabled, players will still be updated, just at the stat-refresh interval
+#  Default: true
+update-on-join: true
+
+# These are "extra" placeholders that can be parsed to be displayed alongside the leaderboard
+# For example, you can have a KDR leaderboard, then next to each player on the leaderboard,
+#  you can show their actual kills and deaths
+# More info: https://wiki.ajg0702.us/ajleaderboards/setup/extras/
+extras:
+  - "statistic_player_kills"
+
+# What character should we use for the comma in long numbers?
+# You can also set this to be blank if you don't want commas
+comma: ","
+
+# What character should we use for the decimal?
+decimal: "."
 
 # What day of the week should WEEKLY leaderboards reset on?
 # Options are monday, tuesday, wednesday, thursday, friday, saturday, sunday
@@ -97,7 +80,50 @@ enable-dontupdate-permission: true
 #  Default: sunday
 reset-weekly-on: sunday
 
-# How many threads should ajLeaderboards be allowed to use maxiumum for fetching from the db?
+# What should values be called?
+# In the default value, the statistic_player_kills board will have a name of "kills" to be displayed on signs after the value
+# This is only used in signs. If you want more than this, you can change the sign format in the messages.yml file
+value-names:
+- "statistic_player_kills%kills"
+
+# Should this server update player stats?
+#  If disabled, stats will not be recorded to the database, and ajleaderboards will basically only read from it.
+#  This can be useful if you have a lobby where you want to display leaderboards, but want to make sure anything in the lobby
+#   doesn't override the stats from other servers
+update-stats: true
+
+# Only automatically update these boards.
+# If this is an empty list (the default), then all boards will be updated
+# update-stats, if disabled, will override this.
+# Reminder: all board names in ajLeaderboards are case-sensitive
+#  Default: []
+only-update: []
+
+# If a player's score is 0 (and it wasn't 0 before) then ajLeaderboards will skip updating the player at first
+# This is to fix plugins that return 0 while they're still loading stats
+# If the player's score is still 0 the next time they're updated, then the 0 is shown.
+#  Default: true
+require-zero-validation: true
+
+# Debug option to print stuff that could be useful to the developer.
+# You should probably keep this disabled unless you know what you are doing or are told to turn it on.
+#  Default: false
+debug: false
+
+# Should we send additional debug about stat updates?
+# Requires debug to be true
+#  Default: false
+update-de-bug: false
+
+# Should we use particles as debug to show where heads and armor stands are being looked for?
+#  Default: false
+particles: false
+
+# Should we print some more stuff about the internals of fetching?
+# You really only need to use this if the dev asks for it.
+fetching-de-bug: false
+
+# What maximum number of threads should ajLeaderboards be allowed to use for fetching from the db?
 # Most of the time, the number of threads used will be far less than this.
 # This is ignored on mysql (and maxConnections is used for this instead)
 # Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
@@ -108,6 +134,17 @@ max-fetching-threads: 70
 
 
 
+# # # # # # # # # # # # # # # # # # # # # # #
+#                                           #
+#  End of config. Happy leaderboard-ing :)  #
+#                                           #
+# # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+# Don't touch this
+config-version: 23
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
