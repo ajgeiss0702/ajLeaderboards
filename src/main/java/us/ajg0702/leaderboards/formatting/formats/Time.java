@@ -44,6 +44,7 @@ public class Time extends Format {
             return true;
         }
         if(output == null) return false;
+        if(output.isEmpty()) return false;
         String temp = output;
 
         for (Map.Entry<String, String> replacesEntry : replaces.entrySet()) {

@@ -64,6 +64,8 @@ public class Import extends SubCommand {
                     }
                 }
 
+                boards.remove("meta"); // we don't need to import metadata from the export
+
                 int i = 0;
                 for(String board : boards) {
                     if(!plugin.getCache().boardExists(board)) {

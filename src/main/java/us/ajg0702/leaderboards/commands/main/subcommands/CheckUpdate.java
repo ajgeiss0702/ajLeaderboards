@@ -2,7 +2,6 @@ package us.ajg0702.leaderboards.commands.main.subcommands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
@@ -30,6 +29,10 @@ public class CheckUpdate extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
+        if(args.length < 2) {
+            sender.sendMessage(message("&cPlease provide a board and player to check\n&7Usage: /"+label+" checkupdate <board> <player>"));
+            return;
+        }
         String board = args[0];
         if(!plugin.getCache().boardExists(board)) {
             sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
@@ -56,7 +59,7 @@ public class CheckUpdate extends SubCommand {
         } else if(player.getPlayer() != null && (plugin.getAConfig().getBoolean("enable-dontupdate-permission") && player.getPlayer().hasPermission("ajleaderboards.dontupdate."+board))) {
             attemptHasWarning = true;
             sender.sendMessage(message(
-                    "&6Warning: &7The player you requested to update has the &fdontupdate&7 permission. This player will not be automatically updated!\n" +
+                    "&6Warning: &7That player has the &fdontupdate&7 permission. This player will not be automatically updated!\n" +
                             "<hover:show_text:'<yellow>Click to go to https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
                             "<click:open_url:'https://wiki.ajg0702.us/ajleaderboards/faq#admins-dont-show-up-on-the-leaderboard'>" +
                             "<white><underlined>Read more on the wiki (click me)" +

@@ -6,9 +6,9 @@ import us.ajg0702.leaderboards.formatting.formats.Default;
 import us.ajg0702.leaderboards.formatting.formats.Time;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlaceholderFormatter {
     private final Format defaultFormat = new Default();
@@ -24,7 +24,7 @@ public class PlaceholderFormatter {
         this.plugin = plugin;
     }
 
-    HashMap<String, Format> formatCache = new HashMap<>();
+    Map<String, Format> formatCache = new ConcurrentHashMap<>();
 
     public Format getFormatFor(@Nullable String output, String board) {
         if(output == null) {

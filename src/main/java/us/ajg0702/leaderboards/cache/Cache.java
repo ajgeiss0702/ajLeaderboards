@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
@@ -135,6 +136,8 @@ public class Cache {
 		}
 	}
 
+	public Map<String, Integer> boardSize = new ConcurrentHashMap<>();
+
 	public List<Integer> rolling = new CopyOnWriteArrayList<>();
 
 	private final Map<String, Integer> sortByIndexes = new ConcurrentHashMap<>();
@@ -162,6 +165,7 @@ public class Cache {
 			int i = 0;
 			while(rs.next()) {
 				i++;
+				if(r != null) continue;
 				String uuidraw = null;
 				double value = -1;
 				String name = "-Unknown-";
@@ -197,8 +201,8 @@ public class Cache {
 				if(uuidraw == null) break;
 				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
 				r = new StatEntry(i, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
-				break;
 			}
+			boardSize.put(board, i);
 			rs.close();
 			ps.close();
 			method.close(conn);
@@ -214,6 +218,10 @@ public class Cache {
 			return StatEntry.noData(plugin, -1, board, type);
 		}
 		return r;
+	}
+
+	public @Nullable Integer getBoardSize(String board) {
+		return boardSize.get(board);
 	}
 
 	public boolean createBoard(String name) {

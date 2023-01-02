@@ -35,32 +35,11 @@ public class Viewer extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            String takerUUID = "f78a4d8d-d51b-4b39-98a3-230f2de0c670";
-            String takerName = "Console";
-            if(sender.isPlayer()) {
-                Player taker = (Player) sender.getHandle();
-                takerUUID = taker.getUniqueId().toString();
-                takerName = taker.getName();
-            }
-
             JsonObject obj = plugin.getExporter().export(sender);
             if(obj == null) {
                 sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
                 return;
             }
-
-
-            obj.add("meta", new Gson().fromJson(
-                        "{" +
-                                "\"version\": \"" + plugin.getDescription().getVersion() + "\", " +
-                                "\"datestamp\": " + System.currentTimeMillis() + ", " +
-                                "\"taker\": {" +
-                                    "\"uuid\": \"" + takerUUID +"\"," +
-                                    "\"name\": \"" + takerName + "\"" +
-                                "}" +
-                             "}",
-                    JsonObject.class
-            ));
 
             String data = obj.toString();
 

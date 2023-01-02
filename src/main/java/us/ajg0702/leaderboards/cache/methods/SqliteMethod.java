@@ -30,7 +30,11 @@ public class SqliteMethod implements CacheMethod {
 
     @Override
     public void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance) {
-        plugin.getLogger().warning("SQLite is not recomended! Please switch to h2 for a faster (and more stable) cache storage. SQLite support may be removed in the future.");
+        plugin.getLogger().warning(
+                "SQLite is not recommended! Please switch to h2 for a faster (and more stable) cache storage. " +
+                        "SQLite support will be removed in the future. " +
+                        "See how to switch without losing data here: https://wiki.ajg0702.us/ajleaderboards/moving-storage-methods"
+        );
         this.plugin = plugin;
         this.config = config;
         this.cacheInstance = cacheInstance;
