@@ -45,7 +45,7 @@ public class Time extends Format {
         }
         if(output == null) return false;
         if(output.isEmpty()) return false;
-        String temp = output;
+        String temp = output.replaceAll(",", "");
 
         for (Map.Entry<String, String> replacesEntry : replaces.entrySet()) {
             temp = temp.replace(replacesEntry.getKey(), replacesEntry.getValue());
@@ -58,13 +58,14 @@ public class Time extends Format {
 
     @Override
     public double toDouble(String input) {
+        String temp = input.replaceAll(",", "");
         int seconds = -1;
 
-        seconds = getSeconds(input, 60*60*24*7, seconds, weekPattern);
-        seconds = getSeconds(input, 60*60*24, seconds, dayPattern);
-        seconds = getSeconds(input, 60*60, seconds, hourPattern);
-        seconds = getSeconds(input, 60, seconds, minutePattern);
-        seconds = getSeconds(input, 1, seconds, secondPattern);
+        seconds = getSeconds(temp, 60*60*24*7, seconds, weekPattern);
+        seconds = getSeconds(temp, 60*60*24, seconds, dayPattern);
+        seconds = getSeconds(temp, 60*60, seconds, hourPattern);
+        seconds = getSeconds(temp, 60, seconds, minutePattern);
+        seconds = getSeconds(temp, 1, seconds, secondPattern);
 
         if(seconds == -1) throw new NumberFormatException("Unable to parse time from: '" + input + "'");
         return seconds;
