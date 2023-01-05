@@ -348,65 +348,82 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.info("Update task id is "+updateTaskId);
     }
 
-    final HashMap<BoardType, Integer> resetIds = new HashMap<>();
+    final HashMap<TimedType, Integer> resetIds = new HashMap<>();
     public void scheduleResets() {
         resetIds.values().forEach(Bukkit.getScheduler()::cancelTask);
         resetIds.clear();
 
-        for(String board : cache.getBoards()) {
-            for(TimedType type : TimedType.values()) {
-                try {
-                    scheduleReset(board, type);
-                } catch (ExecutionException | InterruptedException e) {
-                    if(isShuttingDown()) return;
-                    getLogger().log(Level.WARNING, "Scheduling reset interupted:", e);
-                }
+        for(TimedType type : TimedType.values()) {
+            try {
+                scheduleReset(type);
+            } catch (ExecutionException | InterruptedException e) {
+                if(isShuttingDown()) return;
+                getLogger().log(Level.WARNING, "Scheduling reset interupted:", e);
             }
         }
     }
 
-    public void scheduleReset(String board, TimedType type) throws ExecutionException, InterruptedException {
+    public void scheduleReset(TimedType type) throws ExecutionException, InterruptedException {
         if(type.equals(TimedType.ALLTIME)) return;
 
         long now = Instant.now().getEpochSecond();
 
-
-        long lastReset = topManager.getLastReset(board, type);
         long nextReset = type.getNextReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
+
+        List<String> resetNow = new ArrayList<>();
+
+        for (String board : getTopManager().getBoards()) {
+            long lastReset = topManager.getLastReset(board, type);
+            LocalDateTime lastResetDate = LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC);
+            long estLastReset = type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
+            long lastResetConverted = lastResetDate.toEpochSecond(TimeUtils.getDefaultZoneOffset());
+
+            if(lastResetConverted < estLastReset) {
+                Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset! "+lastReset+" < "+estLastReset);
+                resetNow.add(board);
+            }
+        }
+
+        if(resetNow.size() > 0) {
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                try {
+                    for (String board : resetNow) {
+                        cache.reset(board, type);
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    if(isShuttingDown()) return;
+                    getLogger().log(Level.WARNING, "Unable to reset "+type+": (interupted/exception)", e);
+                }
+            });
+        }
 
         if(isShuttingDown()) return;
 
         long secsTilNextReset = nextReset - now;
-        Debug.info("Initial secsTilNextReset for "+type.lowerName()+" "+board+": "+secsTilNextReset);
+        Debug.info("Initial secsTilNextReset for "+type.lowerName()+": "+secsTilNextReset);
         if(secsTilNextReset < 0) {
             secsTilNextReset = 0;
         }
 
 
-        LocalDateTime lastResetDate = LocalDateTime.ofEpochSecond(lastReset, 0, ZoneOffset.UTC);
-        long estLastReset = type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
-        long lastResetConverted = lastResetDate.toEpochSecond(TimeUtils.getDefaultZoneOffset());
-        if(lastResetConverted < estLastReset) {
-            Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset! "+lastReset+" < "+estLastReset);
-            secsTilNextReset = 0;
-        }
-
-        Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+board+" "+type.lowerName()+" (next: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" last: "+ lastResetDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME) +" last: "+lastReset+" next: "+nextReset+")");
+        Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+type.lowerName()+" (next formatted: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" next: "+nextReset+")");
 
         if(isShuttingDown()) return;
         int taskId = Bukkit.getScheduler().runTaskLaterAsynchronously(
                 this,
                 () -> {
                     try {
-                        cache.reset(board, type);
+                        for (String board : getTopManager().getBoards()) {
+                            cache.reset(board, type);
+                        }
                     } catch (ExecutionException | InterruptedException e) {
                         if(isShuttingDown()) return;
-                        getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
+                        getLogger().log(Level.WARNING, "Unable to reset "+type+": (interupted/exception)", e);
                     }
                 },
                 secsTilNextReset*20L
         ).getTaskId();
-        resetIds.put(new BoardType(board, type), taskId);
+        resetIds.put(type, taskId);
     }
 
     public boolean validatePlaceholder(String placeholder, CommandSender sayOutput) {
