@@ -21,7 +21,6 @@ public class StatEntry {
 
 	public static final String BOARD_DOES_NOT_EXIST = "Board does not exist";
 	public static final String AN_ERROR_OCCURRED = "An error occurred";
-	public static final String LOADING = "Loading";
 
 	private static LeaderboardPlugin plugin;
 	
@@ -78,7 +77,7 @@ public class StatEntry {
 		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
 			return "BDNE";
 		}
-		if(score == 0 && playerName.equals(LOADING)) {
+		if(score == 0 && playerName.equals(plugin.getMessages().getRawString("loading.text"))) {
 			return "...";
 		}
 		Messages messages = cache.getPlugin().getMessages();
@@ -88,7 +87,7 @@ public class StatEntry {
 			} else if(score == -2) {
 				return messages.getRawString("no-data.rel.value");
 			} else {
-				return "-?-";
+				return plugin.getMessages().getRawString("loading.short");
 			}
 		}
 		return plugin.getPlaceholderFormatter().toFormat(score, board);
@@ -144,7 +143,7 @@ public class StatEntry {
 				} else if(score == -2) {
 					return plugin.getMessages().getRawString("no-data.rel.value");
 				} else {
-					return "-?-";
+					return plugin.getMessages().getRawString("loading.short");
 				}
 			} else {
 				return "---";
@@ -194,7 +193,7 @@ public class StatEntry {
 			} else if(score == -2) {
 				return plugin.getMessages().getRawString("no-data.rel.value");
 			} else {
-				return "-?-";
+				return plugin.getMessages().getRawString("loading.short");
 			}
 		}
 		return TimeUtils.formatTimeSeconds(Math.round(getScore()));
@@ -246,13 +245,13 @@ public class StatEntry {
 		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.rel.name"), plugin.getMessages().getRawString("no-data.rel.name"), null, "", -2, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", LOADING, LOADING, null, "", 0, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
-		return new StatEntry(-2, board, "", LOADING, LOADING, null, "", 0, type);
+		return new StatEntry(-2, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
-		return new StatEntry(-2, boardType.getBoard(), "", LOADING, LOADING, null, "", 0, boardType.getType());
+		return new StatEntry(-2, boardType.getBoard(), "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, boardType.getType());
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, OfflinePlayer player, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType());
