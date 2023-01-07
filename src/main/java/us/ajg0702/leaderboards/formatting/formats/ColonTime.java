@@ -20,6 +20,10 @@ public class ColonTime extends Format {
     @Override
     public double toDouble(String input) throws NumberFormatException {
         Matcher matcher = pattern.matcher(input);
+        if(!matcher.matches()) {
+            Debug.info("[Format: ColonTime] Matcher in toDouble does not match!");
+            throw new NumberFormatException("For input: " + input);
+        }
 
         int hours = Integer.parseInt(matcher.group(1));
         int minutes = Integer.parseInt(matcher.group(2));
@@ -53,8 +57,8 @@ public class ColonTime extends Format {
         double seconds = input % 60d;
 
         return
-                hours == 0 ? "00" : hours +
-                minutes == 0 ? "00" : minutes +
-                seconds == 0 ? "00" : seconds + "";
+                (hours == 0 ? "00" : hours) + ":" +
+                (minutes == 0 ? "00" : minutes) + ":" +
+                (seconds == 0 ? "00" : seconds);
     }
 }
