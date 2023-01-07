@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.formatting.formats;
 
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.formatting.Format;
 
 import java.util.regex.Matcher;
@@ -11,7 +12,9 @@ public class ColonTime extends Format {
     @Override
     public boolean matches(String output, String placeholder) {
         if(output == null) return false;
-        return pattern.matcher(output).matches();
+        boolean matches = pattern.matcher(output).matches();
+        Debug.info("[Format: ColonTime] '" + output + "' matches: " + matches);
+        return matches;
     }
 
     @Override
