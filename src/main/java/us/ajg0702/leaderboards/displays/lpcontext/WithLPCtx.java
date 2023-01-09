@@ -47,6 +47,10 @@ public class WithLPCtx extends LuckpermsContextLoader{
         if(!loaded && register) {
             load();
         }
+
+        if(context != null) {
+            context.reloadConfig();
+        }
     }
 
     @Override

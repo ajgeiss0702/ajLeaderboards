@@ -267,9 +267,9 @@ public class TopManager {
             if(plugin.getAConfig().getBoolean("blocking-fetch")) {
                 return fetchExtra(id, placeholder);
             } else {
-                extraCache.put(key, new Cached<>(System.currentTimeMillis(), StatEntry.LOADING));
+                extraCache.put(key, new Cached<>(System.currentTimeMillis(), plugin.getMessages().getRawString("loading.text")));
                 fetchExtraAsync(id, placeholder);
-                return StatEntry.LOADING;
+                return plugin.getMessages().getRawString("loading.text");
             }
         } else {
             if(System.currentTimeMillis() - cached.getLastGet() > cacheTime()) {

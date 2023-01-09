@@ -45,6 +45,14 @@ blocking-fetch: true
 #  Default: true
 register-lp-contexts: true
 
+# What boards and types should we calculate luckperms contexts for?
+# If this is blank (and register-lp-contexts is enabled) then we will calculate it for all boards
+# If you add stuff to this, it should be in the format board:type
+# Example: - "statistic_time_played:alltime"
+# If you leave off the type at the end, it will do all timed types for that board:
+# Example: - "statistic_time_played"
+only-register-lpc-for: []
+
 # Boards listed here will be sorted in reverse order
 # e.g. instead of showing the highest on top, boards listed here will show the lowest on top
 reverse-sort: []
@@ -144,7 +152,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 23
+config-version: 24
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

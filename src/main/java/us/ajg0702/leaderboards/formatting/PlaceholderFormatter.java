@@ -2,6 +2,7 @@ package us.ajg0702.leaderboards.formatting;
 
 import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.formatting.formats.ColonTime;
 import us.ajg0702.leaderboards.formatting.formats.Default;
 import us.ajg0702.leaderboards.formatting.formats.Time;
 
@@ -14,6 +15,7 @@ public class PlaceholderFormatter {
     private final Format defaultFormat = new Default();
     private final List<Format> formats = Arrays.asList(
             new Time(),
+            new ColonTime(),
 
             defaultFormat
     );

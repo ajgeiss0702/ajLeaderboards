@@ -64,8 +64,10 @@ public class MessageLoader {
                         "---",
                 "no-data.rel.position", "{POSITION}",
                 "no-data.rel.name", "---",
-                "no-data.rel.value", "---"
+                "no-data.rel.value", "---",
 
+                "loading.text", "Loading",
+                "loading.short", "-?-"
 
                 ));
     }
