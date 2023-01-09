@@ -23,7 +23,8 @@ public class ColonTimeTest extends TestCase {
                 "12n 15b",
                 "[60]",
                 "123456",
-                "13h 21m"
+                "13h 21m",
+                ""
         );
 
         ColonTime colonTimeFormat = new ColonTime();

@@ -20,7 +20,8 @@ public class TimeTest extends TestCase {
                 "15e",
                 "12n 15b",
                 "[60]",
-                "123456"
+                "123456",
+                ""
         );
 
         Time timeFormat = new Time();
