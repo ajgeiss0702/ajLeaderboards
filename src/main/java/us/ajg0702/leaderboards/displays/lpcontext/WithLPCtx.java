@@ -40,7 +40,7 @@ public class WithLPCtx extends LuckpermsContextLoader{
 
     @Override
     public void checkReload(boolean register) {
-        if(loaded && !register) {
+        if(loaded && !register && context != null) {
             api.getContextManager().unregisterCalculator(context);
             context = null;
         }
