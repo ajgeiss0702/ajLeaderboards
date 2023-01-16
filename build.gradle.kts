@@ -86,7 +86,10 @@ tasks.shadowJar {
     exclude("org/slf4j/**/*")
     exclude("org/hamcrest/**/*")
     exclude("LICENSE-junit.txt")
-    minimize()
+
+    minimize {
+        exclude(project(":nms:nms-19"))
+    }
 }
 
 publishing {
