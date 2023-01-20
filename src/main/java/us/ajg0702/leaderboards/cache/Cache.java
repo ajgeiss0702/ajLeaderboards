@@ -419,7 +419,7 @@ public class Cache {
 					.replaceAll(",", "");
 			output = plugin.getPlaceholderFormatter().toDouble(outputraw, board);
 		} catch(NumberFormatException e) {
-			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it.");
+			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it. Message: " + e);
 			return;
 		} catch(Exception e) {
 			plugin.getLogger().log(Level.WARNING, "Placeholder %"+board+"% for player "+player.getName()+" threw an error:", e);
