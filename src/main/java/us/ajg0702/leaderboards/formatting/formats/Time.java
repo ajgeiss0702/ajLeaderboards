@@ -4,8 +4,7 @@ import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.formatting.Format;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,9 +35,14 @@ public class Time extends Format {
         replaces.put("seconds", "s");
     }
 
+    private static final List<String> knownTimePlaceholders = Arrays.asList(
+            "statistic_time_played",
+            "statistic_time_since_death"
+    );
+
     @Override
     public boolean matches(String output, String placeholder) {
-        if(placeholder.equalsIgnoreCase("statistic_time_played")) {
+        if(knownTimePlaceholders.contains(placeholder.toLowerCase(Locale.ROOT))) {
             // don't bother with more expensive checks below if we know it's a time placeholder
             // let me know about any other placeholders that should be here!
             return true;

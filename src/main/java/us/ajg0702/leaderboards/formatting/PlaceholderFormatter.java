@@ -29,6 +29,7 @@ public class PlaceholderFormatter {
     Map<String, Format> formatCache = new ConcurrentHashMap<>();
 
     public Format getFormatFor(@Nullable String output, String board) {
+        if(output != null && output.equals("%" + board + "%")) return formatCache.getOrDefault(board, defaultFormat);
         if(output == null) {
             Format possibleMatch = formatCache.get(board);
             if(possibleMatch == null) {
