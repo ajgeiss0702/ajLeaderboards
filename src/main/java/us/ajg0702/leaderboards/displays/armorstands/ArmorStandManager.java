@@ -61,7 +61,12 @@ public class ArmorStandManager {
         if(VersionSupport.getMinorVersion() >= 10) {
             stand.setSilent(true);
         }
-        ItemStack item = plugin.getHeadUtils().getHeadItem(uuid, name);
+        ItemStack item;
+        if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
+            item = plugin.getHeadUtils().getVersionedHeadUtils().getHeadItem(uuid, name);
+        } else {
+            item = plugin.getHeadUtils().getHeadItem(uuid, name);
+        }
         //noinspection deprecation
         stand.setHelmet(item);
     }
