@@ -32,6 +32,12 @@ jobs:
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error
           retention-days: 2
+      - name: Upload to repo
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: publish --stacktrace
       - name: Download changelogs
         run: |
           curl "https://ajg0702.us/pl/updater/changelogs.php?project=${{ github.repository }}" > changelogs.bb
