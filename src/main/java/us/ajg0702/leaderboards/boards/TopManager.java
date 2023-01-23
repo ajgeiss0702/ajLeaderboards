@@ -62,7 +62,7 @@ public class TopManager {
     List<PositionBoardType> positionFetching = new CopyOnWriteArrayList<>();
     LoadingCache<PositionBoardType, StatEntry> positionCache = CacheBuilder.newBuilder()
             .expireAfterAccess(1, TimeUnit.HOURS)
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .refreshAfterWrite(5, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> positionLastRefresh.remove((PositionBoardType) notification.getKey()))
             .build(new CacheLoader<PositionBoardType, StatEntry>() {
@@ -86,7 +86,6 @@ public class TopManager {
                 }
             });
 
-    int b = 0;
     /**
      * Get a leaderboard position
      * @param position The position to get
