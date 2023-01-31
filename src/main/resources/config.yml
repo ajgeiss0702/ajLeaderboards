@@ -113,6 +113,12 @@ only-update: []
 #  Default: true
 require-zero-validation: true
 
+# Should we get prefixes/suffixes from vault?
+# If vault is not installed, this option does nothing (prefixes/suffixes aren't fetched anyway)
+#  Default: true
+fetch-prefix-suffix-from-vault: true
+
+
 # Debug option to print stuff that could be useful to the developer.
 # You should probably keep this disabled unless you know what you are doing or are told to turn it on.
 #  Default: false
@@ -152,7 +158,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 24
+config-version: 25
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

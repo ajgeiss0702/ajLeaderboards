@@ -436,7 +436,7 @@ public class Cache {
 
 		String prefix = "";
 		String suffix = "";
-		if(plugin.hasVault() && player instanceof Player) {
+		if(plugin.hasVault() && player instanceof Player && plugin.getAConfig().getBoolean("fetch-prefix-suffix-from-vault")) {
 			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
 		}
