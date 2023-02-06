@@ -1,6 +1,5 @@
 package us.ajg0702.leaderboards.loaders;
 
-import org.spongepowered.configurate.CommentedConfigurationNode;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.utils.common.Messages;
 
@@ -34,7 +33,7 @@ public class MessageLoader {
                 "commands.reload.fail", "&cAn error occurred while reloading one of your configs. Check the console for more info.",
 
                 "commands.export.fileexists", "&cThe file &f{FILE}&c already exists!",
-                "commands.export.starting", "&7Fetching all players from the datbase. This might take a bit.",
+                "commands.export.starting", "&7Fetching all players from the database. This might take a bit.",
                 "commands.export.fail", "&cAn error occurred while exporting. Check the console for more info.",
                 "commands.export.progress", "&eProgress: &f{DONE}&7/&f{TOTAL}&7 boards fetched",
                 "commands.export.success", "&aThe cache has been exported to the file &f{FILE}&a!",

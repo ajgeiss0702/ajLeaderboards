@@ -38,9 +38,12 @@ public class HeadManager {
             if(bd instanceof org.bukkit.block.data.type.Sign) {
                 org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
                 face = bs.getRotation();
-            } else {
+            } else if(bd instanceof WallSign) {
                 WallSign bs = (WallSign) bd;
                 face = bs.getFacing();
+            } else {
+                Debug.info("Skipping searching for heads around sign because its an unknown type! " + bd.getClass());
+                return;
             }
         } else {
             @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();

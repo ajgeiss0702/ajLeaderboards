@@ -419,7 +419,7 @@ public class Cache {
 					.replaceAll(",", "");
 			output = plugin.getPlaceholderFormatter().toDouble(outputraw, board);
 		} catch(NumberFormatException e) {
-			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it.");
+			if(debug) Debug.info("Placeholder %"+board+"% for "+player.getName()+" returned a non-number! Ignoring it. Message: " + e);
 			return;
 		} catch(Exception e) {
 			plugin.getLogger().log(Level.WARNING, "Placeholder %"+board+"% for player "+player.getName()+" threw an error:", e);
@@ -436,7 +436,7 @@ public class Cache {
 
 		String prefix = "";
 		String suffix = "";
-		if(plugin.hasVault() && player instanceof Player) {
+		if(plugin.hasVault() && player instanceof Player && plugin.getAConfig().getBoolean("fetch-prefix-suffix-from-vault")) {
 			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
 		}

@@ -13,7 +13,8 @@ public class TimeTest extends TestCase {
                 "12w 2d 10h 51m 21s",
                 "31m",
                 "13 hours 21 minutes 15 seconds",
-                "6d 15h 46m 8s"
+                "6d 15h 46m 8s",
+                "9h 21m 44s"
         );
         List<String> shouldNotMatch = Arrays.asList(
                 "hello there",
