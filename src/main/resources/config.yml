@@ -33,11 +33,13 @@ stat-refresh: 1200
 #  Default: true
 enable-dontupdate-permission: true
 
-# Should we block the server thread when loading placeholders?
-# If this is true, it can cause some lag when the placeholders first get loaded, but that only happens once
-#  (per player if you're using player placeholders, until the server restarts again)
-# Usually this isn't an issue, but if you see lag from ajLeaderboards (that mentions SQL), disable this
-blocking-fetch: true
+# Should we block the thread when loading placeholders?
+# The default option of auto will only block when we are not on the main server thread.
+# If true, it will always block the thread, which could cause some lag.
+# If false, it will never block the thread its on.
+#  Options: true, false, auto
+#  Default: auto
+blocking-fetch: auto
 
 # Should we register luckperms contexts?
 # See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
@@ -158,7 +160,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 25
+config-version: 26
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

@@ -15,6 +15,7 @@ import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.boards.keys.ExtraKey;
 import us.ajg0702.leaderboards.boards.keys.PlayerBoardType;
 import us.ajg0702.leaderboards.boards.keys.PositionBoardType;
+import us.ajg0702.leaderboards.cache.BlockingFetch;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
@@ -97,7 +98,7 @@ public class TopManager {
         StatEntry cached = positionCache.getIfPresent(key);
 
         if(cached == null) {
-            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            if(BlockingFetch.shouldBlock(plugin)) {
                 cached = positionCache.getUnchecked(key);
             } else {
                 if(!positionFetching.contains(key)) {
@@ -155,7 +156,7 @@ public class TopManager {
         StatEntry cached = statEntryCache.getIfPresent(key);
 
         if(cached == null) {
-            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            if(BlockingFetch.shouldBlock(plugin)) {
                 cached = statEntryCache.getUnchecked(key);
             } else {
                 fetchService.submit(() -> statEntryCache.getUnchecked(key));
@@ -182,7 +183,7 @@ public class TopManager {
     long lastGetBoard = 0;
     public List<String> getBoards() {
         if(boardCache == null) {
-            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            if(BlockingFetch.shouldBlock(plugin)) {
                 return fetchBoards();
             } else {
                 if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("need to fetch boards");
@@ -263,7 +264,7 @@ public class TopManager {
         ExtraKey key = new ExtraKey(id, placeholder);
         Cached<String> cached = extraCache.get(key);
         if(cached == null) {
-            if(plugin.getAConfig().getBoolean("blocking-fetch")) {
+            if(BlockingFetch.shouldBlock(plugin)) {
                 return fetchExtra(id, placeholder);
             } else {
                 extraCache.put(key, new Cached<>(System.currentTimeMillis(), plugin.getMessages().getRawString("loading.text")));
