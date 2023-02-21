@@ -49,7 +49,7 @@ dependencies {
 
 
     slim("com.zaxxer:HikariCP:3.4.5")
-    slim("com.h2database:h2:2.1.212")
+    slim("com.h2database:h2:2.1.214")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
