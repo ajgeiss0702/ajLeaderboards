@@ -9,9 +9,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [master]
+    branches: '*'
   pull_request:
-    branches: [master]
+    branches: '*'
 
 jobs:
   build:
@@ -48,24 +48,3 @@ jobs:
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error
           retention-days: 2
-  deploy:
-    runs-on: ubuntu-latest
-    environment: maven-repo-deploy
-    env:
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-        with:
-          name: build-files
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Build & Deploy with Gradle
-        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-        with:
-          arguments: :shadowJar :publish
