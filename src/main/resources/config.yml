@@ -115,6 +115,9 @@ only-update: []
 #  Default: true
 require-zero-validation: true
 
+# In boards listed here, anyone with a score of `0` will not be added to the leaderboard.
+dont-add-zero: []
+
 # Should we get prefixes/suffixes from vault?
 # If vault is not installed, this option does nothing (prefixes/suffixes aren't fetched anyway)
 #  Default: true
@@ -160,7 +163,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 26
+config-version: 27
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

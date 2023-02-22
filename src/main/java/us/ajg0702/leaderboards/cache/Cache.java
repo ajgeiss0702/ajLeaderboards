@@ -447,6 +447,12 @@ public class Cache {
 			return;
 		}
 
+		if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
+			if(output == 0) {
+				Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
+			}
+		}
+
 		if(plugin.getAConfig().getBoolean("require-zero-validation")) {
 			if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
 				zeroPlayers.add(boardPlayer);
