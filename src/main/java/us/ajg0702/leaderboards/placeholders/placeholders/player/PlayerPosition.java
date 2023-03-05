@@ -23,8 +23,9 @@ public class PlayerPosition extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        return StatEntry.addCommas(
-                plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getPosition()
-        );
+        int position = plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getPosition();
+        if(position == -3) return "BDNE";
+        if(position == -2) return plugin.getMessages().getString("loading.position");
+        return StatEntry.addCommas(position);
     }
 }

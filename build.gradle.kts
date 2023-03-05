@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.6.7"
+version = "2.6.8"
 
 repositories {
     mavenCentral()
@@ -49,7 +49,7 @@ dependencies {
 
 
     slim("com.zaxxer:HikariCP:3.4.5")
-    slim("com.h2database:h2:2.1.212")
+    slim("com.h2database:h2:2.1.214")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 

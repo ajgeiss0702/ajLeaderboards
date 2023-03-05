@@ -38,6 +38,7 @@ import us.ajg0702.leaderboards.loaders.MessageLoader;
 import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.leaderboards.utils.Exporter;
+import us.ajg0702.leaderboards.utils.OfflineUpdater;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -55,10 +56,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +75,8 @@ public class LeaderboardPlugin extends JavaPlugin {
     private LuckpermsContextLoader contextLoader;
     private final Exporter exporter = new Exporter(this);
     private final PlaceholderFormatter placeholderFormatter = new PlaceholderFormatter(this);
+
+    private final Map<String, OfflineUpdater> offlineUpdaters = new ConcurrentHashMap<>();
 
     private boolean vault;
     private Chat vaultChat;
@@ -183,6 +183,12 @@ public class LeaderboardPlugin extends JavaPlugin {
         reloadInterval();
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::scheduleResets, 0, 15 * 60 * 20);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(
+                this,
+                () -> offlineUpdaters.forEach((b, u) -> u.progressLog()),
+                5 * 20,
+                30 * 20
+        );
 
         Metrics metrics = new Metrics(this, 9338);
         metrics.addCustomChart(new Metrics.SimplePie("storage_method", () -> getCache().getMethod().getName()));
@@ -324,6 +330,10 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     public PlaceholderFormatter getPlaceholderFormatter() {
         return placeholderFormatter;
+    }
+
+    public Map<String, OfflineUpdater> getOfflineUpdaters() {
+        return offlineUpdaters;
     }
 
     int updateTaskId = -1;
