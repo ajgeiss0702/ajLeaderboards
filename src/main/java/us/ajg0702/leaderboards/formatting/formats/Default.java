@@ -19,4 +19,9 @@ public class Default extends Format {
     public String toFormat(double input) {
         return addCommas(input);
     }
+
+    @Override
+    public String getName() {
+        return "Default";
+    }
 }
