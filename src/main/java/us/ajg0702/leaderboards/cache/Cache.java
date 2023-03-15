@@ -394,6 +394,11 @@ public class Cache {
 			}
 			if(updateDebug) Debug.info("Got '"+value+"' from extra "+extra+" for "+player.getName());
 
+			if(value.equals("%" + extra + "%")) {
+				plugin.getLogger().warning("Extra " + extra + " returned itself! (for " + player.getName() + ") Skipping.");
+				continue;
+			}
+
 			String cached = plugin.getTopManager().getCachedExtra(player.getUniqueId(), extra);
 			if(cached != null && cached.equals(value)) {
 				if(updateDebug) Debug.info("Skipping updating extra of "+player.getName()+" for "+extra+" because their cached score is the same as their current score");
