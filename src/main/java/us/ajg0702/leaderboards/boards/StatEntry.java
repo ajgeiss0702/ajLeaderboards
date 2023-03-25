@@ -58,10 +58,11 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
+		this.cache = plugin.getCache();
+
 		if(plugin != null && !formatStringsSet) {
 			formatStringsSet = true;
 			try {
-				this.cache = plugin.getCache();
 				Messages msgs = plugin.getMessages();
 				k = msgs.getString("formatted.k");
 				m = msgs.getString("formatted.m");
