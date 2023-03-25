@@ -39,11 +39,13 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new Time(plugin));
         placeholders.add(new DisplayName(plugin));
 
+        placeholders.add(new PlayerPositionFormatted(plugin));
         placeholders.add(new PlayerPosition(plugin));
         placeholders.add(new PlayerValueFormatted(plugin));
         placeholders.add(new PlayerValueRaw(plugin));
         placeholders.add(new PlayerValueTime(plugin));
         placeholders.add(new PlayerValue(plugin));
+        placeholders.add(new PlayerPositionFormatted(plugin));
         placeholders.add(new PlayerTime(plugin));
         placeholders.add(new PlayerExtra(plugin));
 

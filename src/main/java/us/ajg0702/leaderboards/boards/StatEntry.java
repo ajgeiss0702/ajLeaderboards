@@ -38,11 +38,13 @@ public class StatEntry {
 
 	private final TimedType type;
 
-	String k = "k";
-	String m = "m";
-	String b = "b";
-	String t = "t";
-	String q = "q";
+
+	static boolean formatStringsSet = false;
+	static String k = "k";
+	static String m = "m";
+	static String b = "b";
+	static String t = "t";
+	static String q = "q";
 	
 	final double score;
 	final String scorePretty;
@@ -56,7 +58,8 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		if(plugin != null) {
+		if(plugin != null && !formatStringsSet) {
+			formatStringsSet = true;
 			try {
 				this.cache = plugin.getCache();
 				Messages msgs = plugin.getMessages();
@@ -150,29 +153,33 @@ public class StatEntry {
 			}
 		}
 
-		if (score < 1000L) {
-			return formatNumber(score);
-		}
-		if (score < 1000000L) {
-			return formatNumber(score/1000L)+k;
-		}
-		if (score < 1000000000L) {
-			return formatNumber(score/1000000L)+m;
-		}
-		if (score < 1000000000000L) {
-			return formatNumber(score/1000000000L)+b;
-		}
-		if (score < 1000000000000000L) {
-			return formatNumber(score/1000000000000L)+t;
-		}
-		if (score < 1000000000000000000L) {
-			return formatNumber(score/1000000000000000L)+q;
-		}
-
-		return getScorePretty();
+		return formatDouble(score);
 	}
 
-	private String formatNumber(double d) {
+	public static String formatDouble(double d) {
+		if (d < 1000L) {
+			return formatNumber(d);
+		}
+		if (d < 1000000L) {
+			return formatNumber(d/1000L)+k;
+		}
+		if (d < 1000000000L) {
+			return formatNumber(d/1000000L)+m;
+		}
+		if (d < 1000000000000L) {
+			return formatNumber(d/1000000000L)+b;
+		}
+		if (d < 1000000000000000L) {
+			return formatNumber(d/1000000000000L)+t;
+		}
+		if (d < 1000000000000000000L) {
+			return formatNumber(d/1000000000000000L)+q;
+		}
+
+		return addCommas(d);
+	}
+
+	private static String formatNumber(double d) {
 		NumberFormat format = NumberFormat.getInstance();
 		format.setMaximumFractionDigits(2);
 		format.setMinimumFractionDigits(0);

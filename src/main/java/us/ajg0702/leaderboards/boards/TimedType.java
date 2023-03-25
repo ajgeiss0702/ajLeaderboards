@@ -15,8 +15,10 @@ public enum TimedType {
     MONTHLY,
     YEARLY;
 
+    private final String lowerName = name().toLowerCase(Locale.ROOT);
+
     public String lowerName() {
-        return name().toLowerCase(Locale.ROOT);
+        return lowerName;
     }
 
     public static List<String> lowerNames() {
