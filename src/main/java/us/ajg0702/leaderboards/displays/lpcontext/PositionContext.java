@@ -1,19 +1,29 @@
 package us.ajg0702.leaderboards.displays.lpcontext;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import net.luckperms.api.context.ContextCalculator;
 import net.luckperms.api.context.ContextConsumer;
 import net.luckperms.api.context.ContextSet;
 import net.luckperms.api.context.ImmutableContextSet;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
+import us.ajg0702.leaderboards.boards.keys.PlayerBoardType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class PositionContext implements ContextCalculator<Player> {
     private final LeaderboardPlugin plugin;
@@ -26,14 +36,38 @@ public class PositionContext implements ContextCalculator<Player> {
         calculatePotentialContexts();
     }
 
+    LoadingCache<PlayerBoardType, Integer> positionCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(2, TimeUnit.HOURS)
+            .refreshAfterWrite(10, TimeUnit.SECONDS)
+            .maximumSize(10000)
+            .build(new CacheLoader<PlayerBoardType, Integer>() {
+                @Override
+                public @NotNull Integer load(@NotNull PlayerBoardType key) {
+                    return plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition();
+                }
+
+                @Override
+                public @NotNull ListenableFuture<Integer> reload(@NotNull PlayerBoardType key, @NotNull Integer oldValue) {
+                    if(plugin.isShuttingDown()) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<Integer> task = ListenableFutureTask.create(
+                            () -> plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition()
+                    );
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
+                    plugin.getTopManager().submit(task);
+                    return task;
+                }
+            });
+
     @Override
     public void calculate(@NonNull Player target, @NonNull ContextConsumer consumer) {
         for (BoardType contextBoardType : contextBoardTypes) {
             consumer.accept(
                     "ajlb_pos_"+contextBoardType.getBoard()+"_"+contextBoardType.getType().lowerName(),
-                    plugin.getTopManager().getStatEntry(
+                    positionCache.getUnchecked(new PlayerBoardType(
                             target, contextBoardType.getBoard(), contextBoardType.getType()
-                    ).getPosition()+""
+                    ))+""
             );
         }
 
