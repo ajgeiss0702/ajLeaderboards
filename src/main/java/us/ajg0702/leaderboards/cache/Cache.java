@@ -533,7 +533,7 @@ public class Cache {
 						double timedOut = timedTypeDoubleEntry.getValue();
 
 						StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type);
-						if(statEntry != null) {
+						if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
 							statEntry.changeScore(timedOut, prefix, suffix);
 						}
 
@@ -542,7 +542,7 @@ public class Cache {
 								.get(new BoardType(board, type));
 						if(position != null) {
 							StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
-							if(stat != null) {
+							if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
 								stat.changeScore(timedOut, prefix, suffix);
 							}
 						}
