@@ -10,6 +10,7 @@ import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
+import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.helpers.DbRow;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
@@ -518,10 +519,33 @@ public class Cache {
 					statement.setString(3, prefix);
 					statement.setString(4, suffix);
 					statement.setString(5, displayName);
+					Map<TimedType, Double> timedTypeValues = new HashMap<>();
+					timedTypeValues.put(TimedType.ALLTIME, output);
 					int i = 6;
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
-						statement.setDouble(i++, output-lastTotals.get(type));
+						double timedOut = output-lastTotals.get(type);
+						timedTypeValues.put(type, timedOut);
+						statement.setDouble(i++, timedOut);
+					}
+					for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
+						TimedType type = timedTypeDoubleEntry.getKey();
+						double timedOut = timedTypeDoubleEntry.getValue();
+
+						StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type);
+						if(statEntry != null) {
+							statEntry.changeScore(timedOut, prefix, suffix);
+						}
+
+						Integer position = plugin.getTopManager()
+								.positionPlayerCache.get(player.getUniqueId())
+								.get(new BoardType(board, type));
+						if(position != null) {
+							StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
+							if(stat != null) {
+								stat.changeScore(timedOut, prefix, suffix);
+							}
+						}
 					}
 					statement.setString(i, player.getUniqueId().toString());
 					statement.executeUpdate();

@@ -26,8 +26,8 @@ public class StatEntry {
 	
 	final String playerName;
 	final String playerDisplayName;
-	final String prefix;
-	final String suffix;
+	String prefix;
+	String suffix;
 
 	final UUID playerID;
 	
@@ -46,8 +46,8 @@ public class StatEntry {
 	static String t = "t";
 	static String q = "q";
 	
-	final double score;
-	final String scorePretty;
+	double score;
+	String scorePretty;
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.playerName = playerName;
 		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
@@ -95,6 +95,15 @@ public class StatEntry {
 			}
 		}
 		return plugin.getPlaceholderFormatter().toFormat(score, board);
+	}
+
+	public void changeScore(double newScore, String newPrefix, String newSuffix) {
+		score = newScore;
+		prefix = newPrefix;
+		suffix = newSuffix;
+
+		scorePretty = calcPrettyScore();
+
 	}
 
 	public boolean hasPlayer() {

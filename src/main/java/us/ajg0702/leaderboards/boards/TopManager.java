@@ -111,11 +111,31 @@ public class TopManager {
                     });
                 }
                 if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
+                cacheStatPosition(position, new BoardType(board, type), null);
                 return StatEntry.loading(plugin, position, board, type);
             }
         }
 
+        cacheStatPosition(position, new BoardType(board, type), cached.playerID);
+
         return cached;
+    }
+
+    public final Map<UUID, Map<BoardType, Integer>> positionPlayerCache = new ConcurrentHashMap<>();
+
+    private void cacheStatPosition(int position, BoardType boardType, UUID playerUUID) {
+        for (Map.Entry<UUID, Map<BoardType, Integer>> entry : positionPlayerCache.entrySet()) {
+            if(entry.getKey().equals(playerUUID)) continue;
+            entry.getValue().remove(boardType, position);
+        }
+
+        if(playerUUID == null) return;
+
+        Map<BoardType, Integer> newMap = positionPlayerCache.getOrDefault(playerUUID, new HashMap<>());
+
+        newMap.put(boardType, position);
+
+        positionPlayerCache.put(playerUUID, newMap);
     }
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
@@ -174,6 +194,17 @@ public class TopManager {
         StatEntry r = statEntryCache.getIfPresent(key);
         if(r == null) {
             fetchService.submit(() -> statEntryCache.getUnchecked(key));
+        }
+        return r;
+    }
+
+    public StatEntry getCachedStat(int position, String board, TimedType type) {
+        return getCachedStat(new PositionBoardType(position, board, type));
+    }
+    public StatEntry getCachedStat(PositionBoardType positionBoardType) {
+        StatEntry r = positionCache.getIfPresent(positionBoardType);
+        if(r == null) {
+            fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
         }
         return r;
     }

@@ -33,4 +33,9 @@ public class BoardType {
     public int hashCode() {
         return Objects.hash(getBoard(), getType());
     }
+
+    @Override
+    public String toString() {
+        return board + " " + type.lowerName();
+    }
 }
