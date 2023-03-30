@@ -30,6 +30,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
         placeholders.add(new Extra(plugin));
         placeholders.add(new Name(plugin));
+        placeholders.add(new UUID(plugin));
         placeholders.add(new Prefix(plugin));
         placeholders.add(new Suffix(plugin));
         placeholders.add(new Color(plugin));
