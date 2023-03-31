@@ -33,6 +33,7 @@ public class Cache {
 
 	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
 	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
+	private final String GET_POSITION = "with NumberedRows as (select *,ROW_NUMBER() OVER (order by '%s' %s, namecache desc) as position from '%s') select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',position,"+deltaBuilder()+" from NumberedRows where 'id'=?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
 			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(20, 2)"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
 			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(20, 2)"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
@@ -137,8 +138,6 @@ public class Cache {
 		}
 	}
 
-	public Map<String, Integer> boardSize = new ConcurrentHashMap<>();
-
 	public List<Integer> rolling = new CopyOnWriteArrayList<>();
 
 	private final Map<String, Integer> sortByIndexes = new ConcurrentHashMap<>();
@@ -156,30 +155,33 @@ public class Cache {
 			Connection conn = method.getConnection();
 			String sortBy = type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta";
 			PreparedStatement ps = conn.prepareStatement(String.format(
-					method.formatStatement(SELECT_PLAYER),
-					tablePrefix+board,
+					method.formatStatement(GET_POSITION),
 					sortBy,
-					reverse ? "asc" : "desc"
+					reverse ? "asc" : "desc",
+					tablePrefix+board
 			));
 
+			ps.setString(1, player.getUniqueId().toString());
+
 			ResultSet rs = ps.executeQuery();
-			int i = 0;
-			while(rs.next()) {
-				i++;
-				if(r != null) continue;
-				String uuidraw = null;
-				double value = -1;
-				String name = "-Unknown-";
-				String displayName = name;
-				String prefix = "";
-				String suffix = "";
-				try {
-					uuidraw = rs.getString(1);
-					name = rs.getString(3);
-					prefix = rs.getString(4);
-					suffix = rs.getString(5);
-					displayName = rs.getString(6);
-					value = rs.getDouble(sortByIndexes.computeIfAbsent(sortBy,
+
+			rs.next();
+
+			String uuidraw = null;
+			double value = -1;
+			String name = "-Unknown-";
+			String displayName = name;
+			String prefix = "";
+			String suffix = "";
+			int position = -1;
+			try {
+				uuidraw = rs.getString(1);
+				name = rs.getString(3);
+				prefix = rs.getString(4);
+				suffix = rs.getString(5);
+				displayName = rs.getString(6);
+				position = rs.getInt(7);
+				value = rs.getDouble(sortByIndexes.computeIfAbsent(sortBy,
 						k -> {
 							try {
 								Debug.info("Calculating (statentry) column for "+sortBy);
@@ -189,21 +191,20 @@ public class Cache {
 								return -1;
 							}
 						}
-					));
-				} catch(SQLException e) {
-					if(
-							!e.getMessage().contains("ResultSet closed") &&
-									!e.getMessage().contains("empty result set") &&
-									!e.getMessage().contains("[2000-")
-					) {
-						throw e;
-					}
+				));
+			} catch(SQLException e) {
+				if(
+						!e.getMessage().contains("ResultSet closed") &&
+								!e.getMessage().contains("empty result set") &&
+								!e.getMessage().contains("[2000-")
+				) {
+					throw e;
 				}
-				if(uuidraw == null) break;
-				if(!player.getUniqueId().toString().equals(uuidraw)) continue;
-				r = new StatEntry(i, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 			}
-			boardSize.put(board, i);
+			if(uuidraw != null) {
+				r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
+			}
+			//boardSize.put(board, i); TODO: Fix boardSize
 			rs.close();
 			ps.close();
 			method.close(conn);
@@ -221,8 +222,55 @@ public class Cache {
 		return r;
 	}
 
-	public @Nullable Integer getBoardSize(String board) {
-		return boardSize.get(board);
+	public int getBoardSize(String board) {
+		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
+			return -3;
+		}
+
+		Connection connection = null;
+		ResultSet rs = null;
+
+		int size;
+
+		try {
+			connection = method.getConnection();
+
+			PreparedStatement ps = connection.prepareStatement(String.format(
+					method.formatStatement("select COUNT(1) from '%s'"),
+					tablePrefix+board
+			));
+
+			rs = ps.executeQuery();
+
+			rs.next();
+
+			size = rs.getInt(1);
+
+		} catch (SQLException e) {
+			if(
+					!e.getMessage().contains("ResultSet closed") &&
+							!e.getMessage().contains("empty result set") &&
+							!e.getMessage().contains("[2000-")
+			) {
+				plugin.getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+				return -1;
+			} else {
+				return 0;
+			}
+		} finally {
+			try {
+				if(connection != null) method.close(connection);
+				if(rs != null) rs.close();
+			} catch (SQLException e) {
+				plugin.getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
+			}
+
+		}
+
+		return size;
 	}
 
 	public boolean createBoard(String name) {

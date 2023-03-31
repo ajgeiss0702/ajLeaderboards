@@ -210,6 +210,56 @@ public class TopManager {
     }
 
 
+    Map<String, Long> boardSizeLastRefresh = new HashMap<>();
+    LoadingCache<String, Integer> boardSizeCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .maximumSize(10000)
+            .removalListener(notification -> boardSizeLastRefresh.remove((String) notification.getKey()))
+            .build(new CacheLoader<String, Integer>() {
+                @Override
+                public @NotNull Integer load(@NotNull String key) {
+                    return plugin.getCache().getBoardSize(key);
+                }
+
+                @Override
+                public @NotNull ListenableFuture<Integer> reload(@NotNull String key, @NotNull Integer oldValue) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - boardSizeLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*2, 5000)) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<Integer> task = ListenableFutureTask.create(() -> {
+                        boardSizeLastRefresh.put(key, System.currentTimeMillis());
+                        return plugin.getCache().getBoardSize(key);
+                    });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
+                    fetchService.execute(task);
+                    return task;
+                }
+            });
+
+
+    /**
+     * Get the size of a leaderboard (number of players)
+     * @param board The board
+     * @return The number of players in that board
+     */
+    public int getBoardSize(String board) {
+        Integer cached = boardSizeCache.getIfPresent(board);
+
+        if(cached == null) {
+            if(BlockingFetch.shouldBlock(plugin)) {
+                cached = boardSizeCache.getUnchecked(board);
+            } else {
+                fetchService.submit(() -> boardSizeCache.getUnchecked(board));
+                return -2;
+            }
+        }
+
+        return cached;
+
+    }
+
+
     List<String> boardCache;
     long lastGetBoard = 0;
     public List<String> getBoards() {

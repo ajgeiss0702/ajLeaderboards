@@ -21,13 +21,9 @@ public class Size extends Placeholder {
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
-        if(!plugin.getTopManager().boardExists(board)) {
-            return "BDNE";
-        }
-        Integer count = plugin.getCache().getBoardSize(board);
-        if(count == null) {
-            return "...";
-        }
-        return addCommas(count);
+        int size = plugin.getTopManager().getBoardSize(board);
+        if(size == -3) return "BDNE";
+        if(size == -2) return plugin.getMessages().getString("loading.size");
+        return addCommas(size);
     }
 }

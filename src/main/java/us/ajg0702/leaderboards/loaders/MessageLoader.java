@@ -67,7 +67,8 @@ public class MessageLoader {
 
                 "loading.text", "Loading",
                 "loading.short", "-?-",
-                "loading.position", ".."
+                "loading.position", "..",
+                "loading.size", "..."
 
                 ));
     }
