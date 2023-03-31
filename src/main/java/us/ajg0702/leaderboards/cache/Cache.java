@@ -204,7 +204,6 @@ public class Cache {
 			if(uuidraw != null) {
 				r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 			}
-			//boardSize.put(board, i); TODO: Fix boardSize
 			rs.close();
 			ps.close();
 			method.close(conn);
