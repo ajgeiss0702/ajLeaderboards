@@ -194,10 +194,13 @@ public class TopManager {
     }
 
     public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type) {
+        return getCachedStatEntry(player, board, type, true);
+    }
+    public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type, boolean fetchIfAbsent) {
         PlayerBoardType key = new PlayerBoardType(player, board, type);
 
         StatEntry r = statEntryCache.getIfPresent(key);
-        if(r == null) {
+        if(fetchIfAbsent && r == null) {
             fetchService.submit(() -> statEntryCache.getUnchecked(key));
         }
         return r;

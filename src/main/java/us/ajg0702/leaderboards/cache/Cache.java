@@ -579,7 +579,7 @@ public class Cache {
 						TimedType type = timedTypeDoubleEntry.getKey();
 						double timedOut = timedTypeDoubleEntry.getValue();
 
-						StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type);
+						StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
 						if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
 							statEntry.changeScore(timedOut, prefix, suffix);
 						}
