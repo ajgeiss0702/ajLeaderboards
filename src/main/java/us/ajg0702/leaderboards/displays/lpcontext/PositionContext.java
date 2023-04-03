@@ -43,7 +43,7 @@ public class PositionContext implements ContextCalculator<Player> {
             .build(new CacheLoader<PlayerBoardType, Integer>() {
                 @Override
                 public @NotNull Integer load(@NotNull PlayerBoardType key) {
-                    return plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition();
+                    return plugin.getTopManager().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition();
                 }
 
                 @Override
@@ -52,7 +52,7 @@ public class PositionContext implements ContextCalculator<Player> {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<Integer> task = ListenableFutureTask.create(
-                            () -> plugin.getCache().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition()
+                            () -> plugin.getTopManager().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition()
                     );
                     if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
                     plugin.getTopManager().submit(task);

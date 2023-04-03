@@ -44,4 +44,13 @@ public class PlayerBoardType {
     public int hashCode() {
         return Objects.hash(getPlayer(), getBoard(), getType());
     }
+
+    @Override
+    public String toString() {
+        return "PlayerBoardType{" +
+                "player=" + player +
+                ", board='" + board + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

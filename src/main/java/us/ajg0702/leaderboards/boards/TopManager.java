@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.boards;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalCause;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -65,7 +66,9 @@ public class TopManager {
             .expireAfterAccess(1, TimeUnit.HOURS)
             .refreshAfterWrite(5, TimeUnit.SECONDS)
             .maximumSize(10000)
-            .removalListener(notification -> positionLastRefresh.remove((PositionBoardType) notification.getKey()))
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) positionLastRefresh.remove((PositionBoardType) notification.getKey());
+            })
             .build(new CacheLoader<PositionBoardType, StatEntry>() {
                 @Override
                 public @NotNull StatEntry load(@NotNull PositionBoardType key) {
@@ -143,7 +146,9 @@ public class TopManager {
             .expireAfterAccess(5, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
-            .removalListener(notification -> statEntryLastRefresh.remove((PlayerBoardType) notification.getKey()))
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) statEntryLastRefresh.remove((PlayerBoardType) notification.getKey());
+            })
             .build(new CacheLoader<PlayerBoardType, StatEntry>() {
                 @Override
                 public @NotNull StatEntry load(@NotNull PlayerBoardType key) {
@@ -215,7 +220,9 @@ public class TopManager {
             .expireAfterAccess(24, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
-            .removalListener(notification -> boardSizeLastRefresh.remove((String) notification.getKey()))
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) boardSizeLastRefresh.remove((String) notification.getKey());
+            })
             .build(new CacheLoader<String, Integer>() {
                 @Override
                 public @NotNull Integer load(@NotNull String key) {
