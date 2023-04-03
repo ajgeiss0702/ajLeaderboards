@@ -410,9 +410,13 @@ public class TopManager {
         }
     }
 
+    long lastLargeAverage = 0;
+
     public int cacheTime() {
 
-        int r = 1000;
+        boolean recentLargeAverage = System.currentTimeMillis() - lastLargeAverage < 30000;
+
+        int r = recentLargeAverage ? 5000 : 1000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -420,37 +424,45 @@ public class TopManager {
             return r;
         }
 
-        if(fetchingAverage == 0 && getActiveFetchers() == 0) {
-            return 500;
+        int activeFetchers = getActiveFetchers();
+        int totalTasks = activeFetchers + getQueuedTasks();
+
+        if(!recentLargeAverage) {
+            if(fetchingAverage == 0 && activeFetchers == 0) {
+                return 500;
+            }
+            if(fetchingAverage > 0) {
+                r = 2000;
+            }
+            if(fetchingAverage >= 2) {
+                r = 5000;
+            }
         }
-        if(fetchingAverage > 0) {
-            r = 2000;
-        }
-        if(fetchingAverage >= 2) {
-            r = 5000;
-        }
-        if(fetchingAverage >= 5) {
+        if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
             r = 10000;
         }
-        if(fetchingAverage > 10) {
+        if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
             r = 15000;
         }
-        if(fetchingAverage > 20) {
+        if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
             r = 30000;
         }
-        if(fetchingAverage > 30) {
+        if((fetchingAverage > 30 || totalTasks > 100) && activeFetchers > 0) {
             r = 60000;
         }
-        if(fetchingAverage > 50) {
-            r = 120000;
+        if(fetchingAverage > 50 || totalTasks > 125) {
+            lastLargeAverage = System.currentTimeMillis();
+            if(activeFetchers > 0) {
+                r = 120000;
+            }
         }
-        if(fetchingAverage > 100) {
+        if((fetchingAverage > 100 || totalTasks > 150) && activeFetchers > 0) {
             r = 180000;
         }
-        if(fetchingAverage > 300) {
+        if((fetchingAverage > 300 || totalTasks > 175) && activeFetchers > 0) {
             r = 3600000;
         }
-        if(fetchingAverage > 400) {
+        if((fetchingAverage > 400 || totalTasks > 200) && activeFetchers > 0) {
             r = 7200000;
         }
 
