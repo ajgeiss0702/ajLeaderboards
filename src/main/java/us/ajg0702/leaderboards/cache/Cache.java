@@ -504,6 +504,7 @@ public class Cache {
 		if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
 			if(output == 0) {
 				Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
+				return;
 			}
 		}
 
