@@ -51,6 +51,9 @@ public class PositionContext implements ContextCalculator<Player> {
                     if(plugin.isShuttingDown()) {
                         return Futures.immediateFuture(oldValue);
                     }
+                    if((plugin.getTopManager().getQueuedTasks() + plugin.getTopManager().getActiveFetchers()) > 50 || plugin.getTopManager().getFetchingAverage() > 75) {
+                        return Futures.immediateFuture(oldValue);
+                    }
                     ListenableFutureTask<Integer> task = ListenableFutureTask.create(
                             () -> plugin.getTopManager().getStatEntry(key.getPlayer(), key.getBoard(), key.getType()).getPosition()
                     );

@@ -586,7 +586,7 @@ public class Cache {
 						}
 
 						Integer position = plugin.getTopManager()
-								.positionPlayerCache.get(player.getUniqueId())
+								.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
 								.get(new BoardType(board, type));
 						if(position != null) {
 							StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
