@@ -43,9 +43,10 @@ blocking-fetch: auto
 
 # Should we register luckperms contexts?
 # See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
-# Disable this if you are having issues with high database usage
-#  Default: true
-register-lp-contexts: true
+# If you enable this, I HIGHLY recommend configuring "only-register-lpc-for" below
+#   to only register the ones you're actually going to use
+#  Default: false
+register-lp-contexts: false
 
 # What boards and types should we calculate luckperms contexts for?
 # If this is blank (and register-lp-contexts is enabled) then we will calculate it for all boards
