@@ -164,7 +164,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 27
+config-version: 28
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
