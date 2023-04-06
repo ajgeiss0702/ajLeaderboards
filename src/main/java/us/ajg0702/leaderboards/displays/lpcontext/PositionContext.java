@@ -97,6 +97,7 @@ public class PositionContext implements ContextCalculator<Player> {
         contextBoardTypes.clear();
 
         if(plugin.getAConfig().getStringList("only-register-lpc-for").isEmpty()) {
+            plugin.getLogger().warning("Luckperms Contexts are enabled, but only-register-lpc-for has not been configured! Configuring only-register-lpc-for is strongly recommended to improve performance!");
             for (String board : plugin.getTopManager().getBoards()) {
                 contextBoardTypes.addAll(allBoardTypes(board));
             }
