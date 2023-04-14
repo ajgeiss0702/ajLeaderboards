@@ -4,6 +4,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.cache.CacheMethod;
+import us.ajg0702.leaderboards.utils.UnClosableConnection;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.io.File;
@@ -25,7 +26,7 @@ public class SqliteMethod implements CacheMethod {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return conn;
+        return new UnClosableConnection(conn);
     }
 
     @Override

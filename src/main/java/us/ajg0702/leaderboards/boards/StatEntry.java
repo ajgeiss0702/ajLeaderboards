@@ -26,8 +26,8 @@ public class StatEntry {
 	
 	final String playerName;
 	final String playerDisplayName;
-	final String prefix;
-	final String suffix;
+	String prefix;
+	String suffix;
 
 	final UUID playerID;
 	
@@ -38,14 +38,16 @@ public class StatEntry {
 
 	private final TimedType type;
 
-	String k = "k";
-	String m = "m";
-	String b = "b";
-	String t = "t";
-	String q = "q";
+
+	static boolean formatStringsSet = false;
+	static String k = "k";
+	static String m = "m";
+	static String b = "b";
+	static String t = "t";
+	static String q = "q";
 	
-	final double score;
-	final String scorePretty;
+	double score;
+	String scorePretty;
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		this.playerName = playerName;
 		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
@@ -56,9 +58,11 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		if(plugin != null) {
+		this.cache = plugin.getCache();
+
+		if(plugin != null && !formatStringsSet) {
+			formatStringsSet = true;
 			try {
-				this.cache = plugin.getCache();
 				Messages msgs = plugin.getMessages();
 				k = msgs.getString("formatted.k");
 				m = msgs.getString("formatted.m");
@@ -91,6 +95,15 @@ public class StatEntry {
 			}
 		}
 		return plugin.getPlaceholderFormatter().toFormat(score, board);
+	}
+
+	public void changeScore(double newScore, String newPrefix, String newSuffix) {
+		score = newScore;
+		prefix = newPrefix;
+		suffix = newSuffix;
+
+		scorePretty = calcPrettyScore();
+
 	}
 
 	public boolean hasPlayer() {
@@ -150,29 +163,33 @@ public class StatEntry {
 			}
 		}
 
-		if (score < 1000L) {
-			return formatNumber(score);
-		}
-		if (score < 1000000L) {
-			return formatNumber(score/1000L)+k;
-		}
-		if (score < 1000000000L) {
-			return formatNumber(score/1000000L)+m;
-		}
-		if (score < 1000000000000L) {
-			return formatNumber(score/1000000000L)+b;
-		}
-		if (score < 1000000000000000L) {
-			return formatNumber(score/1000000000000L)+t;
-		}
-		if (score < 1000000000000000000L) {
-			return formatNumber(score/1000000000000000L)+q;
-		}
-
-		return getScorePretty();
+		return formatDouble(score);
 	}
 
-	private String formatNumber(double d) {
+	public static String formatDouble(double d) {
+		if (d < 1000L) {
+			return formatNumber(d);
+		}
+		if (d < 1000000L) {
+			return formatNumber(d/1000L)+k;
+		}
+		if (d < 1000000000L) {
+			return formatNumber(d/1000000L)+m;
+		}
+		if (d < 1000000000000L) {
+			return formatNumber(d/1000000000L)+b;
+		}
+		if (d < 1000000000000000L) {
+			return formatNumber(d/1000000000000L)+t;
+		}
+		if (d < 1000000000000000000L) {
+			return formatNumber(d/1000000000000000L)+q;
+		}
+
+		return addCommas(d);
+	}
+
+	private static String formatNumber(double d) {
 		NumberFormat format = NumberFormat.getInstance();
 		format.setMaximumFractionDigits(2);
 		format.setMinimumFractionDigits(0);

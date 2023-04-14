@@ -19,7 +19,6 @@ public enum BlockingFetch {
             plugin.getLogger().warning("Invalid option for blocking-fetch. Defaulting to auto.");
             blockingFetch = AUTO;
         }
-        Debug.info("blocking-fetch is " + blockingFetch);
 
         if(blockingFetch.isBoolean()) return blockingFetch.getBoolean();
 

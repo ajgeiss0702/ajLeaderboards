@@ -88,4 +88,9 @@ public class Time extends Format {
     public String toFormat(double input) {
         return TimeUtils.formatTimeSeconds(Math.round(input));
     }
+
+    @Override
+    public String getName() {
+        return "Time";
+    }
 }

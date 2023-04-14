@@ -61,4 +61,9 @@ public class ColonTime extends Format {
                 (minutes == 0 ? "00" : minutes) + ":" +
                 (seconds == 0 ? "00" : seconds);
     }
+
+    @Override
+    public String getName() {
+        return "ColonTime";
+    }
 }

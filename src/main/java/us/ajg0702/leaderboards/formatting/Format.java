@@ -26,4 +26,9 @@ public abstract class Format {
      * @return A string that is the provided double in this format
      */
     public abstract String toFormat(double input);
+
+    /**
+     * @return the (unique) name of this format
+     */
+    public abstract String getName();
 }

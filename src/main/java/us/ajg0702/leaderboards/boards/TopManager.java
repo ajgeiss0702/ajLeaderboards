@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.boards;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalCause;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -65,7 +66,9 @@ public class TopManager {
             .expireAfterAccess(1, TimeUnit.HOURS)
             .refreshAfterWrite(5, TimeUnit.SECONDS)
             .maximumSize(10000)
-            .removalListener(notification -> positionLastRefresh.remove((PositionBoardType) notification.getKey()))
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) positionLastRefresh.remove((PositionBoardType) notification.getKey());
+            })
             .build(new CacheLoader<PositionBoardType, StatEntry>() {
                 @Override
                 public @NotNull StatEntry load(@NotNull PositionBoardType key) {
@@ -111,11 +114,31 @@ public class TopManager {
                     });
                 }
                 if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
+                cacheStatPosition(position, new BoardType(board, type), null);
                 return StatEntry.loading(plugin, position, board, type);
             }
         }
 
+        cacheStatPosition(position, new BoardType(board, type), cached.playerID);
+
         return cached;
+    }
+
+    public final Map<UUID, Map<BoardType, Integer>> positionPlayerCache = new ConcurrentHashMap<>();
+
+    private void cacheStatPosition(int position, BoardType boardType, UUID playerUUID) {
+        for (Map.Entry<UUID, Map<BoardType, Integer>> entry : positionPlayerCache.entrySet()) {
+            if(entry.getKey().equals(playerUUID)) continue;
+            entry.getValue().remove(boardType, position);
+        }
+
+        if(playerUUID == null) return;
+
+        Map<BoardType, Integer> newMap = positionPlayerCache.getOrDefault(playerUUID, new HashMap<>());
+
+        newMap.put(boardType, position);
+
+        positionPlayerCache.put(playerUUID, newMap);
     }
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
@@ -123,7 +146,9 @@ public class TopManager {
             .expireAfterAccess(5, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
-            .removalListener(notification -> statEntryLastRefresh.remove((PlayerBoardType) notification.getKey()))
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) statEntryLastRefresh.remove((PlayerBoardType) notification.getKey());
+            })
             .build(new CacheLoader<PlayerBoardType, StatEntry>() {
                 @Override
                 public @NotNull StatEntry load(@NotNull PlayerBoardType key) {
@@ -169,13 +194,79 @@ public class TopManager {
     }
 
     public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type) {
+        return getCachedStatEntry(player, board, type, true);
+    }
+    public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type, boolean fetchIfAbsent) {
         PlayerBoardType key = new PlayerBoardType(player, board, type);
 
         StatEntry r = statEntryCache.getIfPresent(key);
-        if(r == null) {
+        if(fetchIfAbsent && r == null) {
             fetchService.submit(() -> statEntryCache.getUnchecked(key));
         }
         return r;
+    }
+
+    public StatEntry getCachedStat(int position, String board, TimedType type) {
+        return getCachedStat(new PositionBoardType(position, board, type));
+    }
+    public StatEntry getCachedStat(PositionBoardType positionBoardType) {
+        StatEntry r = positionCache.getIfPresent(positionBoardType);
+        if(r == null) {
+            fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
+        }
+        return r;
+    }
+
+
+    Map<String, Long> boardSizeLastRefresh = new HashMap<>();
+    LoadingCache<String, Integer> boardSizeCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .maximumSize(10000)
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) boardSizeLastRefresh.remove((String) notification.getKey());
+            })
+            .build(new CacheLoader<String, Integer>() {
+                @Override
+                public @NotNull Integer load(@NotNull String key) {
+                    return plugin.getCache().getBoardSize(key);
+                }
+
+                @Override
+                public @NotNull ListenableFuture<Integer> reload(@NotNull String key, @NotNull Integer oldValue) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - boardSizeLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*2, 5000)) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<Integer> task = ListenableFutureTask.create(() -> {
+                        boardSizeLastRefresh.put(key, System.currentTimeMillis());
+                        return plugin.getCache().getBoardSize(key);
+                    });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
+                    fetchService.execute(task);
+                    return task;
+                }
+            });
+
+
+    /**
+     * Get the size of a leaderboard (number of players)
+     * @param board The board
+     * @return The number of players in that board
+     */
+    public int getBoardSize(String board) {
+        Integer cached = boardSizeCache.getIfPresent(board);
+
+        if(cached == null) {
+            if(BlockingFetch.shouldBlock(plugin)) {
+                cached = boardSizeCache.getUnchecked(board);
+            } else {
+                fetchService.submit(() -> boardSizeCache.getUnchecked(board));
+                return -2;
+            }
+        }
+
+        return cached;
+
     }
 
 
@@ -319,9 +410,13 @@ public class TopManager {
         }
     }
 
+    long lastLargeAverage = 0;
+
     public int cacheTime() {
 
-        int r = 1000;
+        boolean recentLargeAverage = System.currentTimeMillis() - lastLargeAverage < 30000;
+
+        int r = recentLargeAverage ? 5000 : 1000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -329,37 +424,45 @@ public class TopManager {
             return r;
         }
 
-        if(fetchingAverage == 0 && getActiveFetchers() == 0) {
-            return 500;
+        int activeFetchers = getActiveFetchers();
+        int totalTasks = activeFetchers + getQueuedTasks();
+
+        if(!recentLargeAverage) {
+            if(fetchingAverage == 0 && activeFetchers == 0) {
+                return 500;
+            }
+            if(fetchingAverage > 0) {
+                r = 2000;
+            }
+            if(fetchingAverage >= 2) {
+                r = 5000;
+            }
         }
-        if(fetchingAverage > 0) {
-            r = 2000;
-        }
-        if(fetchingAverage >= 2) {
-            r = 5000;
-        }
-        if(fetchingAverage >= 5) {
+        if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
             r = 10000;
         }
-        if(fetchingAverage > 10) {
+        if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
             r = 15000;
         }
-        if(fetchingAverage > 20) {
+        if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
             r = 30000;
         }
-        if(fetchingAverage > 30) {
+        if((fetchingAverage > 30 || totalTasks > 100) && activeFetchers > 0) {
             r = 60000;
         }
-        if(fetchingAverage > 50) {
-            r = 120000;
+        if(fetchingAverage > 50 || totalTasks > 125) {
+            lastLargeAverage = System.currentTimeMillis();
+            if(activeFetchers > 0) {
+                r = 120000;
+            }
         }
-        if(fetchingAverage > 100) {
+        if((fetchingAverage > 100 || totalTasks > 150) && activeFetchers > 0) {
             r = 180000;
         }
-        if(fetchingAverage > 300) {
+        if((fetchingAverage > 300 || totalTasks > 175) && activeFetchers > 0) {
             r = 3600000;
         }
-        if(fetchingAverage > 400) {
+        if((fetchingAverage > 400 || totalTasks > 200) && activeFetchers > 0) {
             r = 7200000;
         }
 

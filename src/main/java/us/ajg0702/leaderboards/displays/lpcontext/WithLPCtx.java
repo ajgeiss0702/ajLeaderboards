@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
-public class WithLPCtx extends LuckpermsContextLoader{
+public class WithLPCtx extends LuckpermsContextLoader {
 
     RegisteredServiceProvider<LuckPerms> provider;
     LuckPerms api;

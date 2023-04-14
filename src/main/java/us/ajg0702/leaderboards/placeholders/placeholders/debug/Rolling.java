@@ -23,9 +23,12 @@ public class Rolling extends Placeholder {
         for (Integer i : plugin.getTopManager().getRolling()) {
             String is = i+"";
             if(is.length() == 1) {
-                is = "00"+i;
+                is = "__"+i;
             } else if(is.length() == 2) {
-                is = "0"+i;
+                is = "_"+i;
+            }
+            if(i == 0) {
+                is = "___";
             }
             builder.append(is).append("-");
         }
