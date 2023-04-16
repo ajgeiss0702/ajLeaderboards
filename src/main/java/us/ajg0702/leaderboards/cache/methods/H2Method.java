@@ -108,7 +108,7 @@ public class H2Method implements CacheMethod {
                         statement.executeUpdate("alter table \""+tableName+"\" add column "+type.lowerName()+"_timestamp BIGINT");
                     } catch(SQLException e) {
                         if(e.getMessage().contains("42121")) {
-                            plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
+//                            plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                             try {
                                 //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=\""+tableName+"\" SET REMARKS = '1';");
                                 conn.createStatement().executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");
