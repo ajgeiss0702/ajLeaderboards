@@ -44,11 +44,6 @@ public class H2Method implements CacheMethod {
         this.plugin = plugin;
         this.config = config;
         this.cacheInstance = cacheInstance;
-        try {
-            Class.forName("us.ajg0702.leaderboards.libs.h2.Driver");
-        } catch (ClassNotFoundException e1) {
-            e1.printStackTrace();
-        }
 
         // fix h2 error messages not being found (due to relocation)
         try {
