@@ -63,7 +63,7 @@ public class AddSign extends SubCommand {
         }
         Block target = p.getTargetBlock(null, 10);
         if(!target.getType().toString().contains("SIGN")) {
-            sender.sendMessage(message("&cThe block you are looking at is not a sign! Please look at a sign to set."));
+            sender.sendMessage(message("&cThe block you are looking at (" + target.getType() + ") is not a sign! Please look at a sign to set."));
             return;
         }
         TimedType type;
