@@ -41,6 +41,10 @@ enable-dontupdate-permission: true
 #  Default: auto
 blocking-fetch: auto
 
+# Allows setting custom bytebin location and webviewer link
+bytebin-link: "https://paste.ajg0702.us/post"
+web-link: "https://ajlb-viewer.ajg0702.us/#{code}"
+
 # Should we register luckperms contexts?
 # See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
 # If you enable this, I HIGHLY recommend configuring "only-register-lpc-for" below
@@ -164,7 +168,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 28
+config-version: 29
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
