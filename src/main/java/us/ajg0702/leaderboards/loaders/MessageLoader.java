@@ -20,6 +20,13 @@ public class MessageLoader {
                 "formatted.t", "t",
                 "formatted.b", "b",
                 "formatted.q", "q",
+                "formatted.qi", "qi",
+                "formatted.sx", "sx",
+                "formatted.sp", "sp",
+                "formatted.o", "o",
+                "formatted.n", "n",
+                "formatted.d", "d",
+                "formatted.ud", "ud",
 
                 "time.w", "w ",
                 "time.d", "d ",

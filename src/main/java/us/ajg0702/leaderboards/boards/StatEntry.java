@@ -45,6 +45,13 @@ public class StatEntry {
 	static String b = "b";
 	static String t = "t";
 	static String q = "q";
+	static String qi = "qi";
+	static String sx = "sx";
+	static String sp = "sp";
+	static String o = "o";
+	static String n = "n";
+	static String d = "d";
+	static String ud = "ud";
 	
 	double score;
 	String scorePretty;
@@ -69,6 +76,13 @@ public class StatEntry {
 				b = msgs.getString("formatted.b");
 				t = msgs.getString("formatted.t");
 				q = msgs.getString("formatted.q");
+				qi = msgs.getString("formatted.qi");
+				sx = msgs.getString("formatted.sx");
+				sp = msgs.getString("formatted.sp");
+				o = msgs.getString("formatted.o");
+				n = msgs.getString("formatted.n");
+				d = msgs.getString("formatted.d");
+				ud = msgs.getString("formatted.ud");
 			} catch(NoClassDefFoundError ignored) {}
 		}
 		
@@ -166,27 +180,48 @@ public class StatEntry {
 		return formatDouble(score);
 	}
 
-	public static String formatDouble(double d) {
-		if (d < 1000L) {
-			return formatNumber(d);
+	public static String formatDouble(double number) {
+		if (number < 1000L) {
+			return formatNumber(number);
 		}
-		if (d < 1000000L) {
-			return formatNumber(d/1000L)+k;
+		if (number < 1000000L) {
+			return formatNumber(number / 1000L) + k;
 		}
-		if (d < 1000000000L) {
-			return formatNumber(d/1000000L)+m;
+		if (number < 1e9) {
+			return formatNumber(number / 1e6) + m;
 		}
-		if (d < 1000000000000L) {
-			return formatNumber(d/1000000000L)+b;
+		if (number < 1e12) {
+			return formatNumber(number / 1e9) + b;
 		}
-		if (d < 1000000000000000L) {
-			return formatNumber(d/1000000000000L)+t;
+		if (number < 1e15) {
+			return formatNumber(number / 1e12) + t;
 		}
-		if (d < 1000000000000000000L) {
-			return formatNumber(d/1000000000000000L)+q;
+		if (number < 1e18) {
+			return formatNumber(number / 1e15) + q;
+		}
+		if(number < 1e21) {
+			return formatNumber(number / 1e18) + qi;
+		}
+		if(number < 1e24) {
+			return formatNumber(number / 1e21) + sx;
+		}
+		if(number < 1e27) {
+			return formatNumber(number / 1e24) + sp;
+		}
+		if(number < 1e30) {
+			return formatNumber(number / 1e27) + o;
+		}
+		if(number < 1e33) {
+			return formatNumber(number / 1e30) + n;
+		}
+		if(number < 1e36) {
+			return formatNumber(number / 1e33) + d;
+		}
+		if(number < 1e39) {
+			return formatNumber(number / 1e36) + ud;
 		}
 
-		return addCommas(d);
+		return addCommas(number);
 	}
 
 	private static String formatNumber(double d) {

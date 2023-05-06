@@ -5,6 +5,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.commands.main.subcommands.*;
+import us.ajg0702.leaderboards.commands.main.subcommands.debug.Format;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Resets;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Time;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
@@ -41,6 +42,7 @@ public class MainCommand extends BaseCommand {
         // Debug commands
         addSubCommand(new Time());
         addSubCommand(new Resets(plugin));
+        addSubCommand(new Format());
     }
 
     @Override
