@@ -42,8 +42,8 @@ enable-dontupdate-permission: true
 blocking-fetch: auto
 
 # Allows setting custom bytebin location and webviewer link
-bytebin-link: "https://paste.ajg0702.us/post"
-web-link: "https://ajlb-viewer.ajg0702.us/#{code}"
+bytebin-link: "https://bytebin.ajg0702.us/post"
+web-link: "https://ajlb-viewer.ajg0702.us/?id={code}"
 
 # Should we register luckperms contexts?
 # See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
