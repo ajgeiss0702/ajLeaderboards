@@ -36,12 +36,14 @@ enable-dontupdate-permission: true
 # Should we block the thread when loading placeholders?
 # The default option of auto will only block when we are not on the main server thread.
 # If true, it will always block the thread, which could cause some lag.
-# If false, it will never block the thread its on.
+# If false, it will never block the thread it's on. (but will show "Loading" for a sec)
 #  Options: true, false, auto
 #  Default: auto
 blocking-fetch: auto
 
 # Allows setting custom bytebin location and webviewer link
+# You should only need to change these if you don't want /ajlb viewer to send the data to my servers
+#  (which is only kept for 90 days or less, and you can contact me to delete sooner if you'd like)
 bytebin-link: "https://bytebin.ajg0702.us/post"
 web-link: "https://ajlb-viewer.ajg0702.us/?id={code}"
 
@@ -102,7 +104,7 @@ value-names:
 - "statistic_player_kills%kills"
 
 # Should this server update player stats?
-#  If disabled, stats will not be recorded to the database, and ajleaderboards will basically only read from it.
+#  If disabled, stats will not be recorded to the database, and ajLeaderboards will basically only read from it.
 #  This can be useful if you have a lobby where you want to display leaderboards, but want to make sure anything in the lobby
 #   doesn't override the stats from other servers
 update-stats: true
