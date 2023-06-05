@@ -3,6 +3,9 @@ package us.ajg0702.leaderboards.formatting.formats;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.formatting.Format;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,13 +60,26 @@ public class ColonTime extends Format {
         double seconds = input % 60d;
 
         return
-                (hours == 0 ? "00" : hours) + ":" +
-                (minutes == 0 ? "00" : minutes) + ":" +
-                (seconds == 0 ? "00" : seconds);
+                (hours == 0 ? "00" : addZero(hours)) + ":" +
+                (minutes == 0 ? "00" : addZero(minutes)) + ":" +
+                (seconds == 0 ? "00" : addZero(seconds));
     }
 
     @Override
     public String getName() {
         return "ColonTime";
+    }
+
+    private String addZero(int i) {
+        if(i <= 9 && i >= 0) {
+            return "0" + i;
+        }
+        return i + "";
+    }
+
+    DecimalFormat decimalFormat = new DecimalFormat("#,#00.###");
+
+    private String addZero(double d) {
+        return decimalFormat.format(d);
     }
 }
