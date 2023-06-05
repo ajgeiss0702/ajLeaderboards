@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.io.BufferedReader;
@@ -54,6 +55,8 @@ public class Viewer extends SubCommand {
                 sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
                 return;
             }
+
+            Debug.info("Uploading export to " + link);
 
             try {
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
