@@ -1,7 +1,7 @@
 plugins {
     java
     `maven-publish`
-    id("com.github.johnrengelman.shadow").version("6.1.0")
+    id("com.github.johnrengelman.shadow").version("7.1.2")
     id("io.github.slimjar").version("1.3.0")
 }
 
@@ -23,19 +23,19 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.2")
 
     implementation("io.github.slimjar:slimjar:1.2.7")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.1")
-    compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
-    compileOnly("org.spongepowered:configurate-yaml:4.0.0")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
+    compileOnly("me.clip:placeholderapi:2.11.3")
+    compileOnly("org.xerial:sqlite-jdbc:3.42.0.0")
+    compileOnly("org.spongepowered:configurate-yaml:4.1.2")
 
-    implementation("org.bstats:bstats-bukkit:1.7")
+    implementation("org.bstats:bstats-bukkit:3.0.2")
 
-    implementation("net.kyori:adventure-api:4.12.0")
-    implementation("net.kyori:adventure-text-minimessage:4.12.0")
+    implementation("net.kyori:adventure-api:4.14.0")
+    implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
 
     implementation("us.ajg0702:ajUtils:1.2.12")
@@ -48,7 +48,7 @@ dependencies {
     implementation(project(":nms:nms-19"))
 
 
-    slim("com.zaxxer:HikariCP:3.4.5")
+    slim("com.zaxxer:HikariCP:5.0.1")
     slim("com.h2database:h2:2.1.214")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
