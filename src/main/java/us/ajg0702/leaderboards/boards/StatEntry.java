@@ -8,7 +8,6 @@ import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.utils.EasyJsonObject;
-import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;

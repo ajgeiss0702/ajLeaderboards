@@ -2,13 +2,11 @@ package us.ajg0702.leaderboards.cache.methods;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.metrics.prometheus.PrometheusHistogramMetricsTrackerFactory;
-import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.leaderboards.cache.CacheMethod;
+import us.ajg0702.leaderboards.cache.SQLCacheMethod;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.sql.Connection;
@@ -18,19 +16,23 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Locale;
 
-public class MysqlMethod implements CacheMethod {
+public class MysqlMethod extends SQLCacheMethod {
+    private final HikariConfig hikariConfig = new HikariConfig();
+    private LeaderboardPlugin plugin;
+    private HikariDataSource ds;
+    public MysqlMethod(ConfigFile storageConfig) {
+        super(storageConfig);
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
-        if(ds == null) return null;
+        if (ds == null) return null;
         return ds.getConnection();
     }
 
-    private final HikariConfig hikariConfig = new HikariConfig();
-    private HikariDataSource ds;
-
-
     @Override
     public void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance) {
+        this.plugin = plugin;
         String ip = config.getString("ip");
         String username = config.getString("username");
         String password = config.getString("password");
@@ -62,7 +64,7 @@ public class MysqlMethod implements CacheMethod {
             Statement statement = conn.createStatement();
             for(String tableName : tables) {
                 int version;
-                if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
+                if (!tableName.startsWith(getTablePrefix())) continue;
                 try {
                     ResultSet rs = conn.createStatement().executeQuery("show table status where Name='"+tableName+"'");
                     rs.next();
@@ -174,6 +176,11 @@ public class MysqlMethod implements CacheMethod {
     }
 
     @Override
+    protected LeaderboardPlugin getPlugin() {
+        return plugin;
+    }
+
+    @Override
     public int getMaxConnections() {
         return ds.getMaximumPoolSize();
     }
@@ -186,6 +193,16 @@ public class MysqlMethod implements CacheMethod {
     @Override
     public String formatStatement(String s) {
         return s.replaceAll("'", "`");
+    }
+
+    @Override
+    public String getQuotationMark() {
+        return "`";
+    }
+
+    @Override
+    public String getTablePrefix() {
+        return getStorageConfig().getString("table_prefix");
     }
 
     @Override
