@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.1")
 
     implementation("io.github.slimjar:slimjar:1.2.7")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
@@ -50,6 +50,7 @@ dependencies {
 
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
+    slim("org.mongodb:mongodb-driver-sync:4.9.1")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -67,6 +68,7 @@ tasks.withType<ProcessResources> {
 tasks.slimJar {
     relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
+    relocate("org.mongodb", "us.ajg0702.leaderboards.libs.mongodb")
 }
 
 tasks.shadowJar {

@@ -6,7 +6,7 @@ import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.leaderboards.cache.CacheMethod;
+import us.ajg0702.leaderboards.cache.SQLCacheMethod;
 import us.ajg0702.leaderboards.utils.UnClosableConnection;
 import us.ajg0702.utils.common.ConfigFile;
 
@@ -21,15 +21,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-public class H2Method implements CacheMethod {
+public class H2Method extends SQLCacheMethod {
     private Connection conn;
     private LeaderboardPlugin plugin;
     private ConfigFile config;
     private Cache cacheInstance;
+
+    public H2Method(ConfigFile storageConfig) {
+        super(storageConfig);
+    }
+
+
     @Override
     public Connection getConnection() {
         try {
-            if(conn.isClosed()) {
+            if (conn.isClosed()) {
                 plugin.getLogger().warning("H2 connection is dead, making a new one");
                 init(plugin, config, cacheInstance);
             }
@@ -87,7 +93,7 @@ public class H2Method implements CacheMethod {
             //ResultSet rs = conn.getMetaData().getTables(null, null, "", null);
             for(String tableName : tables) {
                 int version;
-                if(!tableName.startsWith(cacheInstance.getTablePrefix())) continue;
+                if (!tableName.startsWith(getTablePrefix())) continue;
                 try {
                     ResultSet rs = conn.createStatement().executeQuery("SELECT TABLE_NAME,COLUMN_NAME,REMARKS\n" +
                             " FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='"+tableName+"'");
@@ -125,7 +131,7 @@ public class H2Method implements CacheMethod {
                             throw e;
                         }
                     }
-                    statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");
+                    statement.executeUpdate("COMMENT ON TABLE \"" + tableName + "\" IS '2';");
                     version = 2;
                 }
             }
@@ -135,7 +141,13 @@ public class H2Method implements CacheMethod {
     }
 
     @Override
-    public void close(Connection connection) {}
+    public void close(Connection connection) {
+    }
+
+    @Override
+    protected LeaderboardPlugin getPlugin() {
+        return plugin;
+    }
 
     @Override
     public int getMaxConnections() {
@@ -154,6 +166,16 @@ public class H2Method implements CacheMethod {
     @Override
     public String formatStatement(String s) {
         return s.replaceAll("'", "\"");
+    }
+
+    @Override
+    public String getQuotationMark() {
+        return "`";
+    }
+
+    @Override
+    public String getTablePrefix() {
+        return "";
     }
 
     @Override
