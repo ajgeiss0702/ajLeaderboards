@@ -43,9 +43,10 @@ public class TopManager {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+        int k = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
         fetchService = new ThreadPoolExecutor(
                 t, t,
-                500, TimeUnit.MILLISECONDS,
+                k, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1000000, true)
         );
         fetchService.allowCoreThreadTimeOut(true);

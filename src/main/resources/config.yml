@@ -158,6 +158,12 @@ fetching-de-bug: false
 #  Default: 70
 max-fetching-threads: 70
 
+# For how long (in milliseconds) should we keep a thread alive before killing it?
+# This allows us to reuse threads instead of creating new ones every time we need to fetch something.
+# Creating new threads is expensive but keeping them alive for too long can consume resources.
+# Requires a server restart to change
+#  Default: 30000 (30 seconds)
+fetching-thread-pool-keep-alive: 30000
 
 
 # # # # # # # # # # # # # # # # # # # # # # #
