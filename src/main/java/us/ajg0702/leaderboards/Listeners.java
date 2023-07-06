@@ -42,5 +42,9 @@ public class Listeners implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         plugin.getCache().cleanPlayer(e.getPlayer());
+
+        if(!plugin.getAConfig().getBoolean("update-stats")) return;
+        if(!plugin.getAConfig().getBoolean("update-on-leave")) return;
+        plugin.getCache().updatePlayerStats(e.getPlayer());
     }
 }

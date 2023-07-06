@@ -70,6 +70,11 @@ sign-update: 20
 #  Default: true
 update-on-join: true
 
+# Should ajLeaderboards update the stat as soon as the player leaves?
+# This can be used to prevent players from losing all of their money, then leaving before ajlb updates
+#  Default: true
+update-on-leave: true
+
 # These are "extra" placeholders that can be parsed to be displayed alongside the leaderboard
 # For example, you can have a KDR leaderboard, then next to each player on the leaderboard,
 #  you can show their actual kills and deaths
