@@ -149,21 +149,30 @@ particles: false
 # You really only need to use this if the dev asks for it.
 fetching-de-bug: false
 
+# What number of core threads should ajLeaderboards be allowed to use for fetching from the db?
+# These threads are always available and are created when the plugin is loaded.
+# This is ignored on mysql (and maxConnections is used for this instead)
+# I would __not__ recommend setting this above 10.
+# Requires a server restart to change
+#  Default: 4
+min-fetching-threads: 4
+
 # What maximum number of threads should ajLeaderboards be allowed to use for fetching from the db?
 # Most of the time, the number of threads used will be far less than this.
 # This is ignored on mysql (and maxConnections is used for this instead)
 # Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
-# I would __not__ recommend setting this below 20.
+# I would __not__ recommend setting this below 16.
 # Requires a server restart to change
-#  Default: 70
-max-fetching-threads: 70
+#  Default: 16
+max-fetching-threads: 16
 
-# For how long (in milliseconds) should we keep a thread alive before killing it?
+# For how long (in milliseconds) should we keep a non-core thread alive before killing it?
 # This allows us to reuse threads instead of creating new ones every time we need to fetch something.
 # Creating new threads is expensive but keeping them alive for too long can consume resources.
+# I would __not__ recommend setting this below 5000.
 # Requires a server restart to change
-#  Default: 30000 (30 seconds)
-fetching-thread-pool-keep-alive: 30000
+#  Default: 60000 (60 seconds)
+fetching-thread-pool-keep-alive: 60000
 
 
 # # # # # # # # # # # # # # # # # # # # # # #
