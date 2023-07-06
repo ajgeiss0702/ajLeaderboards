@@ -82,6 +82,21 @@ update-on-leave: true
 extras:
   - "statistic_player_kills"
 
+# When resetting a timed type (e.g. daily, weekly, etc) how many positions should we save?
+# They are saved in the "past-resets" folder
+# Set to 0 or a negative number to disbale saving
+#  Default: 10
+reset-save-positions: 10
+
+# Which timed types should we save?
+# Use "*" to save all
+#  Default: all except hourly
+reset-save-types:
+  - DAILY
+  - WEEKLY
+  - MONTHLY
+  - YEARLY
+
 # What character should we use for the comma in long numbers?
 # You can also set this to be blank if you don't want commas
 comma: ","

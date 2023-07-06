@@ -702,6 +702,14 @@ public class Cache {
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
+
+
+		List<String> saveableTypes = plugin.getAConfig().getStringList("reset-save-types");
+		if(saveableTypes.contains(type.toString()) || saveableTypes.contains("*")) {
+			plugin.getResetSaver().save(board, type);
+		}
+
+
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = plugin.getTopManager().getLastReset(board, type)*1000L;
 		if(plugin.isShuttingDown()) {

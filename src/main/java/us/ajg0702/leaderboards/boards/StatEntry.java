@@ -316,10 +316,10 @@ public class StatEntry {
 				.add("playerDisplayName", playerDisplayName)
 				.add("prefix", prefix)
 				.add("suffix", suffix)
-				.add("playerID", playerID.toString())
+				.add("playerID", nullString(playerID))
 				.add("position", position)
 				.add("board", board)
-				.add("type", type.toString())
+				.add("type", nullString(type))
 				.add("score", score)
 				.getHandle();
 	}
@@ -341,5 +341,10 @@ public class StatEntry {
 
 	public static void setPlugin(LeaderboardPlugin leaderboardPlugin) {
 		plugin = leaderboardPlugin;
+	}
+
+	private String nullString(Object o) {
+		if(o == null) return null;
+		return o.toString();
 	}
 }
