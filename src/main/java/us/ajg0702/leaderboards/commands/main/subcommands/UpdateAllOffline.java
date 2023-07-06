@@ -63,7 +63,7 @@ public class UpdateAllOffline extends SubCommand {
                 return;
             }
             OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-            plugin.getOfflineUpdaters().put(board, new OfflineUpdater(plugin, board, offlinePlayers));
+            plugin.getOfflineUpdaters().put(board, new OfflineUpdater(plugin, board, offlinePlayers, sender));
             sender.sendMessage(message(
                     "&aStarted update of &f" + offlinePlayers.length + " &aplayers!\n" +
                             "&7You can check the progress by either checking the console, or running " +
