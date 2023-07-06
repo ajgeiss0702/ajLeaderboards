@@ -41,12 +41,6 @@ enable-dontupdate-permission: true
 #  Default: auto
 blocking-fetch: auto
 
-# Allows setting custom bytebin location and webviewer link
-# You should only need to change these if you don't want /ajlb viewer to send the data to my servers
-#  (which is only kept for 90 days or less, and you can contact me to delete sooner if you'd like)
-bytebin-link: "https://bytebin.ajg0702.us/post"
-web-link: "https://ajlb-viewer.ajg0702.us/?id={code}"
-
 # Should we register luckperms contexts?
 # See how to use them here: https://wiki.ajg0702.us/ajleaderboards/setup/luckperms-contexts
 # If you enable this, I HIGHLY recommend configuring "only-register-lpc-for" below
@@ -129,6 +123,12 @@ dont-add-zero: []
 # If vault is not installed, this option does nothing (prefixes/suffixes aren't fetched anyway)
 #  Default: true
 fetch-prefix-suffix-from-vault: true
+
+# Allows setting custom bytebin location and webviewer link
+# You should only need to change these if you don't want /ajlb viewer to send the data to my servers
+#  (which is only kept for 90 days or less, and you can contact me to delete sooner if you'd like)
+bytebin-link: "https://bytebin.ajg0702.us/post"
+web-link: "https://ajlb-viewer.ajg0702.us/?id={code}"
 
 
 # Debug option to print stuff that could be useful to the developer.
