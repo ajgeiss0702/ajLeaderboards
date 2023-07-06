@@ -63,7 +63,7 @@ public class H2Method implements CacheMethod {
                     plugin.getLogger().warning("Failed to delete junk trace file!");
                 }
             } catch(SecurityException e) {
-                plugin.getLogger().warning("Failed to delete junk trace file: " + e.getMessage());
+                plugin.getLogger().log(Level.WARNING, "Failed to delete junk trace file: ", e);
             }
         }
 
