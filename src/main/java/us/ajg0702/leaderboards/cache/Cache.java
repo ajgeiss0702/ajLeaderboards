@@ -205,7 +205,7 @@ public class Cache {
 				}
 			}
 			if(prefix == null) prefix = "";
-			if(suffix == null) prefix = "";
+			if(suffix == null) suffix = "";
 			if(displayName == null) displayName = name;
 			if(uuidraw != null) {
 				r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
