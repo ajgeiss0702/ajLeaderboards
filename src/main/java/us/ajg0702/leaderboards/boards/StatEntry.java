@@ -56,6 +56,8 @@ public class StatEntry {
 	double score;
 	String scorePretty;
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
+		if(prefix == null) throw new IllegalArgumentException("Prefix cannot be null");
+		if(suffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		this.playerName = playerName;
 		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
 		this.score = score;
@@ -112,12 +114,13 @@ public class StatEntry {
 	}
 
 	public void changeScore(double newScore, String newPrefix, String newSuffix) {
+		if(newPrefix == null) throw new IllegalArgumentException("Prefix cannot be null");
+		if(newSuffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		score = newScore;
 		prefix = newPrefix;
 		suffix = newSuffix;
 
 		scorePretty = calcPrettyScore();
-
 	}
 
 	public boolean hasPlayer() {

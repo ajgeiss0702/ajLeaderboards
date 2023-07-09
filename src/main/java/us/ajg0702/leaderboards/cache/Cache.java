@@ -204,6 +204,9 @@ public class Cache {
 					throw e;
 				}
 			}
+			if(prefix == null) prefix = "";
+			if(suffix == null) prefix = "";
+			if(displayName == null) displayName = name;
 			if(uuidraw != null) {
 				r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 			}
@@ -493,12 +496,22 @@ public class Cache {
 		if(plugin.hasVault() && player instanceof Player && plugin.getAConfig().getBoolean("fetch-prefix-suffix-from-vault")) {
 			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
+			if(prefix == null) {
+				prefix = "";
+				plugin.getLogger().warning("Got a null prefix for " + player.getName() + " from " + plugin.getVaultChat().getName());
+			}
+			if(suffix == null) {
+				suffix = "";
+				plugin.getLogger().warning("Got a null suffix for " + player.getName() + " from " + plugin.getVaultChat().getName());
+			}
 		} else {
 			suffix = "";
 			prefix = "";
 		}
 
 		String finalDisplayName = displayName;
+		String finalSuffix = suffix;
+		String finalPrefix = prefix;
 		Runnable updateTask = () -> {
 
 			BoardPlayer boardPlayer = new BoardPlayer(board, player);
@@ -507,8 +520,8 @@ public class Cache {
 			if(cached != null && cached.hasPlayer() &&
 					cached.getScore() == output &&
 					cached.getPlayerDisplayName().equals(finalDisplayName) &&
-					cached.getPrefix().equals(prefix) &&
-					cached.getSuffix().equals(suffix)
+					cached.getPrefix().equals(finalPrefix) &&
+					cached.getSuffix().equals(finalSuffix)
 			) {
 				if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
 				return;
@@ -540,7 +553,7 @@ public class Cache {
 			}
 
 
-			if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
+			if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+ finalSuffix +" prefix: "+ finalPrefix);
 			try(Connection conn = method.getConnection()) {
 				try {
 					PreparedStatement statement = conn.prepareStatement(String.format(
@@ -551,8 +564,8 @@ public class Cache {
 					statement.setString(1, player.getUniqueId().toString());
 					statement.setDouble(2, output);
 					statement.setString(3, player.getName());
-					statement.setString(4, prefix);
-					statement.setString(5, suffix);
+					statement.setString(4, finalPrefix);
+					statement.setString(5, finalSuffix);
 					statement.setString(6, finalDisplayName);
 					int i = 6;
 					for(TimedType type : TimedType.values()) {
@@ -577,8 +590,8 @@ public class Cache {
 					))) {
 						statement.setDouble(1, output);
 						statement.setString(2, player.getName());
-						statement.setString(3, prefix);
-						statement.setString(4, suffix);
+						statement.setString(3, finalPrefix);
+						statement.setString(4, finalSuffix);
 						statement.setString(5, finalDisplayName);
 						Map<TimedType, Double> timedTypeValues = new HashMap<>();
 						timedTypeValues.put(TimedType.ALLTIME, output);
@@ -595,7 +608,7 @@ public class Cache {
 
 							StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
 							if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
-								statEntry.changeScore(timedOut, prefix, suffix);
+								statEntry.changeScore(timedOut, finalPrefix, finalSuffix);
 							}
 
 							Integer position = plugin.getTopManager()
@@ -604,7 +617,7 @@ public class Cache {
 							if(position != null) {
 								StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
 								if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
-									stat.changeScore(timedOut, prefix, suffix);
+									stat.changeScore(timedOut, finalPrefix, finalSuffix);
 								}
 							}
 						}
@@ -939,6 +952,11 @@ public class Cache {
 		}
 		if(name == null) name = "-Unknown";
 		r.close();
+
+		if(prefix == null) prefix = "";
+		if(suffix == null) prefix = "";
+		if(displayName == null) displayName = name;
+
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {
