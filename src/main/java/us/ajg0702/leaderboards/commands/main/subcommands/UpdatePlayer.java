@@ -6,6 +6,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +24,9 @@ public class UpdatePlayer extends SubCommand {
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
         if(args.length == 2) return null;
         if(args.length == 1) {
-            return plugin.getTopManager().getBoards();
+            List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
+            boards.add("*");
+            return boards;
         }
         return Collections.emptyList();
     }
@@ -36,16 +39,24 @@ public class UpdatePlayer extends SubCommand {
         }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             String board = args[0];
-            if(!plugin.getCache().boardExists(board)) {
+            if(!plugin.getCache().boardExists(board) && !board.equals("*")) {
                 sender.sendMessage(message("&cThe board '"+board+"' does not exist."));
                 return;
             }
             @SuppressWarnings("deprecation")
             OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
-            plugin.getCache().updateStat(board, p);
+            if(board.equals("*")) {
+                plugin.getCache().updatePlayerStats(p);
+            } else {
+                plugin.getCache().updateStat(board, p);
+            }
 
             boolean attemptHasWarning = CheckUpdate.checkUpdate(board, p, plugin, sender);
-            sender.sendMessage(message("&"+ (attemptHasWarning ? "e" : "a") +"Attempted to update stat for "+p.getName()+" on board "+board));
+            sender.sendMessage(message(
+                    "&"+ (attemptHasWarning ? "e" : "a") +
+                            "Attempted to update stat for "+p.getName()+" on " +
+                            (board.equals("*") ? "all boards" : "board "+board)
+            ));
         });
     }
 }
