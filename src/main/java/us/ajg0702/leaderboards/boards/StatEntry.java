@@ -8,7 +8,6 @@ import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.utils.EasyJsonObject;
-import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
@@ -34,7 +33,7 @@ public class StatEntry {
 	final int position;
 	final String board;
 
-	private Cache cache;
+	private final Cache cache;
 
 	private final TimedType type;
 
@@ -183,6 +182,21 @@ public class StatEntry {
 		return formatDouble(score);
 	}
 
+	public String getColor() {
+		if(prefix.isEmpty()) return "";
+		StringBuilder colors = new StringBuilder();
+		int i = 0;
+		for(char c : prefix.toCharArray()) {
+			if(i == prefix.length()-1) break;
+			if(c == '&' || c == '\u00A7') {
+				colors.append(c);
+				colors.append(prefix.charAt(i+1));
+			}
+			i++;
+		}
+		return colors.toString();
+	}
+
 	public static String formatDouble(double number) {
 		if (number < 1000L) {
 			return formatNumber(number);
@@ -287,10 +301,10 @@ public class StatEntry {
 	}
 
 
-	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+	public static StatEntry boardNotFound(int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
 	}
-	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+	public static StatEntry error(int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
@@ -308,7 +322,7 @@ public class StatEntry {
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, boardType.getType());
 	}
-	public static StatEntry loading(LeaderboardPlugin plugin, OfflinePlayer player, BoardType boardType) {
+	public static StatEntry loading(OfflinePlayer player, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType());
 	}
 

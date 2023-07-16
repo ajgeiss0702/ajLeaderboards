@@ -186,7 +186,7 @@ public class TopManager {
                 cached = statEntryCache.getUnchecked(key);
             } else {
                 fetchService.submit(() -> statEntryCache.getUnchecked(key));
-                return StatEntry.loading(plugin, player, key.getBoardType());
+                return StatEntry.loading(player, key.getBoardType());
             }
         }
 

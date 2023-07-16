@@ -5,7 +5,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
@@ -26,7 +25,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -114,7 +112,7 @@ public class Cache {
 			if(!nonExistantBoards.contains(board)) {
 				nonExistantBoards.add(board);
 			}
-			return StatEntry.boardNotFound(plugin, position, board, type);
+			return StatEntry.boardNotFound(position, board, type);
 		}
 		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		try {
@@ -136,7 +134,7 @@ public class Cache {
 			return se;
 		} catch(SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get stat of player:", e);
-			return StatEntry.error(plugin, position, board, type);
+			return StatEntry.error(position, board, type);
 		}
 	}
 
@@ -149,7 +147,7 @@ public class Cache {
 			if(!nonExistantBoards.contains(board)) {
 				nonExistantBoards.add(board);
 			}
-			return StatEntry.boardNotFound(plugin, -3, board, type);
+			return StatEntry.boardNotFound(-3, board, type);
 		}
 		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		StatEntry r = null;
@@ -215,7 +213,7 @@ public class Cache {
 			method.close(conn);
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
-			return StatEntry.error(plugin, -1, board, type);
+			return StatEntry.error(-1, board, type);
 		}
 		rolling.add((int) (System.currentTimeMillis()-start));
 		if(rolling.size() > 50) {

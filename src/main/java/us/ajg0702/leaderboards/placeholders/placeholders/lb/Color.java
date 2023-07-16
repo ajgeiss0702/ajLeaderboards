@@ -23,19 +23,11 @@ public class Color extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(3).toUpperCase(Locale.ROOT);
-        StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, TimedType.valueOf(typeRaw));
-        if(r.getPrefix().isEmpty()) return "";
-        String prefix = r.getPrefix();
-        StringBuilder colors = new StringBuilder();
-        int i = 0;
-        for(char c : prefix.toCharArray()) {
-            if(i == prefix.length()-1) break;
-            if(c == '&' || c == '\u00A7') {
-                colors.append(c);
-                colors.append(prefix.charAt(i+1));
-            }
-            i++;
+        TimedType type = TimedType.of(typeRaw);
+        if(type == null) {
+            return "Invalid TimedType '" + typeRaw + "'";
         }
-        return colors.toString();
+        StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, type);
+        return r.getColor();
     }
 }
