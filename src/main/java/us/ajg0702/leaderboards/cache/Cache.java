@@ -457,7 +457,12 @@ public class Cache {
 				continue;
 			}
 
-			plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
+			Runnable runnable = () -> plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
+			if(Bukkit.isPrimaryThread()) {
+				plugin.getTopManager().submit(runnable);
+			} else {
+				runnable.run();
+			}
 		}
 	}
 
