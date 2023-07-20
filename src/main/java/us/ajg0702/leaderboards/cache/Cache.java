@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.api.events.UpdatePlayerEvent;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -429,8 +430,14 @@ public class Cache {
 			if(!updatableBoards.isEmpty() && !updatableBoards.contains(b)) continue;
 			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
-				if(plugin.getAConfig().getBoolean("enable-dontupdate-permission") && player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
+				if(
+						plugin.getAConfig().getBoolean("enable-dontupdate-permission") &&
+								player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)
+				) continue;
 			}
+			UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(new BoardPlayer(b, player));
+			Bukkit.getPluginManager().callEvent(updatePlayerEvent);
+			if(updatePlayerEvent.isCancelled()) continue;
 			updateStat(b, player);
 		}
 

@@ -53,6 +53,11 @@ dependencies {
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 tasks.withType<ProcessResources> {
     include("**/*.yml")
     include("**/*.prop")
