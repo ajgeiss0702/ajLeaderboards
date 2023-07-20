@@ -13,6 +13,7 @@ public class UpdatePlayerEvent extends Event implements Cancellable {
     private boolean cancelled = false;
 
     public UpdatePlayerEvent(BoardPlayer boardPlayer) {
+        super(true);
         this.boardPlayer = boardPlayer;
     }
 
