@@ -437,7 +437,10 @@ public class Cache {
 			}
 			UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(new BoardPlayer(b, player));
 			Bukkit.getPluginManager().callEvent(updatePlayerEvent);
-			if(updatePlayerEvent.isCancelled()) continue;
+			if(updatePlayerEvent.isCancelled()) {
+				Debug.info("Update for " + player.getName() + " on " + b + " was canceled by an event!");
+				continue;
+			}
 			updateStat(b, player);
 		}
 
