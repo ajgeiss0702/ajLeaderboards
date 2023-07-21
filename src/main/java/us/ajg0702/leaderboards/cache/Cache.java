@@ -435,11 +435,14 @@ public class Cache {
 								player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)
 				) continue;
 			}
-			UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(new BoardPlayer(b, player));
-			Bukkit.getPluginManager().callEvent(updatePlayerEvent);
-			if(updatePlayerEvent.isCancelled()) {
-				Debug.info("Update for " + player.getName() + " on " + b + " was canceled by an event!");
-				continue;
+			// If this update isnt async, then dont run the event until it is async
+			if(!Bukkit.isPrimaryThread()) {
+				UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(new BoardPlayer(b, player));
+				Bukkit.getPluginManager().callEvent(updatePlayerEvent);
+				if(updatePlayerEvent.isCancelled()) {
+					Debug.info("Update for " + player.getName() + " on " + b + " was canceled by an event!");
+					continue;
+				}
 			}
 			updateStat(b, player);
 		}
@@ -522,12 +525,23 @@ public class Cache {
 			prefix = "";
 		}
 
+		boolean waitedUpdate = Bukkit.isPrimaryThread();
+
 		String finalDisplayName = displayName;
 		String finalSuffix = suffix;
 		String finalPrefix = prefix;
 		Runnable updateTask = () -> {
 
 			BoardPlayer boardPlayer = new BoardPlayer(board, player);
+
+			if(waitedUpdate) {
+				UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(boardPlayer);
+				Bukkit.getPluginManager().callEvent(updatePlayerEvent);
+				if(updatePlayerEvent.isCancelled()) {
+					Debug.info("Update for " + player.getName() + " on " + board + " was canceled by an event!");
+					return;
+				}
+			}
 
 			StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
 			if(cached != null && cached.hasPlayer() &&
