@@ -8,8 +8,6 @@ import us.ajg0702.leaderboards.commands.main.MainCommand;
 import java.util.Collections;
 import java.util.List;
 
-import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
-
 public class Signs extends SubCommand {
     @SuppressWarnings("FieldCanBeLocal")
     private final LeaderboardPlugin plugin;
@@ -26,7 +24,7 @@ public class Signs extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        return subCommandAutoComplete(sender, args);
+        return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
     }
 
     @Override

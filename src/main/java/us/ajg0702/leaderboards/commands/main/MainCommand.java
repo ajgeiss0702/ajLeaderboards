@@ -11,7 +11,6 @@ import us.ajg0702.leaderboards.commands.main.subcommands.debug.Save;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Time;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
-import javax.swing.text.View;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +51,7 @@ public class MainCommand extends BaseCommand {
         if(!checkPermission(sender)) {
             return Collections.emptyList();
         }
-        return subCommandAutoComplete(sender, args);
+        return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
     }
 
     @Override
