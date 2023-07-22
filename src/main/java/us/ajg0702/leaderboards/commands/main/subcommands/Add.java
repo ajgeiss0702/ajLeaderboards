@@ -5,7 +5,6 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -22,8 +21,8 @@ public class Add extends SubCommand {
     }
 
     @Override
-    public List<String> autoComplete(CommandSender commandSender, String[] strings) {
-        return plugin.getCache().getNonExistantBoards();
+    public List<String> autoComplete(CommandSender commandSender, String[] args) {
+        return filterCompletion(plugin.getCache().getNonExistantBoards(), args[0]);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class UpdatePlayer extends SubCommand {
         if(args.length == 1) {
             List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
             boards.add("*");
-            return boards;
+            return filterCompletion(boards, args[0]);
         }
         return Collections.emptyList();
     }

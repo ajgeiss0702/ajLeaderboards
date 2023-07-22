@@ -33,7 +33,7 @@ public class Import extends SubCommand {
         for(File file : files) {
             fileNames.add(file.getName());
         }
-        return fileNames;
+        return filterCompletion(fileNames, args[0]);
     }
 
     @Override

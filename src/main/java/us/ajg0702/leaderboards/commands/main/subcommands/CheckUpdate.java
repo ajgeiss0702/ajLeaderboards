@@ -22,7 +22,7 @@ public class CheckUpdate extends SubCommand {
     public List<String> autoComplete(CommandSender sender, String[] args) {
         if(args.length == 2) return null;
         if(args.length == 1) {
-            return plugin.getTopManager().getBoards();
+            return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
         }
         return Collections.emptyList();
     }

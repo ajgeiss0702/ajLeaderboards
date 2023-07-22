@@ -23,11 +23,11 @@ public class Save extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        if(args.length == 2) {
-            return TimedType.lowerNames();
-        }
         if(args.length == 1) {
-            return plugin.getTopManager().getBoards();
+            return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
+        }
+        if(args.length == 2) {
+            return filterCompletion(TimedType.lowerNames(), args[1]);
         }
         return Collections.emptyList();
     }

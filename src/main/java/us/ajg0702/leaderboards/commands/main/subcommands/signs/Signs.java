@@ -9,12 +9,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class Signs extends SubCommand {
-    @SuppressWarnings("FieldCanBeLocal")
-    private final LeaderboardPlugin plugin;
 
     public Signs(LeaderboardPlugin plugin) {
         super("signs", Collections.emptyList(), "ajleaderboards.use", "Manage leaderboard signs");
-        this.plugin = plugin;
 
         addSubCommand(new AddSign(plugin));
         addSubCommand(new ListSigns(plugin));
@@ -24,7 +21,11 @@ public class Signs extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
+        if(args.length == 1) {
+            return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
+        } else {
+            return subCommandAutoComplete(sender, args);
+        }
     }
 
     @Override

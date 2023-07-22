@@ -27,10 +27,13 @@ public class UpdateAllOffline extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        if(args.length < 2) {
-            return plugin.getTopManager().getBoards();
+        if(args.length == 1) {
+            return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
         }
-        return Arrays.asList("start", "progress");
+        if(args.length == 2) {
+            return Arrays.asList("start", "progress");
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -90,7 +93,6 @@ public class UpdateAllOffline extends SubCommand {
                     "&cInvalid argument!\n" +
                             "&7Usage: /" + label + " updatealloffline <board> [start/progress]"
             ));
-            return;
         }
     }
 }

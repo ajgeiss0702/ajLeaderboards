@@ -19,10 +19,8 @@ import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class MainCommand extends BaseCommand {
-    private final LeaderboardPlugin plugin;
     public MainCommand(LeaderboardPlugin plugin) {
         super("ajleaderboards", Arrays.asList("ajl", "ajlb"), "ajleaderboards.use", "Main comamnd for ajLeaderboards");
-        this.plugin = plugin;
 
         addSubCommand(new Version(plugin));
         addSubCommand(new Reload(plugin));
@@ -51,7 +49,11 @@ public class MainCommand extends BaseCommand {
         if(!checkPermission(sender)) {
             return Collections.emptyList();
         }
-        return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
+        if(args.length == 1) {
+            return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
+        } else {
+            return subCommandAutoComplete(sender, args);
+        }
     }
 
     @Override
