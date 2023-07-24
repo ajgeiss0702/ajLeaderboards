@@ -137,6 +137,15 @@ public class StatEntry {
 		return playerName;
 	}
 
+	public String getSkin() {
+		if(playerName != null) return playerName;
+		if(plugin.getMessages().hasMessage("no-player-skin." + board)) {
+			return plugin.getMessages().getRawString("no-player-skin." + board);
+		} else {
+			return plugin.getMessages().getRawString("no-player-skin.default");
+		}
+	}
+
 	@NotNull
 	public String getPlayerDisplayName() {
 		return playerDisplayName;

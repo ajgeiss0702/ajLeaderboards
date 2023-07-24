@@ -15,6 +15,8 @@ public class MessageLoader {
                             "&7&m                   "
                 ),
 
+                "no-player-skin.default", "Superman00800",
+
                 "formatted.k", "k",
                 "formatted.m", "m",
                 "formatted.t", "t",
