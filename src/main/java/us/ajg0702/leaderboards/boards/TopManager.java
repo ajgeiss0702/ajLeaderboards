@@ -305,7 +305,7 @@ public class TopManager {
         return boardCache;
     }
 
-    List<Integer> rolling = new ArrayList<>();
+    List<Integer> rolling = new CopyOnWriteArrayList<>();
     private void removeFetching() {
         fetching.decrementAndGet();
     }
