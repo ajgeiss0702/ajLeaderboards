@@ -182,7 +182,7 @@ max-fetching-threads: 70
 # This allows us to reuse threads instead of creating new ones every time we need to fetch something.
 # Creating new threads is expensive but keeping them alive for too long can consume resources.
 # I would __not__ recommend setting this below 500.
-# Extensive testing has been done, and a value of 500 has been found sutible for ajLeaderboards.
+# Extensive testing has been done, and a value of 500 has been found suitable for ajLeaderboards.
 # Requires a server restart to change
 #  Default: 500
 fetching-thread-pool-keep-alive: 500
