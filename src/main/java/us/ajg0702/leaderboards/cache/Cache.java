@@ -460,7 +460,7 @@ public class Cache {
 			if(updateDebug) Debug.info("Got '"+value+"' from extra "+extra+" for "+player.getName());
 
 			if(value.equals("%" + extra + "%")) {
-				plugin.getLogger().warning("Extra " + extra + " returned itself! (for " + player.getName() + ") Skipping. (This is an issue with the placeholder, not ajLeaderboards)");
+				Debug.info("Extra " + extra + " returned itself! (for " + player.getName() + ") Skipping.");
 				continue;
 			}
 
