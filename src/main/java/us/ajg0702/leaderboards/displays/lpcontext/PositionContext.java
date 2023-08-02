@@ -38,7 +38,7 @@ public class PositionContext implements ContextCalculator<Player> {
 
     LoadingCache<PlayerBoardType, Integer> positionCache = CacheBuilder.newBuilder()
             .expireAfterAccess(2, TimeUnit.HOURS)
-            .refreshAfterWrite(10, TimeUnit.SECONDS)
+            .refreshAfterWrite(60, TimeUnit.SECONDS)
             .maximumSize(10000)
             .build(new CacheLoader<PlayerBoardType, Integer>() {
                 @Override
