@@ -543,7 +543,7 @@ public class Cache {
 				}
 			}
 
-			StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
+			StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME, plugin.getAConfig().getBoolean("check-cache-on-update"));
 			if(cached != null && cached.hasPlayer() &&
 					cached.getScore() == output &&
 					cached.getPlayerDisplayName().equals(finalDisplayName) &&

@@ -153,7 +153,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         TimeUtils.setStrings(messages);
 
-        Bukkit.getScheduler().runTask(this, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
                 RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
                 if(rsp == null) {

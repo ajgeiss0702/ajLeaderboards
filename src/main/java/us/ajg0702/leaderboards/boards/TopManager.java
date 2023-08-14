@@ -144,7 +144,7 @@ public class TopManager {
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
     LoadingCache<PlayerBoardType, StatEntry> statEntryCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(5, TimeUnit.HOURS)
+            .expireAfterAccess(1, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
