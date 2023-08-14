@@ -1,23 +1,29 @@
 package us.ajg0702.leaderboards.boards.keys;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import us.ajg0702.leaderboards.boards.TimedType;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PlayerBoardType {
-    private final OfflinePlayer player;
+    private final UUID playerId;
     private final String board;
     private final TimedType type;
 
     public PlayerBoardType(OfflinePlayer player, String board, TimedType type) {
-        this.player = player;
+        this.playerId = player.getUniqueId();
         this.board = board;
         this.type = type;
     }
 
     public OfflinePlayer getPlayer() {
-        return player;
+        return Bukkit.getOfflinePlayer(playerId);
+    }
+
+    public UUID getPlayerId() {
+        return playerId;
     }
 
     public String getBoard() {
@@ -37,18 +43,18 @@ public class PlayerBoardType {
         if (this == o) return true;
         if (!(o instanceof PlayerBoardType)) return false;
         PlayerBoardType that = (PlayerBoardType) o;
-        return getPlayer().equals(that.getPlayer()) && getBoard().equals(that.getBoard()) && getType() == that.getType();
+        return getPlayerId().equals(that.getPlayerId()) && getBoard().equals(that.getBoard()) && getType() == that.getType();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPlayer(), getBoard(), getType());
+        return Objects.hash(getPlayerId(), getBoard(), getType());
     }
 
     @Override
     public String toString() {
         return "PlayerBoardType{" +
-                "player=" + player +
+                "playerId=" + playerId +
                 ", board='" + board + '\'' +
                 ", type=" + type +
                 '}';

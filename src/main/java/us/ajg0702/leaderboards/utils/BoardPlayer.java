@@ -1,17 +1,19 @@
 package us.ajg0702.leaderboards.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class BoardPlayer {
 
     private final String board;
-    private final OfflinePlayer player;
+    private final UUID playerId;
 
     public BoardPlayer(String board, OfflinePlayer player) {
         this.board = board;
-        this.player = player;
+        this.playerId = player.getUniqueId();
     }
 
     public String getBoard() {
@@ -19,7 +21,11 @@ public class BoardPlayer {
     }
 
     public OfflinePlayer getPlayer() {
-        return player;
+        return Bukkit.getOfflinePlayer(playerId);
+    }
+
+    public UUID getPlayerId() {
+        return playerId;
     }
 
     @Override
@@ -27,11 +33,11 @@ public class BoardPlayer {
         if (this == o) return true;
         if (!(o instanceof BoardPlayer)) return false;
         BoardPlayer that = (BoardPlayer) o;
-        return getBoard().equals(that.getBoard()) && getPlayer().equals(that.getPlayer());
+        return getBoard().equals(that.getBoard()) && getPlayerId().equals(that.getPlayerId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBoard(), getPlayer());
+        return Objects.hash(getBoard(), getPlayerId());
     }
 }

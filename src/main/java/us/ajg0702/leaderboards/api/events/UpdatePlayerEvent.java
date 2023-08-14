@@ -7,6 +7,8 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.utils.BoardPlayer;
 
+import java.util.UUID;
+
 public class UpdatePlayerEvent extends Event implements Cancellable {
 
     private final BoardPlayer boardPlayer;
@@ -27,6 +29,10 @@ public class UpdatePlayerEvent extends Event implements Cancellable {
 
     public OfflinePlayer getPlayer() {
         return getBoardPlayer().getPlayer();
+    }
+
+    public UUID getPlayerId() {
+        return getBoardPlayer().getPlayerId();
     }
 
     @Override
