@@ -4,8 +4,6 @@ import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.formatting.Format;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +30,8 @@ public class ColonTime extends Format {
         int minutes = Integer.parseInt(matcher.group(3));
         int seconds = Integer.parseInt(matcher.group(4));
 
-        String secondSeperator = matcher.group(5);
-        int miliSeconds = matcher.group(6) != null ? Integer.parseInt(matcher.group(6)) : -1;
+        String secondSeparator = matcher.group(5);
+        int milliseconds = matcher.group(6) != null ? Integer.parseInt(matcher.group(6)) : -1;
 
         double result = 0;
 
@@ -41,11 +39,11 @@ public class ColonTime extends Format {
         result += minutes * 60;
         result += hours * 60 * 60;
 
-        if(secondSeperator != null && miliSeconds != -1) {
-            if(secondSeperator.equals(":")) {
-                result += miliSeconds / 1000d;
-            } else if(secondSeperator.equals(".")) {
-                result += Integer.parseInt("0." + miliSeconds);
+        if(secondSeparator != null && milliseconds != -1) {
+            if(secondSeparator.equals(":")) {
+                result += milliseconds / 1000d;
+            } else if(secondSeparator.equals(".")) {
+                result += Double.parseDouble("0." + milliseconds);
             }
         }
 

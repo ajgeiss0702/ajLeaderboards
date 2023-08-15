@@ -20,7 +20,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
-import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
@@ -59,8 +58,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class LeaderboardPlugin extends JavaPlugin {
 
@@ -454,6 +451,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         try {
             getPlaceholderFormatter().toDouble(out, placeholder);
         } catch(NumberFormatException e) {
+            Debug.info(e.getMessage());
             if(sayOutput != null) {
                 sayOutput.sendMessage(message("&7Returned: "+out.replaceAll("§", "&")));
             }
