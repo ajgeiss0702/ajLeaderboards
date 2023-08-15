@@ -31,7 +31,7 @@ public class ColonTime extends Format {
         int seconds = Integer.parseInt(matcher.group(4));
 
         String secondSeparator = matcher.group(5);
-        int milliseconds = matcher.group(6) != null ? Integer.parseInt(matcher.group(6)) : -1;
+        String milliseconds = matcher.group(6);
 
         double result = 0;
 
@@ -39,9 +39,9 @@ public class ColonTime extends Format {
         result += minutes * 60;
         result += hours * 60 * 60;
 
-        if(secondSeparator != null && milliseconds != -1) {
+        if(secondSeparator != null && milliseconds != null) {
             if(secondSeparator.equals(":")) {
-                result += milliseconds / 1000d;
+                result += Integer.parseInt(milliseconds) / 1000d;
             } else if(secondSeparator.equals(".")) {
                 result += Double.parseDouble("0." + milliseconds);
             }
