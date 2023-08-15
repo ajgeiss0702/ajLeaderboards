@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class ColonTime extends Format {
 
-    private final Pattern pattern = Pattern.compile("([0-9]*)?:([0-9]*):([0-9]*)(:|.)?([0-9]*)?");
+    private final Pattern pattern = Pattern.compile("(([0-9]*):)?([0-9]*):([0-9]*)(:|.)?([0-9]*)?");
     @Override
     public boolean matches(String output, String placeholder) {
         if(output == null) return false;
@@ -28,12 +28,12 @@ public class ColonTime extends Format {
             throw new NumberFormatException("For input: " + input);
         }
 
-        int hours = Integer.parseInt(matcher.group(1));
-        int minutes = Integer.parseInt(matcher.group(2));
-        int seconds = Integer.parseInt(matcher.group(3));
+        int hours = Integer.parseInt(matcher.group(2) == null ? "0" : matcher.group(2));
+        int minutes = Integer.parseInt(matcher.group(3));
+        int seconds = Integer.parseInt(matcher.group(4));
 
-        String secondSeperator = matcher.group(4);
-        int miliSeconds = matcher.group(5) != null ? Integer.parseInt(matcher.group(5)) : -1;
+        String secondSeperator = matcher.group(5);
+        int miliSeconds = matcher.group(6) != null ? Integer.parseInt(matcher.group(6)) : -1;
 
         double result = 0;
 
