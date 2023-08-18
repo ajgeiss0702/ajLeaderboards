@@ -21,7 +21,7 @@ public class ListBoards extends SubCommand {
 
     @Override
     public java.util.List<String> autoComplete(CommandSender commandSender, String[] args) {
-        return plugin.getTopManager().getBoards();
+        return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
     }
 
     @Override

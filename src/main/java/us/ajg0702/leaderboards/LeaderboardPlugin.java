@@ -20,7 +20,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
-import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.TopManager;
@@ -39,6 +38,7 @@ import us.ajg0702.leaderboards.nms.legacy.HeadUtils;
 import us.ajg0702.leaderboards.placeholders.PlaceholderExpansion;
 import us.ajg0702.leaderboards.utils.Exporter;
 import us.ajg0702.leaderboards.utils.OfflineUpdater;
+import us.ajg0702.leaderboards.utils.ResetSaver;
 import us.ajg0702.leaderboards.utils.SlimJarLogger;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -58,8 +58,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class LeaderboardPlugin extends JavaPlugin {
 
@@ -73,6 +71,7 @@ public class LeaderboardPlugin extends JavaPlugin {
     private HeadUtils headUtils;
     private ArmorStandManager armorStandManager;
     private LuckpermsContextLoader contextLoader;
+    private ResetSaver resetSaver;
     private final Exporter exporter = new Exporter(this);
     private final PlaceholderFormatter placeholderFormatter = new PlaceholderFormatter(this);
 
@@ -151,7 +150,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         TimeUtils.setStrings(messages);
 
-        Bukkit.getScheduler().runTask(this, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
                 RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
                 if(rsp == null) {
@@ -168,6 +167,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         headManager = new HeadManager(this);
         headUtils = new HeadUtils(getLogger());
         armorStandManager = new ArmorStandManager(this);
+
+        resetSaver = new ResetSaver(this);
 
         cache = new Cache(this);
 
@@ -336,6 +337,10 @@ public class LeaderboardPlugin extends JavaPlugin {
         return offlineUpdaters;
     }
 
+    public ResetSaver getResetSaver() {
+        return resetSaver;
+    }
+
     int updateTaskId = -1;
     public void reloadInterval() {
         if(updateTaskId != -1) {
@@ -446,6 +451,7 @@ public class LeaderboardPlugin extends JavaPlugin {
         try {
             getPlaceholderFormatter().toDouble(out, placeholder);
         } catch(NumberFormatException e) {
+            Debug.info(e.getMessage());
             if(sayOutput != null) {
                 sayOutput.sendMessage(message("&7Returned: "+out.replaceAll("§", "&")));
             }

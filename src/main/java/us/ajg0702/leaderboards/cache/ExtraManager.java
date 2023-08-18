@@ -21,9 +21,9 @@ public class ExtraManager {
     private final Cache cache;
 
     private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-            "sqlite", "create table if not exists '%s' (id TEXT, placeholder VARCHAR(255), value VARCHAR(255))",
-            "h2", "create table if not exists '%s' ('id' VARCHAR(36), 'placeholder' VARCHAR(255), 'value' VARCHAR(255))",
-            "mysql", "create table if not exists '%s' ('id' VARCHAR(36), 'placeholder' VARCHAR(255), 'value' VARCHAR(255))"
+            "sqlite", "create table if not exists '%s' (id TEXT, placeholder VARCHAR(255), value VARCHAR(2048))",
+            "h2", "create table if not exists '%s' ('id' VARCHAR(36), 'placeholder' VARCHAR(255), 'value' VARCHAR(2048))",
+            "mysql", "create table if not exists '%s' ('id' VARCHAR(36), 'placeholder' VARCHAR(255), 'value' VARCHAR(2048))"
     );
     private final String QUERY_IDVALUE = "select id,'value' from '%s' where id=? and 'placeholder'=?";
     private final String INSERT_PLAYER = "insert into '%s' ('id', 'placeholder', 'value') values (?, ?, ?)";

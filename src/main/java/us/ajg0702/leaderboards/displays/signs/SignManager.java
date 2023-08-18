@@ -187,6 +187,7 @@ public class SignManager {
         String[] placeholders = Arrays.asList(
                 "POSITION:"+sign.getPosition(),
                 "NAME:"+r.getPlayerName(),
+                "DISPLAYNAME:"+r.getPlayerDisplayName(),
                 "VALUE:"+r.getScorePretty(),
                 "FVALUE:"+r.getScoreFormatted(),
                 "TVALUE:"+r.getTime(),

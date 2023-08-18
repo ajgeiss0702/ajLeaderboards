@@ -8,13 +8,8 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.ResolverStyle;
-import java.time.format.SignStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +25,7 @@ public class Resets extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        if(args.length == 1) return plugin.getTopManager().getBoards();
+        if(args.length == 1) return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
         return Collections.emptyList();
     }
 

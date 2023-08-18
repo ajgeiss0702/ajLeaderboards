@@ -87,7 +87,7 @@ public class ArmorStandManager {
                 WallSign bs = (WallSign) bd;
                 face = bs.getFacing();
             } else {
-                plugin.getLogger().warning("nope");
+                Debug.info("Skipping getting face for sign because it is an unknown type! " + bd.getClass());
                 return;
             }
         } else {

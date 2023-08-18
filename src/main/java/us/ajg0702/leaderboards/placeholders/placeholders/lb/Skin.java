@@ -9,14 +9,14 @@ import us.ajg0702.leaderboards.placeholders.Placeholder;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-public class Color extends Placeholder {
-    public Color(LeaderboardPlugin plugin) {
+public class Skin extends Placeholder {
+    public Skin(LeaderboardPlugin plugin) {
         super(plugin);
     }
 
     @Override
     public String getRegex() {
-        return "lb_(.*)_([1-9][0-9]*)_(.*)_color";
+        return "lb_(.*)_([1-9][0-9]*)_(.*)_skin";
     }
 
     @Override
@@ -28,6 +28,6 @@ public class Color extends Placeholder {
             return "Invalid TimedType '" + typeRaw + "'";
         }
         StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, type);
-        return r.getColor();
+        return r.getSkin();
     }
 }

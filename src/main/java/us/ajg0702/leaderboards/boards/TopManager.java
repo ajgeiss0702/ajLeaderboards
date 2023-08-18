@@ -43,13 +43,14 @@ public class TopManager {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+        int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
         fetchService = new ThreadPoolExecutor(
                 t, t,
-                500, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true)
+                keepAlive, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1000000, true),
+                ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
         );
         fetchService.allowCoreThreadTimeOut(true);
-        fetchService.setThreadFactory(ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH"));
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
@@ -143,7 +144,7 @@ public class TopManager {
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
     LoadingCache<PlayerBoardType, StatEntry> statEntryCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(5, TimeUnit.HOURS)
+            .expireAfterAccess(1, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
@@ -185,7 +186,7 @@ public class TopManager {
                 cached = statEntryCache.getUnchecked(key);
             } else {
                 fetchService.submit(() -> statEntryCache.getUnchecked(key));
-                return StatEntry.loading(plugin, player, key.getBoardType());
+                return StatEntry.loading(player, key.getBoardType());
             }
         }
 
@@ -304,7 +305,7 @@ public class TopManager {
         return boardCache;
     }
 
-    List<Integer> rolling = new ArrayList<>();
+    List<Integer> rolling = new CopyOnWriteArrayList<>();
     private void removeFetching() {
         fetching.decrementAndGet();
     }

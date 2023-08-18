@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.7.0"
+version = "2.8.0"
 
 repositories {
     mavenCentral()
@@ -51,6 +51,11 @@ dependencies {
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.withType<ProcessResources> {

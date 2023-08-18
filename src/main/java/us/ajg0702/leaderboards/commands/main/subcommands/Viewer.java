@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 
 import java.io.BufferedReader;
@@ -46,13 +47,16 @@ public class Viewer extends SubCommand {
             sender.sendMessage(plugin.getMessages().getComponent("commands.viewer.uploading"));
 
             URL url;
+            String link = plugin.getAConfig().getString("bytebin-link");
             try {
-                url = new URL("https://paste.ajg0702.us/post");
+                url = new URL(link);
             } catch (MalformedURLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An error occurred while exporting to viewer:", e);
                 sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));
                 return;
             }
+
+            Debug.info("Uploading export to " + link);
 
             try {
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -77,9 +81,10 @@ public class Viewer extends SubCommand {
 
                     JsonObject responseJson = new Gson().fromJson(response.toString(), JsonObject.class);
 
+                    String webLink = plugin.getAConfig().getString("web-link").replace("{code}", responseJson.get("key").getAsString());
                     sender.sendMessage(plugin.getMessages().getComponent(
                             "commands.viewer.success",
-                            "URL:https://ajlb-viewer.ajg0702.us/#" + responseJson.get("key").getAsString()
+                            "URL:" + webLink
                     ));
                 }
             } catch (IOException e) {

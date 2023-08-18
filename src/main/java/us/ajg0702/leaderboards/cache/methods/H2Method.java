@@ -44,11 +44,6 @@ public class H2Method implements CacheMethod {
         this.plugin = plugin;
         this.config = config;
         this.cacheInstance = cacheInstance;
-        try {
-            Class.forName("us.ajg0702.leaderboards.libs.h2.Driver");
-        } catch (ClassNotFoundException e1) {
-            e1.printStackTrace();
-        }
 
         // fix h2 error messages not being found (due to relocation)
         try {
@@ -68,7 +63,7 @@ public class H2Method implements CacheMethod {
                     plugin.getLogger().warning("Failed to delete junk trace file!");
                 }
             } catch(SecurityException e) {
-                plugin.getLogger().warning("Failed to delete junk trace file: " + e.getMessage());
+                plugin.getLogger().log(Level.WARNING, "Failed to delete junk trace file: ", e);
             }
         }
 
@@ -113,7 +108,7 @@ public class H2Method implements CacheMethod {
                         statement.executeUpdate("alter table \""+tableName+"\" add column "+type.lowerName()+"_timestamp BIGINT");
                     } catch(SQLException e) {
                         if(e.getMessage().contains("42121")) {
-                            plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
+//                            plugin.getLogger().info("The columns already exist for "+tableName+". Canceling updater and bumping DB version.");
                             try {
                                 //conn.createStatement().executeUpdate("UPDATE INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=\""+tableName+"\" SET REMARKS = '1';");
                                 conn.createStatement().executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '2';");

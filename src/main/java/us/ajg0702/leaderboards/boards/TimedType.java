@@ -83,4 +83,12 @@ public enum TimedType {
         }
         throw new IllegalStateException();
     }
+
+    public static TimedType of(String string) {
+        try {
+            return TimedType.valueOf(string.toUpperCase(Locale.ROOT));
+        } catch(IllegalArgumentException e) {
+            return null;
+        }
+    }
 }

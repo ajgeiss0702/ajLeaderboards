@@ -37,7 +37,8 @@ public class Time extends Format {
 
     private static final List<String> knownTimePlaceholders = Arrays.asList(
             "statistic_time_played",
-            "statistic_time_since_death"
+            "statistic_time_since_death",
+            "mbedwars_stats-play_time"
     );
 
     @Override

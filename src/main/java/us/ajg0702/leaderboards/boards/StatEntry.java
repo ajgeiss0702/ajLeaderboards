@@ -8,7 +8,6 @@ import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.Cache;
 import us.ajg0702.leaderboards.utils.EasyJsonObject;
-import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
 
 import java.text.DecimalFormat;
@@ -34,7 +33,7 @@ public class StatEntry {
 	final int position;
 	final String board;
 
-	private Cache cache;
+	private final Cache cache;
 
 	private final TimedType type;
 
@@ -45,10 +44,19 @@ public class StatEntry {
 	static String b = "b";
 	static String t = "t";
 	static String q = "q";
+	static String qi = "qi";
+	static String sx = "sx";
+	static String sp = "sp";
+	static String o = "o";
+	static String n = "n";
+	static String d = "d";
+	static String ud = "ud";
 	
 	double score;
 	String scorePretty;
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
+		if(prefix == null) throw new IllegalArgumentException("Prefix cannot be null");
+		if(suffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		this.playerName = playerName;
 		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
 		this.score = score;
@@ -69,6 +77,13 @@ public class StatEntry {
 				b = msgs.getString("formatted.b");
 				t = msgs.getString("formatted.t");
 				q = msgs.getString("formatted.q");
+				qi = msgs.getString("formatted.qi");
+				sx = msgs.getString("formatted.sx");
+				sp = msgs.getString("formatted.sp");
+				o = msgs.getString("formatted.o");
+				n = msgs.getString("formatted.n");
+				d = msgs.getString("formatted.d");
+				ud = msgs.getString("formatted.ud");
 			} catch(NoClassDefFoundError ignored) {}
 		}
 		
@@ -98,12 +113,13 @@ public class StatEntry {
 	}
 
 	public void changeScore(double newScore, String newPrefix, String newSuffix) {
+		if(newPrefix == null) throw new IllegalArgumentException("Prefix cannot be null");
+		if(newSuffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		score = newScore;
 		prefix = newPrefix;
 		suffix = newSuffix;
 
 		scorePretty = calcPrettyScore();
-
 	}
 
 	public boolean hasPlayer() {
@@ -119,6 +135,15 @@ public class StatEntry {
 	
 	public String getPlayerName() {
 		return playerName;
+	}
+
+	public String getSkin() {
+		if(playerID != null) return playerName;
+		if(plugin.getMessages().hasMessage("no-player-skin." + board)) {
+			return plugin.getMessages().getRawString("no-player-skin." + board);
+		} else {
+			return plugin.getMessages().getRawString("no-player-skin.default");
+		}
 	}
 
 	@NotNull
@@ -166,27 +191,63 @@ public class StatEntry {
 		return formatDouble(score);
 	}
 
-	public static String formatDouble(double d) {
-		if (d < 1000L) {
-			return formatNumber(d);
+	public String getColor() {
+		if(prefix.isEmpty()) return "";
+		StringBuilder colors = new StringBuilder();
+		int i = 0;
+		for(char c : prefix.toCharArray()) {
+			if(i == prefix.length()-1) break;
+			if(c == '&' || c == '\u00A7') {
+				colors.append(c);
+				colors.append(prefix.charAt(i+1));
+			}
+			i++;
 		}
-		if (d < 1000000L) {
-			return formatNumber(d/1000L)+k;
+		return colors.toString();
+	}
+
+	public static String formatDouble(double number) {
+		if (number < 1000L) {
+			return formatNumber(number);
 		}
-		if (d < 1000000000L) {
-			return formatNumber(d/1000000L)+m;
+		if (number < 1000000L) {
+			return formatNumber(number / 1000L) + k;
 		}
-		if (d < 1000000000000L) {
-			return formatNumber(d/1000000000L)+b;
+		if (number < 1e9) {
+			return formatNumber(number / 1e6) + m;
 		}
-		if (d < 1000000000000000L) {
-			return formatNumber(d/1000000000000L)+t;
+		if (number < 1e12) {
+			return formatNumber(number / 1e9) + b;
 		}
-		if (d < 1000000000000000000L) {
-			return formatNumber(d/1000000000000000L)+q;
+		if (number < 1e15) {
+			return formatNumber(number / 1e12) + t;
+		}
+		if (number < 1e18) {
+			return formatNumber(number / 1e15) + q;
+		}
+		if(number < 1e21) {
+			return formatNumber(number / 1e18) + qi;
+		}
+		if(number < 1e24) {
+			return formatNumber(number / 1e21) + sx;
+		}
+		if(number < 1e27) {
+			return formatNumber(number / 1e24) + sp;
+		}
+		if(number < 1e30) {
+			return formatNumber(number / 1e27) + o;
+		}
+		if(number < 1e33) {
+			return formatNumber(number / 1e30) + n;
+		}
+		if(number < 1e36) {
+			return formatNumber(number / 1e33) + d;
+		}
+		if(number < 1e39) {
+			return formatNumber(number / 1e36) + ud;
 		}
 
-		return addCommas(d);
+		return addCommas(number);
 	}
 
 	private static String formatNumber(double d) {
@@ -249,10 +310,10 @@ public class StatEntry {
 	}
 
 
-	public static StatEntry boardNotFound(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+	public static StatEntry boardNotFound(int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
 	}
-	public static StatEntry error(LeaderboardPlugin plugin, int position, String board, TimedType type) {
+	public static StatEntry error(int position, String board, TimedType type) {
 		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
@@ -270,7 +331,7 @@ public class StatEntry {
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, boardType.getType());
 	}
-	public static StatEntry loading(LeaderboardPlugin plugin, OfflinePlayer player, BoardType boardType) {
+	public static StatEntry loading(OfflinePlayer player, BoardType boardType) {
 		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType());
 	}
 
@@ -281,10 +342,10 @@ public class StatEntry {
 				.add("playerDisplayName", playerDisplayName)
 				.add("prefix", prefix)
 				.add("suffix", suffix)
-				.add("playerID", playerID.toString())
+				.add("playerID", nullString(playerID))
 				.add("position", position)
 				.add("board", board)
-				.add("type", type.toString())
+				.add("type", nullString(type))
 				.add("score", score)
 				.getHandle();
 	}
@@ -306,5 +367,10 @@ public class StatEntry {
 
 	public static void setPlugin(LeaderboardPlugin leaderboardPlugin) {
 		plugin = leaderboardPlugin;
+	}
+
+	private String nullString(Object o) {
+		if(o == null) return null;
+		return o.toString();
 	}
 }

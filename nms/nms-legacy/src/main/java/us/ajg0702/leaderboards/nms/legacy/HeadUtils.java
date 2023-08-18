@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import net.skinsrestorer.api.SkinsRestorerAPI;
+//import net.skinsrestorer.api.SkinsRestorerAPI;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -34,7 +34,7 @@ public class HeadUtils {
      block.getState().update(true);
      }**/
 
-    private final SkinsRestorerAPI skinsRestorerAPI;
+//    private final SkinsRestorerAPI skinsRestorerAPI;
 
     private VersionedHeadUtils versionedHeadUtils = null;
 
@@ -43,11 +43,11 @@ public class HeadUtils {
     public HeadUtils(Logger logger) {
         this.logger = logger;
 
-        if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
+        /*if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
             skinsRestorerAPI = SkinsRestorerAPI.getApi();
         } else {
             skinsRestorerAPI = null;
-        }
+        }*/
 
         if(VersionSupport.getMinorVersion() >= 19) {
             try {

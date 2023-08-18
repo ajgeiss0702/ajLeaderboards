@@ -2,12 +2,13 @@ package us.ajg0702.leaderboards.cache;
 
 import com.google.common.collect.ImmutableMap;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.api.events.UpdatePlayerEvent;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -33,11 +34,11 @@ public class Cache {
 
 	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
 	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
-	private final String GET_POSITION = "/*%s*/with N as (select *,ROW_NUMBER() OVER (order by '%s' %s) as position from '%s') select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',position,"+deltaBuilder()+" from N where 'id'=?";
+	private final String GET_POSITION = "/*%s*/with N as (select *,ROW_NUMBER() OVER (order by '%s' %s, namecache desc) as position from '%s') select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',position,"+deltaBuilder()+" from N where 'id'=?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(20, 2)"+columnBuilder("NUMERIC")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(20, 2)"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(20, 2)"+columnBuilder("BIGINT")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' VARCHAR(512))"
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' VARCHAR(512))"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
@@ -112,7 +113,7 @@ public class Cache {
 			if(!nonExistantBoards.contains(board)) {
 				nonExistantBoards.add(board);
 			}
-			return StatEntry.boardNotFound(plugin, position, board, type);
+			return StatEntry.boardNotFound(position, board, type);
 		}
 		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		try {
@@ -134,7 +135,7 @@ public class Cache {
 			return se;
 		} catch(SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get stat of player:", e);
-			return StatEntry.error(plugin, position, board, type);
+			return StatEntry.error(position, board, type);
 		}
 	}
 
@@ -147,7 +148,7 @@ public class Cache {
 			if(!nonExistantBoards.contains(board)) {
 				nonExistantBoards.add(board);
 			}
-			return StatEntry.boardNotFound(plugin, -3, board, type);
+			return StatEntry.boardNotFound(-3, board, type);
 		}
 		boolean reverse = plugin.getAConfig().getStringList("reverse-sort").contains(board);
 		StatEntry r = null;
@@ -202,6 +203,9 @@ public class Cache {
 					throw e;
 				}
 			}
+			if(prefix == null) prefix = "";
+			if(suffix == null) suffix = "";
+			if(displayName == null) displayName = name;
 			if(uuidraw != null) {
 				r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
 			}
@@ -210,7 +214,7 @@ public class Cache {
 			method.close(conn);
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
-			return StatEntry.error(plugin, -1, board, type);
+			return StatEntry.error(-1, board, type);
 		}
 		rolling.add((int) (System.currentTimeMillis()-start));
 		if(rolling.size() > 50) {
@@ -426,7 +430,19 @@ public class Cache {
 			if(!updatableBoards.isEmpty() && !updatableBoards.contains(b)) continue;
 			if(plugin.isShuttingDown()) return;
 			if(player.isOnline() && player.getPlayer() != null) {
-				if(plugin.getAConfig().getBoolean("enable-dontupdate-permission") && player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)) continue;
+				if(
+						plugin.getAConfig().getBoolean("enable-dontupdate-permission") &&
+								player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)
+				) continue;
+			}
+			// If this update isnt async, then dont run the event until it is async
+			if(!Bukkit.isPrimaryThread()) {
+				UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(new BoardPlayer(b, player));
+				Bukkit.getPluginManager().callEvent(updatePlayerEvent);
+				if(updatePlayerEvent.isCancelled()) {
+					Debug.info("Update for " + player.getName() + " on " + b + " was canceled by an event!");
+					continue;
+				}
 			}
 			updateStat(b, player);
 		}
@@ -444,7 +460,7 @@ public class Cache {
 			if(updateDebug) Debug.info("Got '"+value+"' from extra "+extra+" for "+player.getName());
 
 			if(value.equals("%" + extra + "%")) {
-				plugin.getLogger().warning("Extra " + extra + " returned itself! (for " + player.getName() + ") Skipping.");
+				Debug.info("Extra " + extra + " returned itself! (for " + player.getName() + ") Skipping.");
 				continue;
 			}
 
@@ -454,7 +470,12 @@ public class Cache {
 				continue;
 			}
 
-			plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
+			Runnable runnable = () -> plugin.getExtraManager().setExtra(player.getUniqueId(), extra, value);
+			if(Bukkit.isPrimaryThread()) {
+				plugin.getTopManager().submit(runnable);
+			} else {
+				runnable.run();
+			}
 		}
 	}
 
@@ -481,127 +502,166 @@ public class Cache {
 		}
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
-		BoardPlayer boardPlayer = new BoardPlayer(board, player);
-
 		String displayName = player.getName();
 		if(player.isOnline() && player.getPlayer() != null) {
 			displayName = player.getPlayer().getDisplayName();
 		}
 
-		String prefix = "";
-		String suffix = "";
+		String prefix;
+		String suffix;
 		if(plugin.hasVault() && player instanceof Player && plugin.getAConfig().getBoolean("fetch-prefix-suffix-from-vault")) {
 			prefix = plugin.getVaultChat().getPlayerPrefix((Player)player);
 			suffix = plugin.getVaultChat().getPlayerSuffix((Player)player);
-		}
-
-		StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME);
-		if(cached != null && cached.hasPlayer() && cached.getScore() == output && cached.getPlayerDisplayName().equals(displayName) && cached.getPrefix().equals(prefix) && cached.getSuffix().equals(suffix)) {
-			if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
-			return;
-		}
-
-		if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
-			if(output == 0) {
-				Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
-				return;
+			if(prefix == null) {
+				prefix = "";
+				plugin.getLogger().warning("Got a null prefix for " + player.getName() + " from " + plugin.getVaultChat().getName());
 			}
-		}
-
-		if(plugin.getAConfig().getBoolean("require-zero-validation")) {
-			if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
-				zeroPlayers.add(boardPlayer);
-				Debug.info("Skipping "+player.getName()+" because they returned 0 for "+board);
-				return;
-			} else if(output == 0 && zeroPlayers.contains(boardPlayer)) {
-				Debug.info("Not skipping "+player.getName()+" because they still returned 0 for "+board);
-			} else if(output != 0) {
-				zeroPlayers.remove(boardPlayer);
+			if(suffix == null) {
+				suffix = "";
+				plugin.getLogger().warning("Got a null suffix for " + player.getName() + " from " + plugin.getVaultChat().getName());
 			}
+		} else {
+			suffix = "";
+			prefix = "";
 		}
 
-		Map<TimedType, Double> lastTotals = new HashMap<>();
-		for(TimedType type : TimedType.values()) {
-			if(type == TimedType.ALLTIME) continue;
-			lastTotals.put(type, getLastTotal(board, player, type));
-		}
+		boolean waitedUpdate = Bukkit.isPrimaryThread();
 
+		String finalDisplayName = displayName;
+		String finalSuffix = suffix;
+		String finalPrefix = prefix;
+		Runnable updateTask = () -> {
 
-		if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+suffix+" prefix: "+prefix);
-		try(Connection conn = method.getConnection()) {
-			try {
-				PreparedStatement statement = conn.prepareStatement(String.format(
-						method.formatStatement(INSERT_PLAYER),
-						tablePrefix+board
-				));
-				if(debug) Debug.info("in try");
-				statement.setString(1, player.getUniqueId().toString());
-				statement.setDouble(2, output);
-				statement.setString(3, player.getName());
-				statement.setString(4, prefix);
-				statement.setString(5, suffix);
-				statement.setString(6, displayName);
-				int i = 6;
-				for(TimedType type : TimedType.values()) {
-					if(type == TimedType.ALLTIME) continue;
-					long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
-					if(plugin.isShuttingDown()) {
-						method.close(conn);
-					}
-					statement.setDouble(++i, 0);
-					statement.setDouble(++i, output);
-					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
+			BoardPlayer boardPlayer = new BoardPlayer(board, player);
+
+			if(waitedUpdate) {
+				UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(boardPlayer);
+				Bukkit.getPluginManager().callEvent(updatePlayerEvent);
+				if(updatePlayerEvent.isCancelled()) {
+					Debug.info("Update for " + player.getName() + " on " + board + " was canceled by an event!");
+					return;
 				}
+			}
 
-				statement.executeUpdate();
-				statement.close();
-				method.close(conn);
-			} catch(SQLException e) {
-				if(debug) Debug.info("in catch: " + e.getMessage());
-				try(PreparedStatement statement = conn.prepareStatement(String.format(
-						method.formatStatement(UPDATE_PLAYER),
-						tablePrefix+board
-				))) {
-					statement.setDouble(1, output);
-					statement.setString(2, player.getName());
-					statement.setString(3, prefix);
-					statement.setString(4, suffix);
-					statement.setString(5, displayName);
-					Map<TimedType, Double> timedTypeValues = new HashMap<>();
-					timedTypeValues.put(TimedType.ALLTIME, output);
+			StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME, plugin.getAConfig().getBoolean("check-cache-on-update"));
+			if(cached != null && cached.hasPlayer() &&
+					cached.getScore() == output &&
+					cached.getPlayerDisplayName().equals(finalDisplayName) &&
+					cached.getPrefix().equals(finalPrefix) &&
+					cached.getSuffix().equals(finalSuffix)
+			) {
+				if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
+				return;
+			}
+
+			if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
+				if(output == 0) {
+					Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
+					return;
+				}
+			}
+
+			if(plugin.getAConfig().getBoolean("require-zero-validation")) {
+				if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
+					zeroPlayers.add(boardPlayer);
+					Debug.info("Skipping "+player.getName()+" because they returned 0 for "+board);
+					return;
+				} else if(output == 0 && zeroPlayers.contains(boardPlayer)) {
+					Debug.info("Not skipping "+player.getName()+" because they still returned 0 for "+board);
+				} else if(output != 0) {
+					zeroPlayers.remove(boardPlayer);
+				}
+			}
+
+			Map<TimedType, Double> lastTotals = new HashMap<>();
+			for(TimedType type : TimedType.values()) {
+				if(type == TimedType.ALLTIME) continue;
+				lastTotals.put(type, getLastTotal(board, player, type));
+			}
+
+
+			if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+ finalSuffix +" prefix: "+ finalPrefix);
+			try(Connection conn = method.getConnection()) {
+				try {
+					PreparedStatement statement = conn.prepareStatement(String.format(
+							method.formatStatement(INSERT_PLAYER),
+							tablePrefix+board
+					));
+					if(debug) Debug.info("in try");
+					statement.setString(1, player.getUniqueId().toString());
+					statement.setDouble(2, output);
+					statement.setString(3, player.getName());
+					statement.setString(4, finalPrefix);
+					statement.setString(5, finalSuffix);
+					statement.setString(6, finalDisplayName);
 					int i = 6;
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
-						double timedOut = output-lastTotals.get(type);
-						timedTypeValues.put(type, timedOut);
-						statement.setDouble(i++, timedOut);
-					}
-					for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
-						TimedType type = timedTypeDoubleEntry.getKey();
-						double timedOut = timedTypeDoubleEntry.getValue();
-
-						StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
-						if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
-							statEntry.changeScore(timedOut, prefix, suffix);
+						long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
+						if(plugin.isShuttingDown()) {
+							method.close(conn);
 						}
+						statement.setDouble(++i, 0);
+						statement.setDouble(++i, output);
+						statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
+					}
 
-						Integer position = plugin.getTopManager()
-								.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
-								.get(new BoardType(board, type));
-						if(position != null) {
-							StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
-							if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
-								stat.changeScore(timedOut, prefix, suffix);
+					statement.executeUpdate();
+					statement.close();
+					method.close(conn);
+				} catch(SQLException e) {
+					if(debug) Debug.info("in catch: " + e.getMessage());
+					try(PreparedStatement statement = conn.prepareStatement(String.format(
+							method.formatStatement(UPDATE_PLAYER),
+							tablePrefix+board
+					))) {
+						statement.setDouble(1, output);
+						statement.setString(2, player.getName());
+						statement.setString(3, finalPrefix);
+						statement.setString(4, finalSuffix);
+						statement.setString(5, finalDisplayName);
+						Map<TimedType, Double> timedTypeValues = new HashMap<>();
+						timedTypeValues.put(TimedType.ALLTIME, output);
+						int i = 6;
+						for(TimedType type : TimedType.values()) {
+							if(type == TimedType.ALLTIME) continue;
+							double timedOut = output-lastTotals.get(type);
+							timedTypeValues.put(type, timedOut);
+							statement.setDouble(i++, timedOut);
+						}
+						for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
+							TimedType type = timedTypeDoubleEntry.getKey();
+							double timedOut = timedTypeDoubleEntry.getValue();
+
+							StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
+							if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
+								statEntry.changeScore(timedOut, finalPrefix, finalSuffix);
+							}
+
+							Integer position = plugin.getTopManager()
+									.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
+									.get(new BoardType(board, type));
+							if(position != null) {
+								StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
+								if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
+									stat.changeScore(timedOut, finalPrefix, finalSuffix);
+								}
 							}
 						}
+						statement.setString(i, player.getUniqueId().toString());
+						statement.executeUpdate();
 					}
-					statement.setString(i, player.getUniqueId().toString());
-					statement.executeUpdate();
 				}
+			} catch(SQLException e) {
+				if(plugin.isShuttingDown()) return;
+				plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
 			}
-		} catch(SQLException e) {
-			if(plugin.isShuttingDown()) return;
-			plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
+		};
+
+		if(Bukkit.isPrimaryThread()) {
+			plugin.getTopManager().submit(updateTask);
+		} else {
+			updateTask.run();
 		}
 	}
 
@@ -682,6 +742,14 @@ public class Cache {
 		if(type.equals(TimedType.ALLTIME)) {
 			throw new IllegalArgumentException("Cannot reset ALLTIME!");
 		}
+
+
+		List<String> saveableTypes = plugin.getAConfig().getStringList("reset-save-types");
+		if(saveableTypes.contains(type.toString()) || saveableTypes.contains("*")) {
+			plugin.getResetSaver().save(board, type);
+		}
+
+
 		Debug.info("Resetting "+board+" "+type.lowerName()+" leaderboard");
 		long lastReset = plugin.getTopManager().getLastReset(board, type)*1000L;
 		if(plugin.isShuttingDown()) {
@@ -911,6 +979,11 @@ public class Cache {
 		}
 		if(name == null) name = "-Unknown";
 		r.close();
+
+		if(prefix == null) prefix = "";
+		if(suffix == null) prefix = "";
+		if(displayName == null) displayName = name;
+
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {

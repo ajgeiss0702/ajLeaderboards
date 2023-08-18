@@ -23,7 +23,11 @@ public class Prefix extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(3).toUpperCase(Locale.ROOT);
-        StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, TimedType.valueOf(typeRaw));
+        TimedType type = TimedType.of(typeRaw);
+        if(type == null) {
+            return "Invalid TimedType '" + typeRaw + "'";
+        }
+        StatEntry r = plugin.getTopManager().getStat(Integer.parseInt(matcher.group(2)), board, type);
         return r.getPrefix();
     }
 }

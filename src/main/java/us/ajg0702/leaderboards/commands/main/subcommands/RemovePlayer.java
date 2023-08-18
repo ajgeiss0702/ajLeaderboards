@@ -23,18 +23,14 @@ public class RemovePlayer extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
-        if(args.length == 1) {
-            List<String> players = new ArrayList<>();
-            Bukkit.getOnlinePlayers().forEach(p -> players.add(p.getName()));
-            return players;
-        }
+        if(args.length == 1) return null;
         if(args.length == 2) {
             List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
             boards.add("*");
-            return boards;
+            return filterCompletion(boards, args[1]);
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

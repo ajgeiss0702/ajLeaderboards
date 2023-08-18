@@ -28,7 +28,7 @@ public class Reset extends SubCommand {
         if(args.length > 1) return Collections.emptyList();
         List<String> boards = new ArrayList<>(plugin.getTopManager().getBoards());
         boards.add("*");
-        return boards;
+        return filterCompletion(boards, args[0]);
     }
 
 

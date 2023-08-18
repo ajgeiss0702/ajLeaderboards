@@ -12,9 +12,9 @@ import us.ajg0702.leaderboards.placeholders.placeholders.player.*;
 import us.ajg0702.leaderboards.placeholders.placeholders.relative.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.PlaceholderExpansion {
@@ -30,6 +30,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
 
         placeholders.add(new Extra(plugin));
         placeholders.add(new Name(plugin));
+        placeholders.add(new Skin(plugin));
         placeholders.add(new UUID(plugin));
         placeholders.add(new Prefix(plugin));
         placeholders.add(new Suffix(plugin));
@@ -70,7 +71,7 @@ public class PlaceholderExpansion extends me.clip.placeholderapi.expansion.Place
         placeholders.add(new Rolling(plugin));
     }
 
-    Map<String, CachedPlaceholder> placeholderCache = new HashMap<>();
+    Map<String, CachedPlaceholder> placeholderCache = new ConcurrentHashMap<>();
 
     @Override
     public String onRequest(OfflinePlayer p, @NotNull String params) {
