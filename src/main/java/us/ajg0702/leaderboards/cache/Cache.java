@@ -981,7 +981,7 @@ public class Cache {
 		r.close();
 
 		if(prefix == null) prefix = "";
-		if(suffix == null) prefix = "";
+		if(suffix == null) suffix = "";
 		if(displayName == null) displayName = name;
 
 		if(uuidRaw == null) {
