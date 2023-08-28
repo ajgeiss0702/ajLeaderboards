@@ -42,7 +42,7 @@ public class Import extends SubCommand {
             sender.sendMessage(message("&cPlease provide a file name.\n&7Usage: /"+label+" import <file>"));
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             File file = new File(plugin.getDataFolder(), args[0]);
             if(!file.exists()) {
                 sender.sendMessage(plugin.getMessages().getComponent("commands.import.nofile", "FILE:"+file.getName()));

@@ -27,7 +27,7 @@ public class Add extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             if(args.length < 1) {
                 sender.sendMessage(message("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
                 return;

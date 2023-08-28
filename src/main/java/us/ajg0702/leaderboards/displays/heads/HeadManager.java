@@ -140,7 +140,7 @@ public class HeadManager {
 
         OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.getScheduler().runSync(loc, () -> {
             if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
                 plugin.getHeadUtils().getVersionedHeadUtils().setHeadBlock(loc.getBlock(), id, name);
             } else {

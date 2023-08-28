@@ -23,6 +23,10 @@ public class Debug {
         logger.info("[DEBUG] "+message);
     }
 
+    public static boolean isDebug() {
+        return debug;
+    }
+
     private static boolean particles = false;
 
     public static void setParticles(boolean particles) {

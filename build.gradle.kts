@@ -20,6 +20,9 @@ repositories {
     maven { url = uri("https://repo.citizensnpcs.co/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+    maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
+
+    mavenLocal()
 }
 
 dependencies {
@@ -32,17 +35,17 @@ dependencies {
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
 
-    implementation("org.bstats:bstats-bukkit:1.7")
-
     implementation("net.kyori:adventure-api:4.12.0")
     implementation("net.kyori:adventure-text-minimessage:4.12.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
 
-    implementation("us.ajg0702:ajUtils:1.2.12")
+    implementation("us.ajg0702:ajUtils:1.2.23")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
     implementation("us.ajg0702.commands.api:api:1.0.0")
 
     compileOnly("net.luckperms:api:5.4")
+
+    implementation("io.papermc:paperlib:1.0.7")
 
     implementation(project(":nms:nms-legacy"))
     implementation(project(":nms:nms-19"))
@@ -83,6 +86,7 @@ tasks.shadowJar {
     relocate("org.spongepowered", "us.ajg0702.leaderboards.libs")
     relocate("org.yaml", "us.ajg0702.leaderboards.libs")
     relocate("io.leangen", "us.ajg0702.leaderboards.libs")
+    relocate("io.papermc.lib", "us.ajg0702.leaderboards.libs.paperlib")
 
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")

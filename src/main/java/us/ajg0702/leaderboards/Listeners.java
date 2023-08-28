@@ -20,7 +20,7 @@ public class Listeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if(plugin.getCache().getMethod().getName().equals("sqlite") && e.getPlayer().hasPermission("ajleaderboards.use")) {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            plugin.getScheduler().runTaskLaterAsynchronously(() -> {
                 plugin.getAdventure().player(e.getPlayer())
                         .sendMessage(message(
                                 "\n&6[ajLeaderboards] &cSQLite is not recommended and will be removed! &7Please switch to h2 for a faster (and more stable) cache storage.\n" +
@@ -36,7 +36,7 @@ public class Listeners implements Listener {
         }
         if(!plugin.getAConfig().getBoolean("update-stats")) return;
         if(!plugin.getAConfig().getBoolean("update-on-join")) return;
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getCache().updatePlayerStats(e.getPlayer()));
+        plugin.getScheduler().runTaskAsynchronously(() -> plugin.getCache().updatePlayerStats(e.getPlayer()));
     }
 
     @EventHandler

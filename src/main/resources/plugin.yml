@@ -1,6 +1,7 @@
 name: ajLeaderboards
 version: "@VERSION@"
 main: us.ajg0702.leaderboards.LeaderboardPlugin
+folia-supported: true
 author: ajgeiss0702
 depend: [PlaceholderAPI]
 softdepend: [Vault, SkinsRestorer]

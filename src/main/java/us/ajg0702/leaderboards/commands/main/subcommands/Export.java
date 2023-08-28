@@ -37,7 +37,7 @@ public class Export extends SubCommand {
             sender.sendMessage(message("&cPlease provide a file name.\n&7Usage: /"+label+" export <file>"));
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             String fileName = addJsonEnding(args[0]);
             File file = new File(plugin.getDataFolder(), fileName);
 

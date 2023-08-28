@@ -53,7 +53,7 @@ public class Reset extends SubCommand {
                     "</b></green></click>"));
             confirmResets.put(sender.getHandle(), board);
             Debug.info("Added confirmDelete: "+ confirmResets.keySet().size());
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getScheduler().runTaskLaterAsynchronously(() -> {
                 if(confirmResets.containsKey(sender.getHandle()) && confirmResets.get(sender.getHandle()).equals(board)) {
                     confirmResets.remove(sender.getHandle());
                 }

@@ -1,5 +1,6 @@
 package us.ajg0702.leaderboards.commands.main.subcommands.signs;
 
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
@@ -65,6 +66,6 @@ public class Teleport extends SubCommand {
         loc.setX(loc.getBlockX()+0.5);
         loc.setZ(loc.getBlockZ()+0.5);
 
-        player.teleport(loc);
+        PaperLib.teleportAsync(player, loc);
     }
 }

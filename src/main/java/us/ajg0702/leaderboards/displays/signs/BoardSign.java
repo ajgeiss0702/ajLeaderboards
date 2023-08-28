@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.plugin.Plugin;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.spigot.LocUtils;
@@ -34,8 +35,8 @@ public class BoardSign {
         this.board = board;
         this.position = position;
 
-        this.x = location.getChunk().getX();
-        this.z = location.getChunk().getZ();
+        this.x = location.getBlockX() >> 4;
+        this.z = location.getBlockZ() >> 4;
         this.world = location.getWorld();
         this.type = type;
 
@@ -47,7 +48,7 @@ public class BoardSign {
 
     private Future<Sign> setSign() {
         CompletableFuture<Sign> future = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.getScheduler().runSync(location, () -> {
             BlockState state = location.getBlock().getState();
             if(!(state instanceof Sign)) {
                 sign = null;
@@ -112,7 +113,7 @@ public class BoardSign {
             future.completeExceptionally(new InterruptedException());
             return future;
         }
-        Bukkit.getScheduler().runTask(plugin, () -> future.complete(location.getBlock().getType().toString()));
+        plugin.getScheduler().runSync(location, () -> future.complete(location.getBlock().getType().toString()));
         return future;
     }
 

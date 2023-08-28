@@ -26,7 +26,7 @@ public class ListBoards extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             if(args.length < 1) {
                 StringBuilder list = new StringBuilder("&6Boards");
                 for(String boardn : plugin.getTopManager().getBoards()) {
