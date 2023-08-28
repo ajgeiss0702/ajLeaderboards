@@ -92,7 +92,7 @@ public class ResetSaver {
             new Gson().toJson(obj, writer);
             writer.close();
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "An error occurred while writing reset save:", e);
+            plugin.getLogger().log(Level.SEVERE, "An error occurred while writing reset save to '" + file.getPath() +"':", e);
         }
     }
 }

@@ -102,7 +102,7 @@ public class Cache {
 	}
 
 	/**
-	 * Get a stat. It is reccomended you use TopManager#getStat instead of this,
+	 * Get a stat. It is recommended you use TopManager#getStat instead of this,
 	 * unless it is of absolute importance that you have the most up-to-date information
 	 * @param position The position to get
 	 * @param board The board
