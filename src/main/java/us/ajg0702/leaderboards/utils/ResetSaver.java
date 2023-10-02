@@ -30,7 +30,7 @@ public class ResetSaver {
     }
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private final SimpleDateFormat timeDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm");
+    private final SimpleDateFormat timeDateFormat = new SimpleDateFormat("yyyy-MM-dd_'h'HH'm'mm");
 
     public void save(String board, TimedType type) {
 
