@@ -277,6 +277,58 @@ public class Cache {
 		return size;
 	}
 
+	public double getTotal(String board, TimedType type) {
+		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
+			return -3;
+		}
+
+		Connection connection = null;
+		ResultSet rs = null;
+
+		int size;
+
+		try {
+			connection = method.getConnection();
+
+			PreparedStatement ps = connection.prepareStatement(String.format(
+					method.formatStatement("select SUM(%s) from '%s'"),
+					type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta",
+					tablePrefix+board
+			));
+
+			rs = ps.executeQuery();
+
+			rs.next();
+
+			size = rs.getInt(1);
+
+		} catch (SQLException e) {
+			if(
+					!e.getMessage().contains("ResultSet closed") &&
+							!e.getMessage().contains("empty result set") &&
+							!e.getMessage().contains("[2000-")
+			) {
+				plugin.getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+				return -1;
+			} else {
+				return 0;
+			}
+		} finally {
+			try {
+				if(connection != null) method.close(connection);
+				if(rs != null) rs.close();
+			} catch (SQLException e) {
+				plugin.getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
+			}
+
+		}
+
+		return size;
+	}
+
 	public boolean createBoard(String name) {
 		try {
 			Connection conn = method.getConnection();

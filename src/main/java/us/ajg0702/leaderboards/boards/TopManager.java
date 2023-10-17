@@ -270,6 +270,59 @@ public class TopManager {
 
     }
 
+    Map<BoardType, Long> totalLastRefresh = new HashMap<>();
+    LoadingCache<BoardType, Double> totalCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .maximumSize(10000)
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) totalLastRefresh.remove((BoardType) notification.getKey());
+            })
+            .build(new CacheLoader<BoardType, Double>() {
+                @Override
+                public @NotNull Double load(@NotNull BoardType key) {
+                    return plugin.getCache().getTotal(key.getBoard(), key.getType());
+                }
+
+                @Override
+                public @NotNull ListenableFuture<Double> reload(@NotNull BoardType key, @NotNull Double oldValue) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - totalLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*2, 5000)) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<Double> task = ListenableFutureTask.create(() -> {
+                        totalLastRefresh.put(key, System.currentTimeMillis());
+                        return plugin.getCache().getTotal(key.getBoard(), key.getType());
+                    });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
+                    fetchService.execute(task);
+                    return task;
+                }
+            });
+
+
+    /**
+     * Gets the sum of all players on the leaderboard
+     * @param board the board
+     * @param type the timed type
+     * @return the sum of all players in the specified board for the specified timed type
+     */
+    public double getTotal(String board, TimedType type) {
+        BoardType boardType = new BoardType(board, type);
+        Double cached = totalCache.getIfPresent(boardType);
+
+        if(cached == null) {
+            if(BlockingFetch.shouldBlock(plugin)) {
+                cached = totalCache.getUnchecked(boardType);
+            } else {
+                fetchService.submit(() -> totalCache.getUnchecked(boardType));
+                return -2;
+            }
+        }
+
+        return cached;
+
+    }
+
 
     List<String> boardCache;
     long lastGetBoard = 0;
