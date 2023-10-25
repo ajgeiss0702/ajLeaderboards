@@ -38,6 +38,21 @@ public class Add extends SubCommand {
                 sender.sendMessage(message("&cYou cannot create a leaderboard out of an ajLeaderboards placeholder!\n&7See how to set up the plugin &r<underlined><click:open_url:https://wiki.ajg0702.us/ajleaderboards/setup/setup>here</click></underlined>"));
                 return;
             }
+            if(placeholder.length() > 200) {
+                sender.sendMessage(message(
+                        "&cThat board name is too long! &7Please use a shorter placeholder.\n" +
+                                "&aI recommend using the " +
+                                "<aqua>" +
+                                "<underlined>" +
+                                "<hover:show_text:'https://github.com/Andre601/Shortcut-Expansion'>" +
+                                "<click:open_url:https://github.com/Andre601/Shortcut-Expansion>" +
+                                "Shortcut expansion" +
+                                "</click>" +
+                                "</hover>" +
+                                "</underlined> &ato make the placeholder shorter\n"
+                ));
+                return;
+            }
             if(!plugin.validatePlaceholder(placeholder, sender)) {
                 String lowerPlaceholder = placeholder.toLowerCase(Locale.ROOT);
                 sender.sendMessage(message("&cThe placeholder '"+placeholder+"' does not give a numerical value. Make sure that the placeholder returns a number that is not formatted."));
