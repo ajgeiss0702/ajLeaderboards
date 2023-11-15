@@ -175,6 +175,11 @@ fetching-de-bug: false
 #  Default: true
 check-cache-on-update: true
 
+# What is the minimum time (in milliseconds) we should keep specific player info (e.g. fetching position)
+# The cached data may be used for longer if the database is slow at responding to requests.
+#  Default: 5000
+min-player-cache-time: 5000
+
 # What maximum number of threads should ajLeaderboards be allowed to use for fetching from the db?
 # Most of the time, the number of threads used will be far less than this.
 # This is ignored on mysql (and maxConnections is used for this instead)
@@ -204,7 +209,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 30
+config-version: 31
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
