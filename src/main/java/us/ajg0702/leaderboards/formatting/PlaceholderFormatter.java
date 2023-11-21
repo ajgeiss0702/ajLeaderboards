@@ -43,7 +43,7 @@ public class PlaceholderFormatter {
                 }
             }
             if(possibleMatch == null) {
-                Debug.info("[Formatter] No possible match for " + board + ". Using default");
+//                Debug.info("[Formatter] No possible match for " + board + ". Using default");
                 return defaultFormat;
             }
             return possibleMatch;
