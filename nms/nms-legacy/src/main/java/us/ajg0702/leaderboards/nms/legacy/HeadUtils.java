@@ -5,6 +5,10 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 //import net.skinsrestorer.api.SkinsRestorerAPI;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -76,7 +80,11 @@ public class HeadUtils {
         }
         String value;
         //if(skinsRestorerAPI == null) {
-            value = getHeadValue(Bukkit.getOfflinePlayer(uuid).getName());
+            if(uuid != null && Bukkit.getOnlineMode()) {
+                value = getHeadValue(uuid);
+            } else {
+                value = getHeadValue(name);
+            }
         /*} else {
             IProperty profile = skinsRestorerAPI.getProfile(uuid.toString());
             if(profile == null) {
@@ -98,32 +106,33 @@ public class HeadUtils {
     Map<String, CachedData<String>> skinCache = new HashMap<>();
     final long lastClear = System.currentTimeMillis();
 
-    public String getHeadValue(String name) {
-        if(System.currentTimeMillis() - lastClear > 5400e3) { // completly wipe the cache every hour and a half
+    public String getHeadValue(String nameOrUUID) {
+
+        if(System.currentTimeMillis() - lastClear > 5400e3) { // completely wipe the cache every hour and a half
             skinCache = new HashMap<>();
         }
 
-        if(skinCache.containsKey(name) && skinCache.get(name).getTimeSince() < 300e3) {
-            return skinCache.get(name).getData();
+        if(skinCache.containsKey(nameOrUUID) && skinCache.get(nameOrUUID).getTimeSince() < 300e3) {
+            return skinCache.get(nameOrUUID).getData();
         }
 
-        String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
-
+        String profile = getURLContent("https://api.ashcon.app/mojang/v2/user/" + nameOrUUID);
+        if(profile.isEmpty()) return "";
         Gson g = new Gson();
-        JsonObject jObj = g.fromJson(result, JsonObject.class);
-        if(jObj == null || jObj.get("id") == null) return "";
-        String uuid = jObj.get("id").toString().replace("\"","");
-        String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
-        jObj = g.fromJson(signature, JsonObject.class);
-        if(jObj == null || jObj.get("id") == null) return "";
-        String value = jObj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
-        String decoded = new String(Base64.getDecoder().decode(value));
-        jObj = g.fromJson(decoded, JsonObject.class);
-        String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-        byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skin + "\"}}}").getBytes();
+        JsonObject jObj = g.fromJson(profile, JsonObject.class);
+        if(jObj == null || jObj.get("textures") == null) return "";
+        String url = jObj.getAsJsonObject("textures").getAsJsonObject("skin").get("url").getAsString();
+//        String decoded = new String(Base64.getDecoder().decode(value));
+//        jObj = g.fromJson(decoded, JsonObject.class);
+//        String skin = jObj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
+        byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + url + "\"}}}").getBytes();
         String finalSkin = new String(Base64.getEncoder().encode(skinByte));
-        skinCache.put(name, new CachedData<>(finalSkin));
+        skinCache.put(nameOrUUID, new CachedData<>(finalSkin));
         return finalSkin;
+    }
+
+    public String getHeadValue(UUID uuid) {
+        return getHeadValue(uuid.toString());
     }
 
 
@@ -140,6 +149,8 @@ public class HeadUtils {
     }
 
 
+    private final OkHttpClient httpClient = new OkHttpClient();
+
     final HashMap<String, String> urlCache = new HashMap<>();
     final HashMap<String, Long> urlLastget = new HashMap<>();
     private String getURLContent(String urlStr) {
@@ -149,28 +160,28 @@ public class HeadUtils {
         ) {
             return urlCache.get(urlStr);
         }
-        URL url;
-        BufferedReader in = null;
-        StringBuilder sb = new StringBuilder();
-        try{
-            url = new URL(urlStr);
-            in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8) );
-            String str;
-            while((str = in.readLine()) != null) {
-                sb.append( str );
-            }
-        } catch (Exception ignored) { }
-        finally{
-            try{
-                if(in!=null) {
-                    in.close();
-                }
-            }catch(IOException ignored) { }
-        }
+        Request request = new Request.Builder()
+                .url(urlStr)
+                .build();
 
-        String r = sb.toString();
-        urlCache.put(urlStr, r);
-        urlLastget.put(urlStr, System.currentTimeMillis());
-        return r;
+
+
+        try(Response response = httpClient.newCall(request).execute()) {
+            ResponseBody body = response.body();
+            if(!response.isSuccessful() || body == null) {
+                /*if(body != null) {
+                    logger.info("Unsuccessful (" + response.code() + ") with: " + body.string());
+                } else {
+                    logger.info("Null body with " + response.code());
+                }*/
+                return urlCache.getOrDefault(urlStr, "");
+            }
+            String r = body.string();
+            urlCache.put(urlStr, r);
+            urlLastget.put(urlStr, System.currentTimeMillis());
+            return r;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

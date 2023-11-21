@@ -20,6 +20,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     compileOnly("us.ajg0702:ajUtils:1.1.36")
     compileOnly("net.skinsrestorer:skinsrestorer-api:14.1.10")
+    compileOnly("com.squareup.okhttp3:okhttp:4.11.0")
 }
 
 publishing {
