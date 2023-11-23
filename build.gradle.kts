@@ -92,7 +92,8 @@ tasks.shadowJar {
     relocate("com.squareup", "us.ajg0702.leaderboards.libs")
     relocate("okhttp3", "us.ajg0702.leaderboards.libs.okhttp3")
     relocate("okio", "us.ajg0702.leaderboards.libs.okio")
-    relocate("org", "us.ajg0702.leaderboards.libs")
+    relocate("org.intellij", "us.ajg0702.leaderboards.libs.intellij")
+    relocate("org.jetbrains", "us.ajg0702.leaderboards.libs.jetbrains")
     relocate("kotlin", "us.ajg0702.leaderboards.kotlin")
 
     archiveBaseName.set("ajLeaderboards")
