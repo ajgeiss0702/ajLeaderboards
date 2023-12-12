@@ -219,6 +219,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        boolean fastShutdown = getAConfig().getBoolean("fast-shutdown");
         shuttingDown = true;
         if(getContextLoader() != null) getContextLoader().checkReload(false);
         getScheduler().cancelTasks();
@@ -240,11 +241,15 @@ public class LeaderboardPlugin extends JavaPlugin {
             }catch(InterruptedException ignored){}
         }
 
-        getLogger().info("Killing remaining workers");
-        killWorkers(1000);
-        Debug.info("1st kill pass done, retrying for remaining");
-        killWorkers(5000);
-        getLogger().info("Remaining workers killed");
+        if(!fastShutdown) {
+            getLogger().info("Killing remaining workers");
+            killWorkers(1000);
+            Debug.info("1st kill pass done, retrying for remaining");
+            killWorkers(5000);
+            getLogger().info("Remaining workers killed");
+        } else {
+            getLogger().warning("Fast shutdown is enabled! If you see warnings/errors to nag me about shutting down async tasks, you should be able to ignore them. Disable fast-shutdown if you don't want to see those warnings/errors or this message.");
+        }
 
         getLogger().info("ajLeaderboards v"+getDescription().getVersion()+" disabled.");
 

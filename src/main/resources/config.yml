@@ -175,6 +175,15 @@ fetching-de-bug: false
 #  Default: true
 check-cache-on-update: true
 
+
+# Should we skip some steps when shutting down the plugin to make it faster?
+# If you enable this, it can cause warnings after the server shuts down,
+#  but can also speed up the speed that the server shuts down a lot
+# Enabling this *shouldn't* break anything, but unless you have a very good reason to enable this,
+#  you should probably keep it disabled
+#  Default: false
+fast-shutdown: false
+
 # What is the minimum time (in milliseconds) we should keep specific player info (e.g. fetching position)
 # The cached data may be used for longer if the database is slow at responding to requests.
 #  Default: 5000
@@ -209,7 +218,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 31
+config-version: 32
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
