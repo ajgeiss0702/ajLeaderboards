@@ -248,6 +248,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             killWorkers(5000);
             getLogger().info("Remaining workers killed");
         } else {
+            killWorkers(100);
             getLogger().warning("Fast shutdown is enabled! If you see warnings/errors to nag me about shutting down async tasks, you should be able to ignore them. Disable fast-shutdown if you don't want to see those warnings/errors or this message.");
         }
 
