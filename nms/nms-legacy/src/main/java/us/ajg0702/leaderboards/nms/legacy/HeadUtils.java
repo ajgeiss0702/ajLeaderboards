@@ -180,7 +180,8 @@ public class HeadUtils {
                     logger.info("Null body with " + response.code());
                 }*/
 //                System.out.println("Unsuccessful for " + urlStr + ": " + response.code());
-                lastFail.put(urlStr, System.currentTimeMillis() + random.nextInt(-2_000, 2_000));
+
+                lastFail.put(urlStr, System.currentTimeMillis() + (random.nextInt(4_000)-2_000));
                 return urlCache.getOrDefault(urlStr, "");
             }
             String r = body.string();
