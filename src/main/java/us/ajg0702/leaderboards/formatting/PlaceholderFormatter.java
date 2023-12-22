@@ -37,7 +37,7 @@ public class PlaceholderFormatter {
                 for (Format format : formats) {
                     if(format.equals(defaultFormat)) continue;
                     if(format.matches(null, board)) {
-                        Debug.info("[Formatter] Putting " + format.getName() + " in formatCache for " + board);
+//                        Debug.info("[Formatter] Putting " + format.getName() + " in formatCache for " + board);
                         possibleMatch = format;
                     }
                 }

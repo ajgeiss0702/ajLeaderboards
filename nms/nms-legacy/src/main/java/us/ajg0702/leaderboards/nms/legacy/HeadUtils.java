@@ -4,26 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-//import net.skinsrestorer.api.SkinsRestorerAPI;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import us.ajg0702.utils.spigot.VersionSupport;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class HeadUtils {
@@ -149,10 +142,14 @@ public class HeadUtils {
     }
 
 
-    private final OkHttpClient httpClient = new OkHttpClient();
+    private final OkHttpClient httpClient = new OkHttpClient.Builder()
+            .cache(null)
+            .build();
 
     final HashMap<String, String> urlCache = new HashMap<>();
     final HashMap<String, Long> urlLastget = new HashMap<>();
+    final HashMap<String, Long> lastFail = new HashMap<>();
+    private final Random random = new Random();
     private String getURLContent(String urlStr) {
         if(
                 urlLastget.containsKey(urlStr) &&
@@ -160,8 +157,16 @@ public class HeadUtils {
         ) {
             return urlCache.get(urlStr);
         }
+
+        if(lastFail.containsKey(urlStr) && System.currentTimeMillis() - lastFail.get(urlStr) < 30e3) {
+            // dont retry too often
+            return "";
+        }
+
         Request request = new Request.Builder()
+                .get()
                 .url(urlStr)
+                .header("user-agent", "ajLeaderboards/0")
                 .build();
 
 
@@ -174,14 +179,18 @@ public class HeadUtils {
                 } else {
                     logger.info("Null body with " + response.code());
                 }*/
+//                System.out.println("Unsuccessful for " + urlStr + ": " + response.code());
+                lastFail.put(urlStr, System.currentTimeMillis() + random.nextInt(-2_000, 2_000));
                 return urlCache.getOrDefault(urlStr, "");
             }
             String r = body.string();
             urlCache.put(urlStr, r);
             urlLastget.put(urlStr, System.currentTimeMillis());
+//            System.out.println("Succeeded for " + urlStr);
+            lastFail.remove(urlStr);
             return r;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error while fetching " + urlStr + ":", e);
         }
     }
 }
