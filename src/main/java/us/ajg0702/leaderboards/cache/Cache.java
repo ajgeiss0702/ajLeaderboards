@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.api.events.PreTimedTypeResetEvent;
 import us.ajg0702.leaderboards.api.events.UpdatePlayerEvent;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -787,13 +788,16 @@ public class Cache {
 		List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
 		if(!updatableBoards.isEmpty() && !updatableBoards.contains(board)) return;
 
+		if(type.equals(TimedType.ALLTIME)) {
+			throw new IllegalArgumentException("Cannot reset ALLTIME!");
+		}
+
+		Bukkit.getPluginManager().callEvent(new PreTimedTypeResetEvent(board, type));
+
 		long startTime = System.currentTimeMillis();
 		LocalDateTime startDateTime = LocalDateTime.now();
 		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
 		Debug.info(board+" "+type+" "+startDateTime.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" "+newTime);
-		if(type.equals(TimedType.ALLTIME)) {
-			throw new IllegalArgumentException("Cannot reset ALLTIME!");
-		}
 
 
 		List<String> saveableTypes = plugin.getAConfig().getStringList("reset-save-types");
