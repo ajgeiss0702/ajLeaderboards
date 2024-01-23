@@ -12,6 +12,7 @@ public class PreTimedTypeResetEvent extends Event {
 
 
     public PreTimedTypeResetEvent(String board, TimedType type) {
+        super(true);
         this.board = board;
         this.type = type;
     }
