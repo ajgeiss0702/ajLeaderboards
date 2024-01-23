@@ -38,12 +38,27 @@ public class Time extends Format {
     private static final List<String> knownTimePlaceholders = Arrays.asList(
             "statistic_time_played",
             "statistic_time_since_death",
-            "mbedwars_stats-play_time"
+            "mbedwars_stats-play_time",
+            "formatter_number_time_*"
     );
+
+    private boolean isKnownTimePlaceholder(String placeholder) {
+        boolean is = false;
+        for (String knownTimePlaceholder : knownTimePlaceholders) {
+            if(knownTimePlaceholder.endsWith("*")) {
+                is = placeholder.startsWith(knownTimePlaceholder.substring(0, knownTimePlaceholder.length() - 1));
+            } else {
+                is = placeholder.equals(knownTimePlaceholder);
+            }
+            if(is) break;
+        }
+
+        return is;
+    }
 
     @Override
     public boolean matches(String output, String placeholder) {
-        if(knownTimePlaceholders.contains(placeholder.toLowerCase(Locale.ROOT))) {
+        if(isKnownTimePlaceholder(placeholder.toLowerCase(Locale.ROOT))) {
             // don't bother with more expensive checks below if we know it's a time placeholder
             // let me know about any other placeholders that should be here!
             return true;
