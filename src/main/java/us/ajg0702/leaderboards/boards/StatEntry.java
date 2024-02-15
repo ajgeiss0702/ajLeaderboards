@@ -57,7 +57,7 @@ public class StatEntry {
 	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		if(prefix == null) throw new IllegalArgumentException("Prefix cannot be null");
 		if(suffix == null) throw new IllegalArgumentException("Suffix cannot be null");
-		this.playerName = playerName;
+		this.playerName = playerName == null ? "" : playerName;
 		this.playerDisplayName = playerDisplayName == null ? "" : playerDisplayName;
 		this.score = score;
 		this.prefix = prefix;
