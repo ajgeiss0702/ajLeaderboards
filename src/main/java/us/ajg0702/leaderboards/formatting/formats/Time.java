@@ -9,13 +9,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Time extends Format {
-    private final static Pattern weekPattern = Pattern.compile("([1-9][0-9]*)w");
-    private final static Pattern dayPattern = Pattern.compile("([1-9][0-9]*)d");
-    private final static Pattern hourPattern = Pattern.compile("([1-9][0-9]*)h");
-    private final static Pattern minutePattern = Pattern.compile("([1-9][0-9]*)m");
-    private final static Pattern secondPattern = Pattern.compile("([1-9][0-9]*)s");
+    private final static Pattern weekPattern = Pattern.compile("([0-9]*)w");
+    private final static Pattern dayPattern = Pattern.compile("([0-9]*)d");
+    private final static Pattern hourPattern = Pattern.compile("([0-9]*)h");
+    private final static Pattern minutePattern = Pattern.compile("([0-9]*)m");
+    private final static Pattern secondPattern = Pattern.compile("([0-9]*)s");
 
-    private final static Pattern fullPattern = Pattern.compile("(([1-9][0-9]*)w)?(([1-9][0-9]*)d)?(([1-9][0-9]*)h)?(([1-9][0-9]*)m)?(([1-9][0-9]*)s)?");
+    private final static Pattern fullPattern = Pattern.compile("(([0-9]*)w)?(([0-9]*)d)?(([0-9]*)h)?(([0-9]*)m)?(([0-9]*)s)?");
 
     private final static Map<String, String> replaces = new HashMap<>();
     static {
@@ -63,6 +63,7 @@ public class Time extends Format {
             // let me know about any other placeholders that should be here!
             return true;
         }
+
         if(output == null) return false;
         if(output.isEmpty()) return false;
         String temp = output.replaceAll(",", "");
@@ -70,6 +71,7 @@ public class Time extends Format {
         for (Map.Entry<String, String> replacesEntry : replaces.entrySet()) {
             temp = temp.replace(replacesEntry.getKey(), replacesEntry.getValue());
         }
+
 
         boolean matches = fullPattern.matcher(temp.replaceAll(" ", "")).matches();
         Debug.info("[Format: Time] '" + output + "' matches: " + matches);
