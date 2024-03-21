@@ -16,10 +16,12 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class ResetSaver {
 
@@ -31,6 +33,8 @@ public class ResetSaver {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat timeDateFormat = new SimpleDateFormat("yyyy-MM-dd_'h'HH'm'mm");
+
+    private final List<String> illegalFileNameChars = Arrays.asList(":", ",", File.separator);
 
     public void save(String board, TimedType type) {
 
@@ -72,7 +76,10 @@ public class ResetSaver {
                         File.separator + type.lowerName() + File.separator
         );
         File file = new File(folder,
-                        board.replaceAll(Matcher.quoteReplacement(File.separator), "_") +
+                        board.replaceAll(
+                                "(" + illegalFileNameChars.stream().map(Matcher::quoteReplacement).collect(Collectors.joining("|")) + ")",
+                                "_"
+                        ) +
                         "_" + type.lowerName() + "_" + date + ".json"
                 );
         if(folder.mkdirs()) {
