@@ -30,9 +30,12 @@ public class TimeUtils {
     public static final long WEEK = DAY * 7L;
 
     public static String formatTimeSeconds(long timeSeconds) {
-        return formatTimeMs(timeSeconds*1000);
+        return formatTimeMs(timeSeconds*1000, true);
     }
-    public static String formatTimeMs(long timeMs) {
+    public static String formatTimeSeconds(long timeSeconds, boolean withSeconds) {
+        return formatTimeMs(timeSeconds*1000, withSeconds);
+    }
+    public static String formatTimeMs(long timeMs, boolean withSeconds) {
         int weeks = (int) (timeMs / WEEK);
         int days = (int) ((timeMs % WEEK) / DAY);
         int hours = (int) ((timeMs % DAY) / HOUR);
@@ -43,7 +46,7 @@ public class TimeUtils {
         String dayss = days != 0 ? days+d : "";
         String hourss = hours != 0 ? hours+h : "";
         String minutess = minutes != 0 ? minutes+m : "";
-        String secondss = seconds+s;
+        String secondss = withSeconds ? seconds+s : "";
 
         return weekss+dayss+hourss+minutess+secondss;
     }

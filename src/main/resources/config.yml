@@ -144,6 +144,11 @@ dont-add-zero: []
 #  Default: true
 fetch-prefix-suffix-from-vault: true
 
+# Should we include seconds in the time format?
+# This only effects things that display the value directly from ajLeaderboards
+#  Default: true
+time-format-display-seconds: true
+
 # Allows setting custom bytebin location and webviewer link
 # You should only need to change these if you don't want /ajlb viewer to send the data to my servers
 #  (which is only kept for 90 days or less, and you can contact me to delete sooner if you'd like)

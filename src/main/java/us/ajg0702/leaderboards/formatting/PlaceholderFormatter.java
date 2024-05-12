@@ -14,17 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlaceholderFormatter {
     private final Format defaultFormat = new Default();
-    private final List<Format> formats = Arrays.asList(
-            new Time(),
-            new ColonTime(),
-
-            defaultFormat
-    );
-
-    private final LeaderboardPlugin plugin;
+    private final List<Format> formats;
 
     public PlaceholderFormatter(LeaderboardPlugin plugin) {
-        this.plugin = plugin;
+        formats = Arrays.asList(
+                new Time(plugin),
+                new ColonTime(),
+
+                defaultFormat
+        );
     }
 
     Map<String, Format> formatCache = new ConcurrentHashMap<>();
