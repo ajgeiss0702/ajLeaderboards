@@ -1,6 +1,8 @@
 package us.ajg0702.leaderboards.formatting.formats;
 
+import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.Debug;
+import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.formatting.Format;
 
@@ -40,6 +42,12 @@ public class Time extends Format {
             "statistic_time_since_death",
             "mbedwars_stats-play_time"
     );
+
+    public final LeaderboardPlugin plugin;
+
+    public Time(@Nullable LeaderboardPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean matches(String output, String placeholder) {
@@ -93,5 +101,10 @@ public class Time extends Format {
     @Override
     public String getName() {
         return "Time";
+    }
+
+    private boolean withSeconds() {
+        if(plugin == null) return true;
+        return plugin.getAConfig().getBoolean("time-format-display-seconds");
     }
 }
