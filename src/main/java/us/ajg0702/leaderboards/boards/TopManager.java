@@ -470,8 +470,10 @@ public class TopManager {
     public int cacheTime() {
 
         boolean recentLargeAverage = System.currentTimeMillis() - lastLargeAverage < 30000;
+        boolean moreFetching = plugin.getAConfig().getBoolean("more-fetching");
 
-        int r = recentLargeAverage ? 5000 : 1000;
+
+        int r = moreFetching ? (recentLargeAverage ? 5000 : 1000) : 20000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -482,22 +484,24 @@ public class TopManager {
         int activeFetchers = getActiveFetchers();
         int totalTasks = activeFetchers + getQueuedTasks();
 
-        if(!recentLargeAverage) {
-            if(fetchingAverage == 0 && activeFetchers == 0) {
-                return 500;
+        if(moreFetching) {
+            if(!recentLargeAverage) {
+                if(fetchingAverage == 0 && activeFetchers == 0) {
+                    return 500;
+                }
+                if(fetchingAverage > 0) {
+                    r = 2000;
+                }
+                if(fetchingAverage >= 2) {
+                    r = 5000;
+                }
             }
-            if(fetchingAverage > 0) {
-                r = 2000;
+            if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
+                r = 10000;
             }
-            if(fetchingAverage >= 2) {
-                r = 5000;
+            if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
+                r = 15000;
             }
-        }
-        if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
-            r = 10000;
-        }
-        if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
-            r = 15000;
         }
         if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
             r = 30000;
