@@ -55,4 +55,6 @@ public interface CacheMethod {
     void upsertExtra(UUID id, String placeholder, String value);
 
     void createExtraTable();
+
+    int getTotal(String board, TimedType type);
 }

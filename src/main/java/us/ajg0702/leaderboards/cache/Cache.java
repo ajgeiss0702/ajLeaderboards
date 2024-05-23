@@ -19,6 +19,9 @@ import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
 import us.ajg0702.leaderboards.utils.BoardPlayer;
 import us.ajg0702.utils.common.ConfigFile;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -258,46 +261,53 @@ public class Cache {
 
 			BoardPlayer boardPlayer = new BoardPlayer(board, player);
 
-			if(waitedUpdate) {
+			if (waitedUpdate) {
 				UpdatePlayerEvent updatePlayerEvent = new UpdatePlayerEvent(boardPlayer);
 				Bukkit.getPluginManager().callEvent(updatePlayerEvent);
-				if(updatePlayerEvent.isCancelled()) {
+				if (updatePlayerEvent.isCancelled()) {
 					Debug.info("Update for " + player.getName() + " on " + board + " was canceled by an event!");
 					return;
 				}
 			}
 
 			StatEntry cached = plugin.getTopManager().getCachedStatEntry(player, board, TimedType.ALLTIME, plugin.getAConfig().getBoolean("check-cache-on-update"));
-			if(cached != null && cached.hasPlayer() &&
+			if (cached != null && cached.hasPlayer() &&
 					cached.getScore() == output &&
 					cached.getPlayerDisplayName().equals(finalDisplayName) &&
 					cached.getPrefix().equals(finalPrefix) &&
 					cached.getSuffix().equals(finalSuffix)
 			) {
-				if(debug) Debug.info("Skipping updating of "+player.getName()+" for "+board+" because their cached score is the same as their current score");
+				if (debug)
+					Debug.info("Skipping updating of " + player.getName() + " for " + board + " because their cached score is the same as their current score");
 				return;
 			}
 
-			if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
-				if(output == 0) {
+			if (plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
+				if (output == 0) {
 					Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
 					return;
 				}
 			}
 
-			if(plugin.getAConfig().getBoolean("require-zero-validation")) {
-				if(output == 0 && !zeroPlayers.contains(boardPlayer)) {
+			if (plugin.getAConfig().getBoolean("require-zero-validation")) {
+				if (output == 0 && !zeroPlayers.contains(boardPlayer)) {
 					zeroPlayers.add(boardPlayer);
-					Debug.info("Skipping "+player.getName()+" because they returned 0 for "+board);
+					Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board);
 					return;
-				} else if(output == 0 && zeroPlayers.contains(boardPlayer)) {
-					Debug.info("Not skipping "+player.getName()+" because they still returned 0 for "+board);
-				} else if(output != 0) {
+				} else if (output == 0 && zeroPlayers.contains(boardPlayer)) {
+					Debug.info("Not skipping " + player.getName() + " because they still returned 0 for " + board);
+				} else if (output != 0) {
 					zeroPlayers.remove(boardPlayer);
 				}
 			}
 
-		method.upsertPlayer(board, player, output, displayName, prefix, suffix);
+			method.upsertPlayer(board, player, output, finalDisplayName, finalPrefix, finalSuffix);
+		};
+		if(Bukkit.isPrimaryThread()) {
+			plugin.getTopManager().submit(updateTask);
+		} else {
+			updateTask.run();
+		}
 	}
 
 	public long getLastReset(String board, TimedType type) {
@@ -335,6 +345,16 @@ public class Cache {
 		Debug.info("last: " + lastReset + " gap: " + (startTime - lastReset));
 		method.resetBoard(board, type, newTime);
 		Debug.info("Reset of " + board + " " + type.lowerName() + " took " + (System.currentTimeMillis()-startTime)+"ms");
+	}
+
+	public double getTotal(String board, TimedType type) {
+		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
+			return -3;
+		}
+		return method.getTotal(board, type);
 	}
 
 	public void insertRows(String board, List<DbRow> rows) throws SQLException {

@@ -155,7 +155,7 @@ public abstract class SQLCacheMethod implements CacheMethod {
             this.close(conn);
         } catch (SQLException e) {
             getPlugin().getLogger().log(Level.WARNING, "Unable to get position/value of player:", e);
-            return StatEntry.error(getPlugin(), -1, board, type);
+            return StatEntry.error(-1, board, type);
         }
         return r;
     }
@@ -817,5 +817,47 @@ public abstract class SQLCacheMethod implements CacheMethod {
 
     protected ConfigFile getStorageConfig() {
         return storageConfig;
+    }
+
+    @Override
+    public int getTotal(String board, TimedType type) {
+        int size;
+        Connection connection = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+
+            PreparedStatement ps = connection.prepareStatement(String.format(
+                    formatStatement("select SUM(%s) from '%s'"),
+                    type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta",
+                    getTablePrefix()+board
+            ));
+
+            rs = ps.executeQuery();
+
+            rs.next();
+
+            size = rs.getInt(1);
+
+        } catch (SQLException e) {
+            if(
+                    !e.getMessage().contains("ResultSet closed") &&
+                            !e.getMessage().contains("empty result set") &&
+                            !e.getMessage().contains("[2000-")
+            ) {
+                getPlugin().getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+                return -1;
+            } else {
+                return 0;
+            }
+        } finally {
+            try {
+                if(connection != null) close(connection);
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                getPlugin().getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
+            }
+        }
+        return size;
     }
 }
