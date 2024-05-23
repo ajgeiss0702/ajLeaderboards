@@ -23,7 +23,11 @@ public class PlayerPositionFormatted extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        int position = plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw)).getPosition();
+        TimedType type = TimedType.of(typeRaw);
+        if(type == null) {
+            return "Invalid TimedType '" + typeRaw + "'";
+        }
+        int position = plugin.getTopManager().getStatEntry(p, board, type).getPosition();
         if(position == -3) return "BDNE";
         if(position == -2) return plugin.getMessages().getString("loading.position");
         return StatEntry.formatDouble(position);

@@ -5,23 +5,21 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.commands.main.subcommands.*;
+import us.ajg0702.leaderboards.commands.main.subcommands.debug.Format;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Resets;
+import us.ajg0702.leaderboards.commands.main.subcommands.debug.Save;
 import us.ajg0702.leaderboards.commands.main.subcommands.debug.Time;
 import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
-import javax.swing.text.View;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class MainCommand extends BaseCommand {
-    private final LeaderboardPlugin plugin;
     public MainCommand(LeaderboardPlugin plugin) {
         super("ajleaderboards", Arrays.asList("ajl", "ajlb"), "ajleaderboards.use", "Main comamnd for ajLeaderboards");
-        this.plugin = plugin;
 
         addSubCommand(new Version(plugin));
         addSubCommand(new Reload(plugin));
@@ -30,7 +28,7 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new UpdatePlayer(plugin));
         addSubCommand(new RemovePlayer(plugin));
         addSubCommand(new Remove(plugin));
-        addSubCommand(new ListBoards(plugin));
+        addSubCommand(new ListCommand(plugin));
         addSubCommand(new Signs(plugin));
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
@@ -41,14 +39,20 @@ public class MainCommand extends BaseCommand {
         // Debug commands
         addSubCommand(new Time());
         addSubCommand(new Resets(plugin));
+        addSubCommand(new Format());
+        addSubCommand(new Save(plugin));
     }
 
     @Override
-    public List<String> autoComplete(CommandSender sender, String[] args) {
+    public java.util.List<String> autoComplete(CommandSender sender, String[] args) {
         if(!checkPermission(sender)) {
             return Collections.emptyList();
         }
-        return subCommandAutoComplete(sender, args);
+        if(args.length == 1) {
+            return filterCompletion(subCommandAutoComplete(sender, args), args[0]);
+        } else {
+            return subCommandAutoComplete(sender, args);
+        }
     }
 
     @Override
@@ -61,7 +65,7 @@ public class MainCommand extends BaseCommand {
         sendHelp(sender, label, getSubCommands());
     }
 
-    public static void sendHelp(CommandSender sender, String label, List<SubCommand> subCommands) {
+    public static void sendHelp(CommandSender sender, String label, java.util.List<SubCommand> subCommands) {
         sender.sendMessage(message(""));
         for(SubCommand subCommand : subCommands) {
             if(!subCommand.showInTabComplete()) continue;

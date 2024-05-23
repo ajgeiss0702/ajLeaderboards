@@ -23,10 +23,14 @@ public class RelName extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
+        TimedType type = TimedType.of(typeRaw);
+        if(type == null) {
+            return "Invalid TimedType '" + typeRaw + "'";
+        }
         String posneg = matcher.group(3);
         int position = Integer.parseInt(matcher.group(4));
         if(posneg.equals("-")) position *= -1;
-        StatEntry r = plugin.getTopManager().getRelative(p, position, board, TimedType.valueOf(typeRaw));
+        StatEntry r = plugin.getTopManager().getRelative(p, position, board, type);
         return r.getPlayerName();
     }
 }

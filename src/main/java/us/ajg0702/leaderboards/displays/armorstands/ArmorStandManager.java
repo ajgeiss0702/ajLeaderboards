@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.displays.signs.BoardSign;
+import us.ajg0702.utils.foliacompat.CompatScheduler;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.util.*;
@@ -58,46 +59,53 @@ public class ArmorStandManager {
 
     private void setArmorstandHead(ArmorStand stand, String name, UUID uuid) {
         Debug.info("Updating armorstand");
-        if(VersionSupport.getMinorVersion() >= 10) {
-            stand.setSilent(true);
-        }
         ItemStack item;
         if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
             item = plugin.getHeadUtils().getVersionedHeadUtils().getHeadItem(uuid, name);
         } else {
             item = plugin.getHeadUtils().getHeadItem(uuid, name);
         }
-        //noinspection deprecation
-        stand.setHelmet(item);
+
+        Runnable runnable = () -> {
+            if(VersionSupport.getMinorVersion() >= 10) {
+                stand.setSilent(true);
+            }
+            //noinspection deprecation
+            stand.setHelmet(item);
+        };
+        if(CompatScheduler.isFolia()) {
+            plugin.getScheduler().runSync(stand, runnable);
+        } else {
+            runnable.run();
+        }
     }
 
     public void search(BoardSign sign, String name, UUID id) {
-        if(!sign.getLocation().getBlock().getType().toString().contains("SIGN")) return;
-        if(!plugin.getTopManager().getBoards().contains(sign.getBoard())) return;
-        if(id == null) return;
-        Sign ss = sign.getSign();
-        if(ss == null) return;
-        BlockFace face;
-        if(VersionSupport.getMinorVersion() > 12) {
-            BlockData bd = ss.getBlockData();
-            if(bd instanceof org.bukkit.block.data.type.Sign) {
-                org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
-                face = bs.getRotation();
-            } else if(bd instanceof WallSign) {
-                WallSign bs = (WallSign) bd;
-                face = bs.getFacing();
-            } else {
-                plugin.getLogger().warning("nope");
-                return;
-            }
-        } else {
-            @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
-            face = bs.getFacing();
-        }
-
-        Location sl = sign.getLocation();
-
         try {
+            if(!plugin.safeGetBlockType(sign.getLocation()).get(1, TimeUnit.SECONDS).toString().contains("SIGN")) return;
+            if(!plugin.getTopManager().getBoards().contains(sign.getBoard())) return;
+            if(id == null) return;
+            Sign ss = sign.getSign();
+            if(ss == null) return;
+            BlockFace face;
+            if(VersionSupport.getMinorVersion() > 12) {
+                BlockData bd = ss.getBlockData();
+                if(bd instanceof org.bukkit.block.data.type.Sign) {
+                    org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
+                    face = bs.getRotation();
+                } else if(bd instanceof WallSign) {
+                    WallSign bs = (WallSign) bd;
+                    face = bs.getFacing();
+                } else {
+                    Debug.info("Skipping getting face for sign because it is an unknown type! " + bd.getClass());
+                    return;
+                }
+            } else {
+                @SuppressWarnings("deprecation") org.bukkit.material.Sign bs = (org.bukkit.material.Sign) ss.getData();
+                face = bs.getFacing();
+            }
+
+            Location sl = sign.getLocation();
             switch(face) {
 
                 case NORTH:
@@ -176,12 +184,13 @@ public class ArmorStandManager {
         if(world == null) {
             throw new IllegalArgumentException("Invalid world");
         }
-        Bukkit.getScheduler().runTask(
-                plugin,
+        plugin.getScheduler().runSync(
+                loc,
                 () -> future.complete(world.getNearbyEntities(loc, 1, 1, 1))
         );
         return future;
     }
+
     public static void debugParticles(Location curloc) {
         if(!Debug.particles()) return;
         World world = curloc.getWorld();

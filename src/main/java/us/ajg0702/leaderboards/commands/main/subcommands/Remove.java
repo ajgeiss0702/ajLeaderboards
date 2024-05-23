@@ -22,7 +22,7 @@ public class Remove extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
-        if(args.length == 1) return plugin.getTopManager().getBoards();
+        if(args.length == 1) return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
         return Collections.emptyList();
     }
 
@@ -50,7 +50,7 @@ public class Remove extends SubCommand {
                     "</b></green></click>"));
             confirmDeletes.put(sender.getHandle(), board);
             Debug.info("Added confirmDelete: "+confirmDeletes.keySet().size());
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getScheduler().runTaskLaterAsynchronously(() -> {
                 Debug.info("Removing confirmDelete");
                 if(confirmDeletes.containsKey(sender.getHandle()) && confirmDeletes.get(sender.getHandle()).equals(board)) {
                     confirmDeletes.remove(sender.getHandle());

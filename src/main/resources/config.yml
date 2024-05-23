@@ -36,7 +36,7 @@ enable-dontupdate-permission: true
 # Should we block the thread when loading placeholders?
 # The default option of auto will only block when we are not on the main server thread.
 # If true, it will always block the thread, which could cause some lag.
-# If false, it will never block the thread its on.
+# If false, it will never block the thread it's on. (but will show "Loading" for a sec)
 #  Options: true, false, auto
 #  Default: auto
 blocking-fetch: auto
@@ -70,12 +70,32 @@ sign-update: 20
 #  Default: true
 update-on-join: true
 
+# Should ajLeaderboards update the stat as soon as the player leaves?
+# This can be used to prevent players from losing all of their money, then leaving before ajlb updates
+#  Default: true
+update-on-leave: true
+
 # These are "extra" placeholders that can be parsed to be displayed alongside the leaderboard
 # For example, you can have a KDR leaderboard, then next to each player on the leaderboard,
 #  you can show their actual kills and deaths
 # More info: https://wiki.ajg0702.us/ajleaderboards/setup/extras/
 extras:
   - "statistic_player_kills"
+
+# When resetting a timed type (e.g. daily, weekly, etc) how many positions should we save?
+# They are saved in the "past-resets" folder
+# Set to 0 or a negative number to disbale saving
+#  Default: 10
+reset-save-positions: 10
+
+# Which timed types should we save?
+# Use "*" to save all
+#  Default: all except hourly
+reset-save-types:
+  - DAILY
+  - WEEKLY
+  - MONTHLY
+  - YEARLY
 
 # What character should we use for the comma in long numbers?
 # You can also set this to be blank if you don't want commas
@@ -98,7 +118,7 @@ value-names:
 - "statistic_player_kills%kills"
 
 # Should this server update player stats?
-#  If disabled, stats will not be recorded to the database, and ajleaderboards will basically only read from it.
+#  If disabled, stats will not be recorded to the database, and ajLeaderboards will basically only read from it.
 #  This can be useful if you have a lobby where you want to display leaderboards, but want to make sure anything in the lobby
 #   doesn't override the stats from other servers
 update-stats: true
@@ -124,6 +144,17 @@ dont-add-zero: []
 #  Default: true
 fetch-prefix-suffix-from-vault: true
 
+# Should we include seconds in the time format?
+# This only effects things that display the value directly from ajLeaderboards
+#  Default: true
+time-format-display-seconds: true
+
+# Allows setting custom bytebin location and webviewer link
+# You should only need to change these if you don't want /ajlb viewer to send the data to my servers
+#  (which is only kept for 90 days or less, and you can contact me to delete sooner if you'd like)
+bytebin-link: "https://bytebin.ajg0702.us/post"
+web-link: "https://ajlb-viewer.ajg0702.us/?id={code}"
+
 
 # Debug option to print stuff that could be useful to the developer.
 # You should probably keep this disabled unless you know what you are doing or are told to turn it on.
@@ -143,20 +174,55 @@ particles: false
 # You really only need to use this if the dev asks for it.
 fetching-de-bug: false
 
+# Should we check our cached version of a player?
+# This will only cause an update request to be sent if the player's score or info has changed.
+# If disabled, the cache will only be populated if there is something else requesting specific player info
+#  Default: true
+check-cache-on-update: true
+
+# Should we fetch from the database more often?
+# ajLeaderboards will always fetch from the database more when the db responds quickly, and less when it is slower.
+# Disabling this will make it so ajLeaderboards will fetch from the database less often when the database is fast
+# The default is fine for most servers, but you may want to disable this if your database is getting too many requests
+#  Default: true
+more-fetching: true
+
+
+# Should we skip some steps when shutting down the plugin to make it faster?
+# If you enable this, it can cause warnings after the server shuts down,
+#  but can also speed up the speed that the server shuts down a lot
+# Enabling this *shouldn't* break anything, but unless you have a very good reason to enable this,
+#  you should probably keep it disabled
+#  Default: false
+fast-shutdown: false
+
+# What is the minimum time (in milliseconds) we should keep specific player info (e.g. fetching position)
+# The cached data may be used for longer if the database is slow at responding to requests.
+#  Default: 5000
+min-player-cache-time: 5000
+
 # What maximum number of threads should ajLeaderboards be allowed to use for fetching from the db?
 # Most of the time, the number of threads used will be far less than this.
 # This is ignored on mysql (and maxConnections is used for this instead)
 # Lower this if you get the message "unable to create native thread: possibly out of memory or process/resource limits reached"
-# I would __not__ recommend setting this below 20.
+# I would __not__ recommend setting this below 16.
 # Requires a server restart to change
 #  Default: 70
 max-fetching-threads: 70
 
+# For how long (in milliseconds) should we keep a non-core thread alive before killing it?
+# This allows us to reuse threads instead of creating new ones every time we need to fetch something.
+# Creating new threads is expensive but keeping them alive for too long can consume resources.
+# I would __not__ recommend setting this below 500.
+# Extensive testing has been done, and a value of 500 has been found suitable for ajLeaderboards.
+# Requires a server restart to change
+#  Default: 500
+fetching-thread-pool-keep-alive: 500
 
 
 # # # # # # # # # # # # # # # # # # # # # # #
 #                                           #
-#  End of config. Happy leaderboard-ing :)  #
+#  End of config. Happy leaderboard-ingmore-fetching :)  #
 #                                           #
 # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -164,7 +230,7 @@ max-fetching-threads: 70
 
 
 # Don't touch this
-config-version: 28
+config-version: 33
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

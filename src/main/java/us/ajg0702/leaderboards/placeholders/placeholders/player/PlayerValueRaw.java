@@ -24,7 +24,11 @@ public class PlayerValueRaw extends Placeholder {
     public String parse(Matcher matcher, OfflinePlayer p) {
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
-        StatEntry r = plugin.getTopManager().getStatEntry(p, board, TimedType.valueOf(typeRaw));
+        TimedType type = TimedType.of(typeRaw);
+        if(type == null) {
+            return "Invalid TimedType '" + typeRaw + "'";
+        }
+        StatEntry r = plugin.getTopManager().getStatEntry(p, board, type);
         DecimalFormat df = new DecimalFormat("#.##");
         return df.format(r.getScore());
     }

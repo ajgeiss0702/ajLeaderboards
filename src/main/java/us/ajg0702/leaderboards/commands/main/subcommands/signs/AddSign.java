@@ -24,10 +24,10 @@ public class AddSign extends SubCommand {
     @Override
     public List<String> autoComplete(CommandSender commandSender, String[] args) {
         if(args.length == 1) {
-            return plugin.getTopManager().getBoards();
+            return filterCompletion(plugin.getTopManager().getBoards(), args[0]);
         }
         if(args.length == 3) {
-            return TimedType.lowerNames();
+            return filterCompletion(TimedType.lowerNames(), args[2]);
         }
         return Collections.emptyList();
     }
@@ -63,7 +63,7 @@ public class AddSign extends SubCommand {
         }
         Block target = p.getTargetBlock(null, 10);
         if(!target.getType().toString().contains("SIGN")) {
-            sender.sendMessage(message("&cThe block you are looking at is not a sign! Please look at a sign to set."));
+            sender.sendMessage(message("&cThe block you are looking at (" + target.getType() + ") is not a sign! Please look at a sign to set."));
             return;
         }
         TimedType type;

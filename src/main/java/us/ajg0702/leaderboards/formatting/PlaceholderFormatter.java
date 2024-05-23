@@ -14,17 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlaceholderFormatter {
     private final Format defaultFormat = new Default();
-    private final List<Format> formats = Arrays.asList(
-            new Time(),
-            new ColonTime(),
-
-            defaultFormat
-    );
-
-    private final LeaderboardPlugin plugin;
+    private final List<Format> formats;
 
     public PlaceholderFormatter(LeaderboardPlugin plugin) {
-        this.plugin = plugin;
+        formats = Arrays.asList(
+                new Time(plugin),
+                new ColonTime(),
+
+                defaultFormat
+        );
     }
 
     Map<String, Format> formatCache = new ConcurrentHashMap<>();
@@ -37,13 +35,13 @@ public class PlaceholderFormatter {
                 for (Format format : formats) {
                     if(format.equals(defaultFormat)) continue;
                     if(format.matches(null, board)) {
-                        Debug.info("[Formatter] Putting " + format.getName() + " in formatCache for " + board);
+//                        Debug.info("[Formatter] Putting " + format.getName() + " in formatCache for " + board);
                         possibleMatch = format;
                     }
                 }
             }
             if(possibleMatch == null) {
-                Debug.info("[Formatter] No possible match for " + board + ". Using default");
+//                Debug.info("[Formatter] No possible match for " + board + ". Using default");
                 return defaultFormat;
             }
             return possibleMatch;

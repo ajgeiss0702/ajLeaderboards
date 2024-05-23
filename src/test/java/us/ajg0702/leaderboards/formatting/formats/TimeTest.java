@@ -14,7 +14,12 @@ public class TimeTest extends TestCase {
                 "31m",
                 "13 hours 21 minutes 15 seconds",
                 "6d 15h 46m 8s",
-                "9h 21m 44s"
+                "9h 21m 44s",
+                "2s",
+                "1d 14h 40m",
+                "0d 14h 40m",
+                "9h 21m 44s",
+                "2h 8m 37s"
         );
         List<String> shouldNotMatch = Arrays.asList(
                 "hello there",
@@ -25,7 +30,7 @@ public class TimeTest extends TestCase {
                 ""
         );
 
-        Time timeFormat = new Time();
+        Time timeFormat = new Time(null);
 
         for (String match : shouldMatch) {
             boolean res = timeFormat.matches(match, "");

@@ -42,15 +42,16 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, ((MysqlMethod) method).getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+        int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
         fetchService = new ThreadPoolExecutor(
                 t, t,
-                500, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true)
+                keepAlive, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1000000, true),
+                ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
         );
         fetchService.allowCoreThreadTimeOut(true);
-        fetchService.setThreadFactory(ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH"));
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskTimerAsynchronously(() -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
                 rolling.remove(0);
@@ -143,7 +144,7 @@ public class TopManager {
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new HashMap<>();
     LoadingCache<PlayerBoardType, StatEntry> statEntryCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(5, TimeUnit.HOURS)
+            .expireAfterAccess(1, TimeUnit.HOURS)
             .refreshAfterWrite(1, TimeUnit.SECONDS)
             .maximumSize(10000)
             .removalListener(notification -> {
@@ -157,7 +158,8 @@ public class TopManager {
 
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
-                    if(plugin.isShuttingDown() || System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*1.5, 5000)) {
+                    long msSinceRefresh = System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L);
+                    if(plugin.isShuttingDown() || msSinceRefresh < Math.max(cacheTime()*1.5, plugin.getAConfig().getInt("min-player-cache-time"))) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
@@ -185,7 +187,7 @@ public class TopManager {
                 cached = statEntryCache.getUnchecked(key);
             } else {
                 fetchService.submit(() -> statEntryCache.getUnchecked(key));
-                return StatEntry.loading(plugin, player, key.getBoardType());
+                return StatEntry.loading(player, key.getBoardType());
             }
         }
 
@@ -269,6 +271,59 @@ public class TopManager {
 
     }
 
+    Map<BoardType, Long> totalLastRefresh = new HashMap<>();
+    LoadingCache<BoardType, Double> totalCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(24, TimeUnit.HOURS)
+            .refreshAfterWrite(1, TimeUnit.SECONDS)
+            .maximumSize(10000)
+            .removalListener(notification -> {
+                if(!notification.getCause().equals(RemovalCause.REPLACED)) totalLastRefresh.remove((BoardType) notification.getKey());
+            })
+            .build(new CacheLoader<BoardType, Double>() {
+                @Override
+                public @NotNull Double load(@NotNull BoardType key) {
+                    return plugin.getCache().getTotal(key.getBoard(), key.getType());
+                }
+
+                @Override
+                public @NotNull ListenableFuture<Double> reload(@NotNull BoardType key, @NotNull Double oldValue) {
+                    if(plugin.isShuttingDown() || System.currentTimeMillis() - totalLastRefresh.getOrDefault(key, 0L) < Math.max(cacheTime()*2, 5000)) {
+                        return Futures.immediateFuture(oldValue);
+                    }
+                    ListenableFutureTask<Double> task = ListenableFutureTask.create(() -> {
+                        totalLastRefresh.put(key, System.currentTimeMillis());
+                        return plugin.getCache().getTotal(key.getBoard(), key.getType());
+                    });
+                    if(plugin.isShuttingDown()) return Futures.immediateFuture(oldValue);
+                    fetchService.execute(task);
+                    return task;
+                }
+            });
+
+
+    /**
+     * Gets the sum of all players on the leaderboard
+     * @param board the board
+     * @param type the timed type
+     * @return the sum of all players in the specified board for the specified timed type
+     */
+    public double getTotal(String board, TimedType type) {
+        BoardType boardType = new BoardType(board, type);
+        Double cached = totalCache.getIfPresent(boardType);
+
+        if(cached == null) {
+            if(BlockingFetch.shouldBlock(plugin)) {
+                cached = totalCache.getUnchecked(boardType);
+            } else {
+                fetchService.submit(() -> totalCache.getUnchecked(boardType));
+                return -2;
+            }
+        }
+
+        return cached;
+
+    }
+
 
     List<String> boardCache;
     long lastGetBoard = 0;
@@ -304,7 +359,7 @@ public class TopManager {
         return boardCache;
     }
 
-    List<Integer> rolling = new ArrayList<>();
+    List<Integer> rolling = new CopyOnWriteArrayList<>();
     private void removeFetching() {
         fetching.decrementAndGet();
     }
@@ -415,8 +470,10 @@ public class TopManager {
     public int cacheTime() {
 
         boolean recentLargeAverage = System.currentTimeMillis() - lastLargeAverage < 30000;
+        boolean moreFetching = plugin.getAConfig().getBoolean("more-fetching");
 
-        int r = recentLargeAverage ? 5000 : 1000;
+
+        int r = moreFetching ? (recentLargeAverage ? 5000 : 1000) : 20000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -427,22 +484,24 @@ public class TopManager {
         int activeFetchers = getActiveFetchers();
         int totalTasks = activeFetchers + getQueuedTasks();
 
-        if(!recentLargeAverage) {
-            if(fetchingAverage == 0 && activeFetchers == 0) {
-                return 500;
+        if(moreFetching) {
+            if(!recentLargeAverage) {
+                if(fetchingAverage == 0 && activeFetchers == 0) {
+                    return 500;
+                }
+                if(fetchingAverage > 0) {
+                    r = 2000;
+                }
+                if(fetchingAverage >= 2) {
+                    r = 5000;
+                }
             }
-            if(fetchingAverage > 0) {
-                r = 2000;
+            if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
+                r = 10000;
             }
-            if(fetchingAverage >= 2) {
-                r = 5000;
+            if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
+                r = 15000;
             }
-        }
-        if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
-            r = 10000;
-        }
-        if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
-            r = 15000;
         }
         if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
             r = 30000;

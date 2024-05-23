@@ -15,7 +15,8 @@ public class ColonTimeTest extends TestCase {
                 "1:2:3.4",
                 "11:22:33:44",
                 "11:22:33.44",
-                "12:3:15.735"
+                "12:3:15.735",
+                "00:02:30.95"
         );
         List<String> shouldNotMatch = Arrays.asList(
                 "hello there",

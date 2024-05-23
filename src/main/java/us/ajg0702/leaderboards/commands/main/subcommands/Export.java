@@ -1,16 +1,12 @@
 package us.ajg0702.leaderboards.commands.main.subcommands;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
-import us.ajg0702.leaderboards.cache.helpers.DbRow;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -37,7 +33,7 @@ public class Export extends SubCommand {
             sender.sendMessage(message("&cPlease provide a file name.\n&7Usage: /"+label+" export <file>"));
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             String fileName = addJsonEnding(args[0]);
             File file = new File(plugin.getDataFolder(), fileName);
 
