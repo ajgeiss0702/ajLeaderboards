@@ -36,9 +36,11 @@ public class HeadUtils {
     private VersionedHeadUtils versionedHeadUtils = null;
 
     private final Logger logger;
+    private final DebugWrapper debug;
 
-    public HeadUtils(Logger logger) {
+    public HeadUtils(Logger logger, DebugWrapper debug) {
         this.logger = logger;
+        this.debug = debug;
 
         /*if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
             skinsRestorerAPI = SkinsRestorerAPI.getApi();
@@ -46,11 +48,16 @@ public class HeadUtils {
             skinsRestorerAPI = null;
         }*/
 
-        if(VersionSupport.getMinorVersion() >= 19) {
+        int minorVersion = VersionSupport.getMinorVersion();
+
+        debug.infoW("Detected minor minecraft version: " + minorVersion);
+
+        if(minorVersion >= 19) {
             try {
                 versionedHeadUtils = (VersionedHeadUtils) Class.forName("us.ajg0702.leaderboards.nms.nms19.HeadUtils19")
-                        .getDeclaredConstructor()
-                        .newInstance();
+                        .getDeclaredConstructor(DebugWrapper.class)
+                        .newInstance(debug);
+                debug.infoW("Using versioned head utils for >19 (" + minorVersion + ")");
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException | ClassNotFoundException e) {
                 logger.warning("Unable to find 1.19 nms class: "+e.getMessage());

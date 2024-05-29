@@ -1,10 +1,10 @@
 package us.ajg0702.leaderboards;
 
-import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.nms.legacy.DebugWrapper;
 
 import java.util.logging.Logger;
 
-public class Debug {
+public class Debug implements DebugWrapper {
 
     private static boolean debug = false;
     private static Logger logger;
@@ -22,8 +22,14 @@ public class Debug {
         if(!debug) return;
         logger.info("[DEBUG] "+message);
     }
+    public void infoW(String message) {
+        Debug.info(message);
+    }
 
     public static boolean isDebug() {
+        return debug;
+    }
+    public boolean isDebugW() {
         return debug;
     }
 
