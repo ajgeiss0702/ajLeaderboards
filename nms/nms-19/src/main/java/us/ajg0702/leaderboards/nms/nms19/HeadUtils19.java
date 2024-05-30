@@ -36,7 +36,9 @@ public class HeadUtils19 implements VersionedHeadUtils {
 
         SkullMeta meta = (SkullMeta) itemMeta;
 
-        meta.setOwnerProfile(Bukkit.createPlayerProfile(uuid, name));
+        PlayerProfile profile = getProfile(uuid, name);
+
+        meta.setOwnerProfile(profile);
 
         stack.setItemMeta(meta);
 
@@ -52,6 +54,14 @@ public class HeadUtils19 implements VersionedHeadUtils {
         Skull skull = (Skull) blockState;
 
 
+        PlayerProfile profile = getProfile(uuid, name);
+
+        skull.setOwnerProfile(profile);
+
+        skull.update();
+    }
+
+    private PlayerProfile getProfile(UUID uuid, String name) {
         PlayerProfile profile = Bukkit.getOfflinePlayer(uuid).getPlayerProfile();
 
         if(profile.getTextures().isEmpty()) {
@@ -65,8 +75,6 @@ public class HeadUtils19 implements VersionedHeadUtils {
 
         debug.infoW("Got profile for " + name + ": " + profile + " with textures" + profile.getTextures());
 
-        skull.setOwnerProfile(profile);
-
-        skull.update();
+        return profile;
     }
 }
