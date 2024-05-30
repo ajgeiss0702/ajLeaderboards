@@ -67,6 +67,7 @@ public class HeadUtils19 implements VersionedHeadUtils {
         if(profile.getTextures().isEmpty()) {
             debug.infoW("Fetching textures! If this causes lag, contact aj");
             try {
+                // TODO: currently this is run on the main thread. That needs to change
                 profile = profile.update().get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 throw new RuntimeException(e);
