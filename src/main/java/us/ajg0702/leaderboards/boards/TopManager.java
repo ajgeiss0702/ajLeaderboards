@@ -42,7 +42,7 @@ public class TopManager {
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
-        int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
+        int t = method instanceof MysqlMethod ? Math.max(10, ((MysqlMethod) method).getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
         int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
         fetchService = new ThreadPoolExecutor(
                 t, t,
@@ -470,10 +470,8 @@ public class TopManager {
     public int cacheTime() {
 
         boolean recentLargeAverage = System.currentTimeMillis() - lastLargeAverage < 30000;
-        boolean moreFetching = plugin.getAConfig().getBoolean("more-fetching");
 
-
-        int r = moreFetching ? (recentLargeAverage ? 5000 : 1000) : 20000;
+        int r = recentLargeAverage ? 5000 : 1000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -484,24 +482,22 @@ public class TopManager {
         int activeFetchers = getActiveFetchers();
         int totalTasks = activeFetchers + getQueuedTasks();
 
-        if(moreFetching) {
-            if(!recentLargeAverage) {
-                if(fetchingAverage == 0 && activeFetchers == 0) {
-                    return 500;
-                }
-                if(fetchingAverage > 0) {
-                    r = 2000;
-                }
-                if(fetchingAverage >= 2) {
-                    r = 5000;
-                }
+        if(!recentLargeAverage) {
+            if(fetchingAverage == 0 && activeFetchers == 0) {
+                return 500;
             }
-            if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
-                r = 10000;
+            if(fetchingAverage > 0) {
+                r = 2000;
             }
-            if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
-                r = 15000;
+            if(fetchingAverage >= 2) {
+                r = 5000;
             }
+        }
+        if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
+            r = 10000;
+        }
+        if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
+            r = 15000;
         }
         if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
             r = 30000;

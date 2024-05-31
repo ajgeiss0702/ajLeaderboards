@@ -3,7 +3,7 @@ package us.ajg0702.leaderboards.cache.methods;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.cache.Cache;
-import us.ajg0702.leaderboards.cache.CacheMethod;
+import us.ajg0702.leaderboards.cache.SQLCacheMethod;
 import us.ajg0702.leaderboards.utils.UnClosableConnection;
 import us.ajg0702.utils.common.ConfigFile;
 
@@ -11,15 +11,20 @@ import java.io.File;
 import java.sql.*;
 import java.util.Locale;
 
-public class SqliteMethod implements CacheMethod {
+public class SqliteMethod extends SQLCacheMethod {
     private Connection conn;
     private LeaderboardPlugin plugin;
     private ConfigFile config;
     private Cache cacheInstance;
+
+    public SqliteMethod(ConfigFile storageConfig) {
+        super(storageConfig);
+    }
+
     @Override
     public Connection getConnection() {
         try {
-            if(conn.isClosed()) {
+            if (conn.isClosed()) {
                 plugin.getLogger().warning("Sqlite connection is dead, making a new one");
                 init(plugin, config, cacheInstance);
             }
@@ -116,7 +121,13 @@ public class SqliteMethod implements CacheMethod {
     }
 
     @Override
-    public void close(Connection connection) {}
+    public void close(Connection connection) {
+    }
+
+    @Override
+    protected LeaderboardPlugin getPlugin() {
+        return plugin;
+    }
 
     @Override
     public int getMaxConnections() {
@@ -135,6 +146,16 @@ public class SqliteMethod implements CacheMethod {
     @Override
     public String formatStatement(String s) {
         return s.replaceAll("'", "\"");
+    }
+
+    @Override
+    public String getQuotationMark() {
+        return "'";
+    }
+
+    @Override
+    public String getTablePrefix() {
+        return "";
     }
 
     @Override

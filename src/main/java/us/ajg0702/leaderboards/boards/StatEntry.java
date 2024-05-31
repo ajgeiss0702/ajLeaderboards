@@ -8,6 +8,7 @@ import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
 import us.ajg0702.leaderboards.cache.Cache;
+import us.ajg0702.leaderboards.formatting.PlaceholderFormatter;
 import us.ajg0702.leaderboards.utils.EasyJsonObject;
 import us.ajg0702.utils.common.Messages;
 
@@ -68,7 +69,11 @@ public class StatEntry {
 
 		this.playerID = playerID;
 
-		this.cache = plugin.getCache();
+		if (plugin == null) {
+			this.cache = null;
+		} else {
+			this.cache = plugin.getCache();
+		}
 
 		if(plugin != null && !formatStringsSet) {
 			formatStringsSet = true;
@@ -100,6 +105,18 @@ public class StatEntry {
 		}
 		if(score == 0 && plugin.getMessages().getRawString("loading.text").equals(playerName)) {
 			return "...";
+		}
+		if (cache == null) {
+			if(!hasPlayer()) {
+				if(score == -1) {
+					return "---";
+				} else if(score == -2) {
+					return "---";
+				} else {
+					return "-?-";
+				}
+			}
+			return new PlaceholderFormatter(null).toFormat(score, board);
 		}
 		Messages messages = cache.getPlugin().getMessages();
 		if(!hasPlayer()) {
