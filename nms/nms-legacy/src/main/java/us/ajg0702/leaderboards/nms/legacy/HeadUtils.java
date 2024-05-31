@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+import us.ajg0702.utils.foliacompat.CompatScheduler;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.IOException;
@@ -38,9 +39,12 @@ public class HeadUtils {
     private final Logger logger;
     private final DebugWrapper debug;
 
-    public HeadUtils(Logger logger, DebugWrapper debug) {
+    private final CompatScheduler scheduler;
+
+    public HeadUtils(Logger logger, DebugWrapper debug, CompatScheduler scheduler) {
         this.logger = logger;
         this.debug = debug;
+        this.scheduler = scheduler;
 
         /*if(Bukkit.getPluginManager().isPluginEnabled("SkinsRestorer")) {
             skinsRestorerAPI = SkinsRestorerAPI.getApi();
@@ -55,8 +59,8 @@ public class HeadUtils {
         if(minorVersion >= 19) {
             try {
                 versionedHeadUtils = (VersionedHeadUtils) Class.forName("us.ajg0702.leaderboards.nms.nms19.HeadUtils19")
-                        .getDeclaredConstructor(DebugWrapper.class)
-                        .newInstance(debug);
+                        .getDeclaredConstructor(DebugWrapper.class, CompatScheduler.class, Logger.class)
+                        .newInstance(debug, scheduler, logger);
                 debug.infoW("Using versioned head utils for >19 (" + minorVersion + ")");
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException | ClassNotFoundException e) {

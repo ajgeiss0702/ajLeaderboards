@@ -167,7 +167,7 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         signManager = new SignManager(this);
         headManager = new HeadManager(this);
-        headUtils = new HeadUtils(getLogger(), new Debug());
+        headUtils = new HeadUtils(getLogger(), new Debug(), compatScheduler);
         armorStandManager = new ArmorStandManager(this);
 
         resetSaver = new ResetSaver(this);
