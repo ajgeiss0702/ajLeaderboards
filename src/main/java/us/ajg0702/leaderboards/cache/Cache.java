@@ -295,8 +295,8 @@ public class Cache {
 			connection = method.getConnection();
 
 			PreparedStatement ps = connection.prepareStatement(String.format(
-					method.formatStatement("select SUM(%s) from '%s'"),
-					type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta",
+					method.formatStatement("select SUM(%s) as total from '%s'"),
+					type == TimedType.ALLTIME ? "\"value\"" : type.lowerName() + "_delta",
 					tablePrefix+board
 			));
 
@@ -312,7 +312,7 @@ public class Cache {
 							!e.getMessage().contains("empty result set") &&
 							!e.getMessage().contains("[2000-")
 			) {
-				plugin.getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+				plugin.getLogger().log(Level.WARNING, "Unable to get total of board:", e);
 				return -1;
 			} else {
 				return 0;
