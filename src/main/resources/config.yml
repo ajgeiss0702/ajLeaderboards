@@ -187,6 +187,10 @@ check-cache-on-update: true
 #  Default: true
 more-fetching: true
 
+# Should we check for updates?
+# The updater will also let you update just by doing /ajLeaderboards update
+# Changing this requires a restart
+enable-updater: true
 
 # Should we skip some steps when shutting down the plugin to make it faster?
 # If you enable this, it can cause warnings after the server shuts down,
@@ -230,7 +234,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 33
+config-version: 34
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
