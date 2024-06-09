@@ -43,8 +43,6 @@ dependencies {
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
     implementation("us.ajg0702.commands.api:api:1.0.0")
 
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-
     compileOnly("net.luckperms:api:5.4")
 
     implementation("io.papermc:paperlib:1.0.7")
@@ -55,6 +53,7 @@ dependencies {
 
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
+    slim("com.squareup.okhttp3:okhttp:4.11.0")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -77,6 +76,9 @@ tasks.withType<ProcessResources> {
 tasks.slimJar {
     relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
+    relocate("com.squareup", "us.ajg0702.leaderboards.libs")
+    relocate("okhttp3", "us.ajg0702.leaderboards.libs.okhttp3")
+    relocate("okio", "us.ajg0702.leaderboards.libs.okio")
 }
 
 tasks.shadowJar {
