@@ -27,7 +27,7 @@ public class Add extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             if(args.length < 1) {
                 sender.sendMessage(message("&cPlease provide a placeholder to track.\n&7Usage: /"+label+" add <placeholder>"));
                 return;
@@ -36,6 +36,21 @@ public class Add extends SubCommand {
             placeholder = placeholder.replaceAll(Matcher.quoteReplacement("%"), "");
             if(placeholder.startsWith("ajlb")) {
                 sender.sendMessage(message("&cYou cannot create a leaderboard out of an ajLeaderboards placeholder!\n&7See how to set up the plugin &r<underlined><click:open_url:https://wiki.ajg0702.us/ajleaderboards/setup/setup>here</click></underlined>"));
+                return;
+            }
+            if(placeholder.length() > 200) {
+                sender.sendMessage(message(
+                        "&cThat board name is too long! &7Please use a shorter placeholder.\n" +
+                                "&aI recommend using the " +
+                                "<aqua>" +
+                                "<underlined>" +
+                                "<hover:show_text:'https://github.com/Andre601/Shortcut-Expansion'>" +
+                                "<click:open_url:https://github.com/Andre601/Shortcut-Expansion>" +
+                                "Shortcut expansion" +
+                                "</click>" +
+                                "</hover>" +
+                                "</underlined> &ato make the placeholder shorter\n"
+                ));
                 return;
             }
             if(!plugin.validatePlaceholder(placeholder, sender)) {

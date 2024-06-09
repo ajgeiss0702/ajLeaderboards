@@ -35,7 +35,7 @@ public class Viewer extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             JsonObject obj = plugin.getExporter().export(sender);
             if(obj == null) {
                 sender.sendMessage(plugin.getMessages().getComponent("commands.export.fail"));

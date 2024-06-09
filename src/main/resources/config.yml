@@ -180,6 +180,31 @@ fetching-de-bug: false
 #  Default: true
 check-cache-on-update: true
 
+# Should we fetch from the database more often?
+# ajLeaderboards will always fetch from the database more when the db responds quickly, and less when it is slower.
+# Disabling this will make it so ajLeaderboards will fetch from the database less often when the database is fast
+# The default is fine for most servers, but you may want to disable this if your database is getting too many requests
+#  Default: true
+more-fetching: true
+
+# Should we check for updates?
+# The updater will also let you update just by doing /ajLeaderboards update
+# Changing this requires a restart
+enable-updater: true
+
+# Should we skip some steps when shutting down the plugin to make it faster?
+# If you enable this, it can cause warnings after the server shuts down,
+#  but can also speed up the speed that the server shuts down a lot
+# Enabling this *shouldn't* break anything, but unless you have a very good reason to enable this,
+#  you should probably keep it disabled
+#  Default: false
+fast-shutdown: false
+
+# What is the minimum time (in milliseconds) we should keep specific player info (e.g. fetching position)
+# The cached data may be used for longer if the database is slow at responding to requests.
+#  Default: 5000
+min-player-cache-time: 5000
+
 # What maximum number of threads should ajLeaderboards be allowed to use for fetching from the db?
 # Most of the time, the number of threads used will be far less than this.
 # This is ignored on mysql (and maxConnections is used for this instead)
@@ -201,7 +226,7 @@ fetching-thread-pool-keep-alive: 500
 
 # # # # # # # # # # # # # # # # # # # # # # #
 #                                           #
-#  End of config. Happy leaderboard-ing :)  #
+#  End of config. Happy leaderboard-ingmore-fetching :)  #
 #                                           #
 # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -209,7 +234,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 30
+config-version: 34
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

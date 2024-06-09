@@ -5,10 +5,12 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
+import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.utils.common.Messages;
+import us.ajg0702.utils.foliacompat.Task;
 import us.ajg0702.utils.spigot.VersionSupport;
 
 import java.io.File;
@@ -33,7 +35,7 @@ public class SignManager {
     public SignManager(LeaderboardPlugin plugin) {
         this.plugin = plugin;
 
-        Bukkit.getScheduler().runTask(plugin, this::reload);
+        plugin.getScheduler().runTaskAsynchronously(this::reload);
 
 
     }
@@ -42,7 +44,7 @@ public class SignManager {
         return signs;
     }
 
-    int updateIntervalId = -1;
+    Task updateInterval;
 
     public void reload() {
         cfgFile = new File(plugin.getDataFolder(), "displays.yml");
@@ -68,15 +70,15 @@ public class SignManager {
         }
         updateNameCache();
 
-        if(updateIntervalId != -1) {
+        if(updateInterval != null) {
             try {
-                Bukkit.getScheduler().cancelTask(updateIntervalId);
-                updateIntervalId = -1;
+                updateInterval.cancel();
+                updateInterval = null;
             } catch(IllegalStateException e) {
-                updateIntervalId = -1;
+                updateInterval = null;
             }
         }
-        updateIntervalId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateSigns, 10*20, plugin.getAConfig().getInt("sign-update")).getTaskId();
+        updateInterval = plugin.getScheduler().runTaskTimerAsynchronously(this::updateSigns, 10*20, plugin.getAConfig().getInt("sign-update"));
     }
 
     /**
@@ -103,7 +105,7 @@ public class SignManager {
                 signs.remove(s);
                 save = true;
                 s.setRemoved(true);
-                if(removeText) Bukkit.getScheduler().runTask(plugin, () -> s.setText("", "", "", ""));
+                if(removeText) plugin.getScheduler().runSync(l, () -> s.setText("", "", "", ""));
                 break;
             }
         }
@@ -166,7 +168,9 @@ public class SignManager {
     }
 
     public void updateSign(BoardSign sign) {
-        if(!isSignChunkLoaded(sign)) return;
+        if(!isSignChunkLoaded(sign)) {
+            return;
+        }
 
         try {
             if(!sign.isPlaced()) return;
@@ -205,15 +209,21 @@ public class SignManager {
 
         List<String> pLines = new ArrayList<>();
         lines.forEach(c -> pLines.add(LEGACY_SIGN_SERIALIZER.serialize(c)));
+        while(pLines.size() < 4) { // If the user removed one of the lines, add an empty line so it doesnt break
+            pLines.add("");
+        }
 
-        if(plugin.isShuttingDown()) return;
         if(r.hasPlayer()) {
-            plugin.getHeadManager().search(sign, r.getPlayerName(), r.getPlayerID());
-            if(plugin.isShuttingDown()) return;
             plugin.getArmorStandManager().search(sign, r.getPlayerName(), r.getPlayerID());
         }
+
         if(plugin.isShuttingDown()) return;
-        Bukkit.getScheduler().runTask(plugin, () -> sign.setText(pLines.get(0), pLines.get(1), pLines.get(2), pLines.get(3)));
+        plugin.getScheduler().runSync(sign.getLocation(), () -> {
+            sign.setText(pLines.get(0), pLines.get(1), pLines.get(2), pLines.get(3));
+            if(r.hasPlayer()) {
+                plugin.getHeadManager().search(sign, r.getPlayerName(), r.getPlayerID());
+            }
+        });
     }
 
     public boolean isSignChunkLoaded(BoardSign sign) {

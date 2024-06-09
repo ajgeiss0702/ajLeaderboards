@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class ColonTime extends Format {
 
-    private final Pattern pattern = Pattern.compile("(([0-9]*):)?([0-9]*):([0-9]*)(:|.)?([0-9]*)?");
+    private final Pattern pattern = Pattern.compile("(([0-9]*):)?([0-9][0-9]?):([0-9][0-9]?)((:|\\.)([0-9][0-9]?[0-9]?))?$");
     @Override
     public boolean matches(String output, String placeholder) {
         if(output == null) return false;
@@ -30,8 +30,8 @@ public class ColonTime extends Format {
         int minutes = Integer.parseInt(matcher.group(3));
         int seconds = Integer.parseInt(matcher.group(4));
 
-        String secondSeparator = matcher.group(5);
-        String milliseconds = matcher.group(6);
+        String secondSeparator = matcher.group(6);
+        String milliseconds = matcher.group(7);
 
         double result = 0;
 
@@ -47,6 +47,7 @@ public class ColonTime extends Format {
             }
         }
 
+        Debug.info(input + ": " + result);
         return result;
 
     }

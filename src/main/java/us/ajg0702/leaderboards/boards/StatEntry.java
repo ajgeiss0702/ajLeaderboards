@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.boards;
 import com.google.gson.JsonObject;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.TimeUtils;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -22,7 +23,8 @@ public class StatEntry {
 	public static final String AN_ERROR_OCCURRED = "An error occurred";
 
 	private static LeaderboardPlugin plugin;
-	
+
+	@Nullable
 	final String playerName;
 	final String playerDisplayName;
 	String prefix;
@@ -54,7 +56,7 @@ public class StatEntry {
 	
 	double score;
 	String scorePretty;
-	public StatEntry(int position, String board, String prefix, String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
+	public StatEntry(int position, String board, String prefix, @Nullable String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
 		if(prefix == null) throw new IllegalArgumentException("Prefix cannot be null");
 		if(suffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		this.playerName = playerName == null ? "" : playerName;
@@ -93,10 +95,10 @@ public class StatEntry {
 		scorePretty = calcPrettyScore();
 	}
 	private String calcPrettyScore() {
-		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+		if(score == 0 && BOARD_DOES_NOT_EXIST.equals(playerName)) {
 			return "BDNE";
 		}
-		if(score == 0 && playerName.equals(plugin.getMessages().getRawString("loading.text"))) {
+		if(score == 0 && plugin.getMessages().getRawString("loading.text").equals(playerName)) {
 			return "...";
 		}
 		Messages messages = cache.getPlugin().getMessages();
@@ -134,7 +136,7 @@ public class StatEntry {
 	}
 	
 	public String getPlayerName() {
-		return playerName;
+		return playerName == null ? "N/A" : playerName;
 	}
 
 	public String getSkin() {
@@ -171,7 +173,7 @@ public class StatEntry {
 	}
 
 	public String getScoreFormatted() {
-		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+		if(score == 0 && BOARD_DOES_NOT_EXIST.equals(playerName)) {
 			return "BDNE";
 		}
 		if(!hasPlayer()) {
@@ -262,7 +264,7 @@ public class StatEntry {
 	}
 
 	public String getTime() {
-		if(score == 0 && playerName.equals(BOARD_DOES_NOT_EXIST)) {
+		if(score == 0 && BOARD_DOES_NOT_EXIST.equals(playerName)) {
 			return "BDNE";
 		}
 		if(!hasPlayer()) {

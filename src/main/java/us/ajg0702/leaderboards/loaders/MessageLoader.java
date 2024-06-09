@@ -77,7 +77,18 @@ public class MessageLoader {
                 "loading.text", "Loading",
                 "loading.short", "-?-",
                 "loading.position", "..",
-                "loading.size", "..."
+                "loading.size", "...",
+
+                "updater.slow-feedback", "&7Checking for update and downloading...",
+                "updater.disabled", "&cThe updater is disabled! &7Please enable it in the config to download updates.",
+                "updater.success", "&aUpdate downloaded! &7Restart the server to apply the update.",
+                "updater.warnings.could-not-delete-old-jar", "&aUpdate downloaded&e but the old jar could not be deleted. &7Please delete the old jar before restarting the server.",
+                "updater.errors.no-update-available", "&aYou are already up to date!",
+                "updater.errors.while-checking", "&eAn error occurred while checking for an update. &7See the console for more info.",
+                "updater.errors.already-downloaded", "&aYou have already downloaded an update! &7Restart the server to apply it.",
+                "updater.errors.while-downloading", "&eAn error occurred while downloading an update. &7See the console for more info.",
+                "updater.errors.unknown", "&eAn unknown error occurred: {ERROR}",
+                "updater.errors.uncaught", "&cAn error occurred while executing this command. &7See the console."
 
                 ));
     }

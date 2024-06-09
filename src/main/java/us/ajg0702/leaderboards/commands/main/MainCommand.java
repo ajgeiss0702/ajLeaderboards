@@ -13,7 +13,6 @@ import us.ajg0702.leaderboards.commands.main.subcommands.signs.Signs;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static us.ajg0702.leaderboards.LeaderboardPlugin.message;
 
@@ -29,13 +28,14 @@ public class MainCommand extends BaseCommand {
         addSubCommand(new UpdatePlayer(plugin));
         addSubCommand(new RemovePlayer(plugin));
         addSubCommand(new Remove(plugin));
-        addSubCommand(new ListBoards(plugin));
+        addSubCommand(new ListCommand(plugin));
         addSubCommand(new Signs(plugin));
         addSubCommand(new Export(plugin));
         addSubCommand(new Import(plugin));
         addSubCommand(new Viewer(plugin));
         addSubCommand(new Reset(plugin));
         addSubCommand(new UpdateAllOffline(plugin));
+        addSubCommand(new Update(plugin));
 
         // Debug commands
         addSubCommand(new Time());
@@ -45,7 +45,7 @@ public class MainCommand extends BaseCommand {
     }
 
     @Override
-    public List<String> autoComplete(CommandSender sender, String[] args) {
+    public java.util.List<String> autoComplete(CommandSender sender, String[] args) {
         if(!checkPermission(sender)) {
             return Collections.emptyList();
         }
@@ -66,7 +66,7 @@ public class MainCommand extends BaseCommand {
         sendHelp(sender, label, getSubCommands());
     }
 
-    public static void sendHelp(CommandSender sender, String label, List<SubCommand> subCommands) {
+    public static void sendHelp(CommandSender sender, String label, java.util.List<SubCommand> subCommands) {
         sender.sendMessage(message(""));
         for(SubCommand subCommand : subCommands) {
             if(!subCommand.showInTabComplete()) continue;

@@ -11,13 +11,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Time extends Format {
-    private final static Pattern weekPattern = Pattern.compile("([1-9][0-9]*)w");
-    private final static Pattern dayPattern = Pattern.compile("([1-9][0-9]*)d");
-    private final static Pattern hourPattern = Pattern.compile("([1-9][0-9]*)h");
-    private final static Pattern minutePattern = Pattern.compile("([1-9][0-9]*)m");
-    private final static Pattern secondPattern = Pattern.compile("([1-9][0-9]*)s");
+    private final static Pattern weekPattern = Pattern.compile("([0-9]*)w");
+    private final static Pattern dayPattern = Pattern.compile("([0-9]*)d");
+    private final static Pattern hourPattern = Pattern.compile("([0-9]*)h");
+    private final static Pattern minutePattern = Pattern.compile("([0-9]*)m");
+    private final static Pattern secondPattern = Pattern.compile("([0-9]*)s");
 
-    private final static Pattern fullPattern = Pattern.compile("(([1-9][0-9]*)w)?(([1-9][0-9]*)d)?(([1-9][0-9]*)h)?(([1-9][0-9]*)m)?(([1-9][0-9]*)s)?");
+    private final static Pattern fullPattern = Pattern.compile("(([0-9]*)w)?(([0-9]*)d)?(([0-9]*)h)?(([0-9]*)m)?(([0-9]*)s)?");
 
     private final static Map<String, String> replaces = new HashMap<>();
     static {
@@ -40,8 +40,23 @@ public class Time extends Format {
     private static final List<String> knownTimePlaceholders = Arrays.asList(
             "statistic_time_played",
             "statistic_time_since_death",
-            "mbedwars_stats-play_time"
+            "mbedwars_stats-play_time",
+            "formatter_number_time_*"
     );
+
+    private boolean isKnownTimePlaceholder(String placeholder) {
+        boolean is = false;
+        for (String knownTimePlaceholder : knownTimePlaceholders) {
+            if(knownTimePlaceholder.endsWith("*")) {
+                is = placeholder.startsWith(knownTimePlaceholder.substring(0, knownTimePlaceholder.length() - 1));
+            } else {
+                is = placeholder.equals(knownTimePlaceholder);
+            }
+            if(is) break;
+        }
+
+        return is;
+    }
 
     public final LeaderboardPlugin plugin;
 
@@ -51,11 +66,12 @@ public class Time extends Format {
 
     @Override
     public boolean matches(String output, String placeholder) {
-        if(knownTimePlaceholders.contains(placeholder.toLowerCase(Locale.ROOT))) {
+        if(isKnownTimePlaceholder(placeholder.toLowerCase(Locale.ROOT))) {
             // don't bother with more expensive checks below if we know it's a time placeholder
             // let me know about any other placeholders that should be here!
             return true;
         }
+
         if(output == null) return false;
         if(output.isEmpty()) return false;
         String temp = output.replaceAll(",", "");
@@ -95,7 +111,7 @@ public class Time extends Format {
 
     @Override
     public String toFormat(double input) {
-        return TimeUtils.formatTimeSeconds(Math.round(input));
+        return TimeUtils.formatTimeSeconds(Math.round(input), withSeconds());
     }
 
     @Override

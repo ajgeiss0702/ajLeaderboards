@@ -54,7 +54,7 @@ public class RemovePlayer extends SubCommand {
             boards = plugin.getCache().getBoards();
         }
         List<String> finalBoards = boards;
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        plugin.getScheduler().runTaskAsynchronously(() -> {
             for(String b : finalBoards) {
                 if(plugin.getCache().removePlayer(b, playername)) {
                     sender.sendMessage(message("&aRemoved "+playername+" from "+b+"!"));

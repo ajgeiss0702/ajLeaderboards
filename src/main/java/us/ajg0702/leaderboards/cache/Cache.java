@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurateException;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
+import us.ajg0702.leaderboards.api.events.PreTimedTypeResetEvent;
 import us.ajg0702.leaderboards.api.events.UpdatePlayerEvent;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
@@ -37,8 +38,8 @@ public class Cache {
 	private final String GET_POSITION = "/*%s*/with N as (select *,ROW_NUMBER() OVER (order by '%s' %s, namecache desc) as position from '%s') select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',position,"+deltaBuilder()+" from N where 'id'=?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
 			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(255), 'suffixcache' VARCHAR(255), 'displaynamecache' VARCHAR(512))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' TINYTEXT, 'suffixcache' TINYTEXT, 'displaynamecache' VARCHAR(512))"
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 2)"+columnBuilder("DECIMAL(65, 2)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
@@ -102,7 +103,7 @@ public class Cache {
 	}
 
 	/**
-	 * Get a stat. It is reccomended you use TopManager#getStat instead of this,
+	 * Get a stat. It is recommended you use TopManager#getStat instead of this,
 	 * unless it is of absolute importance that you have the most up-to-date information
 	 * @param position The position to get
 	 * @param board The board
@@ -260,6 +261,58 @@ public class Cache {
 							!e.getMessage().contains("[2000-")
 			) {
 				plugin.getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+				return -1;
+			} else {
+				return 0;
+			}
+		} finally {
+			try {
+				if(connection != null) method.close(connection);
+				if(rs != null) rs.close();
+			} catch (SQLException e) {
+				plugin.getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
+			}
+
+		}
+
+		return size;
+	}
+
+	public double getTotal(String board, TimedType type) {
+		if(!plugin.getTopManager().boardExists(board)) {
+			if(!nonExistantBoards.contains(board)) {
+				nonExistantBoards.add(board);
+			}
+			return -3;
+		}
+
+		Connection connection = null;
+		ResultSet rs = null;
+
+		int size;
+
+		try {
+			connection = method.getConnection();
+
+			PreparedStatement ps = connection.prepareStatement(String.format(
+					method.formatStatement("select SUM(%s) as total from '%s'"),
+					type == TimedType.ALLTIME ? "\"value\"" : type.lowerName() + "_delta",
+					tablePrefix+board
+			));
+
+			rs = ps.executeQuery();
+
+			rs.next();
+
+			size = rs.getInt(1);
+
+		} catch (SQLException e) {
+			if(
+					!e.getMessage().contains("ResultSet closed") &&
+							!e.getMessage().contains("empty result set") &&
+							!e.getMessage().contains("[2000-")
+			) {
+				plugin.getLogger().log(Level.WARNING, "Unable to get total of board:", e);
 				return -1;
 			} else {
 				return 0;
@@ -735,13 +788,16 @@ public class Cache {
 		List<String> updatableBoards = plugin.getAConfig().getStringList("only-update");
 		if(!updatableBoards.isEmpty() && !updatableBoards.contains(board)) return;
 
+		if(type.equals(TimedType.ALLTIME)) {
+			throw new IllegalArgumentException("Cannot reset ALLTIME!");
+		}
+
+		Bukkit.getPluginManager().callEvent(new PreTimedTypeResetEvent(board, type));
+
 		long startTime = System.currentTimeMillis();
 		LocalDateTime startDateTime = LocalDateTime.now();
 		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
 		Debug.info(board+" "+type+" "+startDateTime.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" "+newTime);
-		if(type.equals(TimedType.ALLTIME)) {
-			throw new IllegalArgumentException("Cannot reset ALLTIME!");
-		}
 
 
 		List<String> saveableTypes = plugin.getAConfig().getStringList("reset-save-types");
@@ -981,7 +1037,7 @@ public class Cache {
 		r.close();
 
 		if(prefix == null) prefix = "";
-		if(suffix == null) prefix = "";
+		if(suffix == null) suffix = "";
 		if(displayName == null) displayName = name;
 
 		if(uuidRaw == null) {
