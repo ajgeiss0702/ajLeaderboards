@@ -182,10 +182,12 @@ check-cache-on-update: true
 
 # Should we fetch from the database more often?
 # ajLeaderboards will always fetch from the database more when the db responds quickly, and less when it is slower.
-# Disabling this will make it so ajLeaderboards will fetch from the database less often when the database is fast
-# The default is fine for most servers, but you may want to disable this if your database is getting too many requests
-#  Default: true
-more-fetching: true
+# Enabling this will make it so ajLeaderboards will fetch from the database more often.
+# Most servers will not need to enable this.
+# With this disabled, AJLB will set the minimum refresh time to 20 seconds.
+#  With it enabled, the minimum refresh time is half a second (but the minimum is usually actually 1 second)
+#  Default: false
+more-fetching: false
 
 # Should we check for updates?
 # The updater will also let you update just by doing /ajLeaderboards update
