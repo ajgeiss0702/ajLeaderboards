@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.8.0"
+version = "2.9.0"
 
 repositories {
     mavenCentral()
@@ -38,13 +38,11 @@ dependencies {
 
     implementation("net.kyori:adventure-api:4.12.0")
     implementation("net.kyori:adventure-text-minimessage:4.12.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.2")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.3")
 
-    implementation("us.ajg0702:ajUtils:1.2.25")
+    implementation("us.ajg0702:ajUtils:1.2.27")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
     implementation("us.ajg0702.commands.api:api:1.0.0")
-
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     compileOnly("net.luckperms:api:5.4")
 
@@ -56,6 +54,7 @@ dependencies {
 
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
+    slim("com.squareup.okhttp3:okhttp:4.11.0")
     slim("org.mongodb:mongodb-driver-sync:4.9.1")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
@@ -79,6 +78,9 @@ tasks.withType<ProcessResources> {
 tasks.slimJar {
     relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
+    relocate("com.squareup", "us.ajg0702.leaderboards.libs")
+    relocate("okhttp3", "us.ajg0702.leaderboards.libs.okhttp3")
+    relocate("okio", "us.ajg0702.leaderboards.libs.okio")
     relocate("org.mongodb", "us.ajg0702.leaderboards.libs.mongodb")
 }
 

@@ -41,7 +41,9 @@ public class Time extends Format {
             "statistic_time_played",
             "statistic_time_since_death",
             "mbedwars_stats-play_time",
-            "formatter_number_time_*"
+            "formatter_number_time_*",
+            "plan_player_time_active",
+            "plan_player_time_afk"
     );
 
     private boolean isKnownTimePlaceholder(String placeholder) {
@@ -79,7 +81,6 @@ public class Time extends Format {
         for (Map.Entry<String, String> replacesEntry : replaces.entrySet()) {
             temp = temp.replace(replacesEntry.getKey(), replacesEntry.getValue());
         }
-
 
         boolean matches = fullPattern.matcher(temp.replaceAll(" ", "")).matches();
         Debug.info("[Format: Time] '" + output + "' matches: " + matches);

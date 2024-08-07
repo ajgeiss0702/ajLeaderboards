@@ -182,11 +182,17 @@ check-cache-on-update: true
 
 # Should we fetch from the database more often?
 # ajLeaderboards will always fetch from the database more when the db responds quickly, and less when it is slower.
-# Disabling this will make it so ajLeaderboards will fetch from the database less often when the database is fast
-# The default is fine for most servers, but you may want to disable this if your database is getting too many requests
-#  Default: true
-more-fetching: true
+# Enabling this will make it so ajLeaderboards will fetch from the database more often.
+# Most servers will not need to enable this.
+# With this disabled, AJLB will set the minimum refresh time to 20 seconds.
+#  With it enabled, the minimum refresh time is half a second (but the minimum is usually actually 1 second)
+#  Default: false
+more-fetching: false
 
+# Should we check for updates?
+# The updater will also let you update just by doing /ajLeaderboards update
+# Changing this requires a restart
+enable-updater: true
 
 # Should we skip some steps when shutting down the plugin to make it faster?
 # If you enable this, it can cause warnings after the server shuts down,
@@ -222,7 +228,7 @@ fetching-thread-pool-keep-alive: 500
 
 # # # # # # # # # # # # # # # # # # # # # # #
 #                                           #
-#  End of config. Happy leaderboard-ingmore-fetching :)  #
+#  End of config. Happy leaderboard-ing :)  #
 #                                           #
 # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -230,7 +236,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 33
+config-version: 34
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.

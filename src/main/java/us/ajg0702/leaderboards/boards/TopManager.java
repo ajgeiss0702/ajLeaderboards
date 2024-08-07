@@ -31,7 +31,7 @@ public class TopManager {
     private final ThreadPoolExecutor fetchService;
     //private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
-    private AtomicInteger fetching = new AtomicInteger(0);
+    private final AtomicInteger fetching = new AtomicInteger(0);
 
     public void shutdown() {
         fetchService.shutdownNow();

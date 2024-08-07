@@ -209,6 +209,9 @@ public class SignManager {
 
         List<String> pLines = new ArrayList<>();
         lines.forEach(c -> pLines.add(LEGACY_SIGN_SERIALIZER.serialize(c)));
+        while(pLines.size() < 4) { // If the user removed one of the lines, add an empty line so it doesnt break
+            pLines.add("");
+        }
 
         if(r.hasPlayer()) {
             plugin.getArmorStandManager().search(sign, r.getPlayerName(), r.getPlayerID());

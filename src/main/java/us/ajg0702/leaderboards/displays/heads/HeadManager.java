@@ -140,10 +140,12 @@ public class HeadManager {
 
         OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 
-        plugin.getScheduler().runSync(loc, () -> {
-            if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
-                plugin.getHeadUtils().getVersionedHeadUtils().setHeadBlock(loc.getBlock(), id, name);
-            } else {
+        if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
+            plugin.getScheduler().runTaskAsynchronously(
+                    () -> plugin.getHeadUtils().getVersionedHeadUtils().setHeadBlock(loc.getBlock(), id, name)
+            );
+        } else {
+            plugin.getScheduler().runSync(loc, () -> {
                 BlockState bs = loc.getBlock().getState();
                 if(!(bs instanceof Skull)) return;
 
@@ -156,8 +158,8 @@ public class HeadManager {
                     skull.setOwner(name);
                 }
                 skull.update();
-            }
-            headLocationCache.put(loc, id);
-        });
+            });
+        }
+        headLocationCache.put(loc, id);
     }
 }
