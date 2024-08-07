@@ -206,6 +206,58 @@ public abstract class SQLCacheMethod implements CacheMethod {
     }
 
     @Override
+    public double getTotal(String board, TimedType type) {
+        if(!getPlugin().getTopManager().boardExists(board)) {
+            if(!nonExistantBoards.contains(board)) {
+                nonExistantBoards.add(board);
+            }
+            return -3;
+        }
+
+        Connection connection = null;
+        ResultSet rs = null;
+
+        int size;
+
+        try {
+            connection = this.getConnection();
+
+            PreparedStatement ps = connection.prepareStatement(String.format(
+                    this.formatStatement("select SUM(%s) from '%s'"),
+                    type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta",
+                    getTablePrefix()+board
+            ));
+
+            rs = ps.executeQuery();
+
+            rs.next();
+
+            size = rs.getInt(1);
+
+        } catch (SQLException e) {
+            if(
+                    !e.getMessage().contains("ResultSet closed") &&
+                            !e.getMessage().contains("empty result set") &&
+                            !e.getMessage().contains("[2000-")
+            ) {
+                getPlugin().getLogger().log(Level.WARNING, "Unable to get size of board:", e);
+                return -1;
+            } else {
+                return 0;
+            }
+        } finally {
+            try {
+                if(connection != null) this.close(connection);
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                getPlugin().getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
+            }
+        }
+
+        return size;
+    }
+
+    @Override
     public boolean createBoard(String name) {
         try {
             Connection conn = this.getConnection();
@@ -817,47 +869,5 @@ public abstract class SQLCacheMethod implements CacheMethod {
 
     protected ConfigFile getStorageConfig() {
         return storageConfig;
-    }
-
-    @Override
-    public int getTotal(String board, TimedType type) {
-        int size;
-        Connection connection = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-
-            PreparedStatement ps = connection.prepareStatement(String.format(
-                    formatStatement("select SUM(%s) from '%s'"),
-                    type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta",
-                    getTablePrefix()+board
-            ));
-
-            rs = ps.executeQuery();
-
-            rs.next();
-
-            size = rs.getInt(1);
-
-        } catch (SQLException e) {
-            if(
-                    !e.getMessage().contains("ResultSet closed") &&
-                            !e.getMessage().contains("empty result set") &&
-                            !e.getMessage().contains("[2000-")
-            ) {
-                getPlugin().getLogger().log(Level.WARNING, "Unable to get size of board:", e);
-                return -1;
-            } else {
-                return 0;
-            }
-        } finally {
-            try {
-                if(connection != null) close(connection);
-                if(rs != null) rs.close();
-            } catch (SQLException e) {
-                getPlugin().getLogger().log(Level.WARNING, "Error while closing resources from board size fetch:", e);
-            }
-        }
-        return size;
     }
 }

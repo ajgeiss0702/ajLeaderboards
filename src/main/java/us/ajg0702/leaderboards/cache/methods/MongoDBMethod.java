@@ -339,9 +339,9 @@ public class MongoDBMethod implements CacheMethod {
     }
 
     @Override
-    public int getTotal(String board, TimedType type) {
+    public double getTotal(String board, TimedType type) {
         try {
-            return (int) StreamSupport.stream(mongoDatabase.getCollection(tablePrefix + board)
+            return StreamSupport.stream(mongoDatabase.getCollection(tablePrefix + board)
                     .find()
                     .map(document -> document.getDouble(type == TimedType.ALLTIME ? "value" : type.lowerName() + "_delta"))
                     .map(Double::doubleValue).spliterator(), false).mapToDouble(Double::doubleValue).sum();
