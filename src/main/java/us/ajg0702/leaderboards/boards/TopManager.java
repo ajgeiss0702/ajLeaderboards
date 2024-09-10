@@ -159,7 +159,9 @@ public class TopManager {
                 @Override
                 public @NotNull ListenableFuture<StatEntry> reload(@NotNull PlayerBoardType key, @NotNull StatEntry oldValue) {
                     long msSinceRefresh = System.currentTimeMillis() - statEntryLastRefresh.getOrDefault(key, 0L);
-                    if(plugin.isShuttingDown() || msSinceRefresh < Math.max(cacheTime()*1.5, plugin.getAConfig().getInt("min-player-cache-time"))) {
+                    double cacheTime = Math.max(cacheTime()*1.5, plugin.getAConfig().getInt("min-player-cache-time"));
+                    // The cache time is randomized a bit so that players are spread out more
+                    if(plugin.isShuttingDown() || msSinceRefresh < (cacheTime + ((cacheTime / 2) * Math.random()))) {
                         return Futures.immediateFuture(oldValue);
                     }
                     ListenableFutureTask<StatEntry> task = ListenableFutureTask.create(() -> {
