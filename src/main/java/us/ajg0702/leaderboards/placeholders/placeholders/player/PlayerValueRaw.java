@@ -22,6 +22,7 @@ public class PlayerValueRaw extends Placeholder {
 
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
+        if(p == null) return "No player!";
         String board = matcher.group(1);
         String typeRaw = matcher.group(2).toUpperCase(Locale.ROOT);
         TimedType type = TimedType.of(typeRaw);

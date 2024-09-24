@@ -19,6 +19,7 @@ public class PlayerExtra extends Placeholder {
 
     @Override
     public String parse(Matcher matcher, OfflinePlayer p) {
+        if(p == null) return "No player!";
         String value = plugin.getTopManager().getExtra(p.getUniqueId(), matcher.group(1));
         if(value == null) {
             return plugin.getMessages().getRawString("no-data.extra");
