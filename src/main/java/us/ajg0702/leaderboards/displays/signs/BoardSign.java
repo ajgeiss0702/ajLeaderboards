@@ -101,7 +101,7 @@ public class BoardSign {
                 setSign().get();
             } catch (InterruptedException | ExecutionException e) {
                 if(plugin.isShuttingDown()) return false;
-                plugin.getLogger().log(Level.SEVERE, "Interupted while trying to get sign data", e);
+                if(Debug.isDebug()) plugin.getLogger().log(Level.SEVERE, "Interrupted while trying to get sign data", e);
             }
         }
         return placed;

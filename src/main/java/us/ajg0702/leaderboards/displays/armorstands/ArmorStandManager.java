@@ -174,7 +174,7 @@ public class ArmorStandManager {
             }
         } catch(ExecutionException | InterruptedException e) {
             if(plugin.isShuttingDown()) return;
-            plugin.getLogger().log(Level.WARNING, "Interupted while scanning for armorstand:", e);
+            if(Debug.isDebug()) plugin.getLogger().log(Level.WARNING, "Interrupted while scanning for armorstand:", e);
         } catch(TimeoutException ignored) {}
     }
 

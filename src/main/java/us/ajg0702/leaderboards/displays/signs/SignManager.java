@@ -176,7 +176,7 @@ public class SignManager {
             if(!sign.isPlaced()) return;
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             if(plugin.isShuttingDown()) return;
-            plugin.getLogger().log(Level.SEVERE, "Interrupted while trying to check if sign is placed:", e);
+            if(Debug.isDebug()) plugin.getLogger().log(Level.SEVERE, "Interrupted while trying to check if sign is placed:", e);
         }
 
         String name = "";
