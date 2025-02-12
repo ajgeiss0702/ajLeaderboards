@@ -26,7 +26,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.1")
+    testImplementation("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
 
     implementation("io.github.slimjar:slimjar:1.2.7")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
@@ -54,6 +55,7 @@ dependencies {
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
     slim("com.squareup.okhttp3:okhttp:4.11.0")
+    slim("org.mongodb:mongodb-driver-sync:4.9.1")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -79,6 +81,7 @@ tasks.slimJar {
     relocate("com.squareup", "us.ajg0702.leaderboards.libs")
     relocate("okhttp3", "us.ajg0702.leaderboards.libs.okhttp3")
     relocate("okio", "us.ajg0702.leaderboards.libs.okio")
+    relocate("org.mongodb", "us.ajg0702.leaderboards.libs.mongodb")
 }
 
 tasks.shadowJar {
