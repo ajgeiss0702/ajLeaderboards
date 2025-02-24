@@ -56,7 +56,7 @@ if(!github?.event) {
         .then(f => f.split("version = \"")[1].split('"')[0]);
 
     const file = new File(
-        [new Uint16Array([...await fs.readFile(`build/libs/ajLeaderboards-${version}.jar`).then(r => r.toJSON().data)])],
+        [new Uint8Array([...await fs.readFile(`build/libs/ajLeaderboards-${version}.jar`).then(r => r.toJSON().data)])],
         `ajLeaderboards-${version}.jar`
     );
 
