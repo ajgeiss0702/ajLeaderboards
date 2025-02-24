@@ -22,6 +22,10 @@ public class PlayerExtra extends Placeholder {
         if(p == null) return "No player!";
         String value = plugin.getTopManager().getExtra(p.getUniqueId(), matcher.group(1));
         if(value == null) {
+            // We only check if the extra is valid here because we want to support synced servers only gathering extras from a certain server
+            if(!plugin.getExtraManager().isExtra(matcher.group(1))) {
+                return "Extra does not exist";
+            }
             return plugin.getMessages().getRawString("no-data.extra");
         }
         return value;

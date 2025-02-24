@@ -107,6 +107,10 @@ public class ExtraManager {
         return extras;
     }
 
+    public boolean isExtra(String extra) {
+        return getExtras().contains(extra);
+    }
+
     public void setExtra(UUID id, String placeholder, String value) {
         if(plugin.isShuttingDown()) return;
         try {

@@ -7,3 +7,5 @@ build
 .DS_Store
 identifier.sqlite
 cache.mv.db
+
+node_modules
