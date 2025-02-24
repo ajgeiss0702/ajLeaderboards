@@ -55,7 +55,10 @@ if(!github?.event) {
     const version = await fs.readFile("build.gradle.kts", "utf8")
         .then(f => f.split("version = \"")[1].split('"')[0]);
 
-    const file = new Blob([new Uint16Array([...await fs.readFile(`build/libs/ajLeaderboards-${version}.jar`).then(r => r.toJSON().data)])]);
+    const file = new File(
+        [new Uint16Array([...await fs.readFile(`build/libs/ajLeaderboards-${version}.jar`).then(r => r.toJSON().data)])],
+        `ajLeaderboards-${version}.jar`
+    );
 
 
 
