@@ -289,7 +289,7 @@ public class Cache {
 		Connection connection = null;
 		ResultSet rs = null;
 
-		int size;
+		double total;
 
 		try {
 			connection = method.getConnection();
@@ -304,7 +304,7 @@ public class Cache {
 
 			rs.next();
 
-			size = rs.getInt(1);
+			total = rs.getDouble(1);
 
 		} catch (SQLException e) {
 			if(
@@ -327,7 +327,7 @@ public class Cache {
 
 		}
 
-		return size;
+		return total;
 	}
 
 	public boolean createBoard(String name) {
