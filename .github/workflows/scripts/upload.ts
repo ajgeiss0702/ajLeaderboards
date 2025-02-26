@@ -76,7 +76,7 @@ if(!github?.event) {
 If you do decide to run this, make sure to report any issues to support.<br>
 <br>
 Changes in this build:<br>
-${changes.map(c => `<a href="${c.url}">${c.message}</a><br>`)}
+${changes.map(c => `<a href="${c.url}">${c.message}</a><br>`).join("")}
 
 ${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined changes</a>` : ``}
 `,
@@ -123,7 +123,7 @@ ${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined chan
 If you do decide to run this, make sure to report any issues to support.
 
 Changes in this build:
-${changes.map(c => `[url=${c.url}]${c.message}[/url]` + "\n")}
+${changes.map(c => `[url=${c.url}]${c.message}[/url]` + "\n").join()}
 
 ${changes.length > 1 ? "\n" + `[url=${github.event.compare}]View combined changes[/url]` : ``}
 `);
