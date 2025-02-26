@@ -78,7 +78,7 @@ If you do decide to run this, make sure to report any issues to support.<br>
 Changes in this build:<br>
 ${changes.map(c => `<a href="${c.url}">${c.message}</a><br>`)}
 
-${changes.length > 1 ? `<br><a href="${github.event.ref}">View combined changes</a>` : ``}
+${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined changes</a>` : ``}
 `,
         "file_parts": ["file"],
         "version_type": "beta",
@@ -125,7 +125,7 @@ If you do decide to run this, make sure to report any issues to support.
 Changes in this build:
 ${changes.map(c => `[url=${c.url}]${c.message}[/url]` + "\n")}
 
-${changes.length > 1 ? "\n" + `[url=${github.event.ref}]View combined changes[/url]` : ``}
+${changes.length > 1 ? "\n" + `[url=${github.event.compare}]View combined changes[/url]` : ``}
 `);
     polymartData.set("file", file);
 
