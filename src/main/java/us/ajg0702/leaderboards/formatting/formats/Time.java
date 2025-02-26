@@ -43,7 +43,8 @@ public class Time extends Format {
             "mbedwars_stats-play_time",
             "formatter_number_time_*",
             "plan_player_time_active",
-            "plan_player_time_afk"
+            "plan_player_time_afk",
+            "playtime_time"
     );
 
     private boolean isKnownTimePlaceholder(String placeholder) {
