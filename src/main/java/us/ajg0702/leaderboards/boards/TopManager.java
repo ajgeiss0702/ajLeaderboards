@@ -37,6 +37,8 @@ public class TopManager {
         fetchService.shutdownNow();
     }
 
+    private static final String OUT_OF_THREADS_MESSAGE = "unable to create native thread: possibly out of memory or process/resource limits reached";
+
 
     private final LeaderboardPlugin plugin;
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
@@ -99,24 +101,35 @@ public class TopManager {
      */
     public StatEntry getStat(int position, String board, TimedType type) {
         PositionBoardType key = new PositionBoardType(position, board, type);
-        StatEntry cached = positionCache.getIfPresent(key);
+        StatEntry cached;
 
-        if(cached == null) {
-            if(BlockingFetch.shouldBlock(plugin)) {
-                cached = positionCache.getUnchecked(key);
-            } else {
-                if(!positionFetching.contains(key)) {
-                    if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Starting fetch on " + key);
-                    positionFetching.add(key);
-                    fetchService.submit(() -> {
-                        positionCache.getUnchecked(key);
-                        positionFetching.remove(key);
-                        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetch finished on " + key);
-                    });
+        try {
+            cached = positionCache.getIfPresent(key);
+            if (cached == null) {
+                if (BlockingFetch.shouldBlock(plugin)) {
+                    cached = positionCache.getUnchecked(key);
+                } else {
+                    if (!positionFetching.contains(key)) {
+                        if (plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Starting fetch on " + key);
+                        positionFetching.add(key);
+                        fetchService.submit(() -> {
+                            positionCache.getUnchecked(key);
+                            positionFetching.remove(key);
+                            if (plugin.getAConfig().getBoolean("fetching-de-bug"))
+                                Debug.info("Fetch finished on " + key);
+                        });
+                    }
+                    if (plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
+                    cacheStatPosition(position, new BoardType(board, type), null);
+                    return StatEntry.loading(plugin, position, board, type);
                 }
-                if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
-                cacheStatPosition(position, new BoardType(board, type), null);
-                return StatEntry.loading(plugin, position, board, type);
+            }
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return StatEntry.error(position, board, type);
+            } else {
+                throw e;
             }
         }
 
@@ -182,19 +195,28 @@ public class TopManager {
      */
     public StatEntry getStatEntry(OfflinePlayer player, String board, TimedType type) {
         PlayerBoardType key = new PlayerBoardType(player, board, type);
-        StatEntry cached = statEntryCache.getIfPresent(key);
 
-        if(cached == null) {
-            if(BlockingFetch.shouldBlock(plugin)) {
-                cached = statEntryCache.getUnchecked(key);
+        try {
+            StatEntry cached = statEntryCache.getIfPresent(key);
+
+            if (cached == null) {
+                if (BlockingFetch.shouldBlock(plugin)) {
+                    cached = statEntryCache.getUnchecked(key);
+                } else {
+                    fetchService.submit(() -> statEntryCache.getUnchecked(key));
+                    return StatEntry.loading(player, key.getBoardType());
+                }
+            }
+
+            return cached;
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return StatEntry.error(-4, board, type);
             } else {
-                fetchService.submit(() -> statEntryCache.getUnchecked(key));
-                return StatEntry.loading(player, key.getBoardType());
+                throw e;
             }
         }
-
-        return cached;
-
     }
 
     public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type) {
@@ -203,9 +225,19 @@ public class TopManager {
     public StatEntry getCachedStatEntry(OfflinePlayer player, String board, TimedType type, boolean fetchIfAbsent) {
         PlayerBoardType key = new PlayerBoardType(player, board, type);
 
-        StatEntry r = statEntryCache.getIfPresent(key);
-        if(fetchIfAbsent && r == null) {
-            fetchService.submit(() -> statEntryCache.getUnchecked(key));
+        StatEntry r;
+        try {
+            r = statEntryCache.getIfPresent(key);
+            if(fetchIfAbsent && r == null) {
+                fetchService.submit(() -> statEntryCache.getUnchecked(key));
+            }
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return StatEntry.error(-4, board, type);
+            } else {
+                throw e;
+            }
         }
         return r;
     }
@@ -214,9 +246,19 @@ public class TopManager {
         return getCachedStat(new PositionBoardType(position, board, type));
     }
     public StatEntry getCachedStat(PositionBoardType positionBoardType) {
-        StatEntry r = positionCache.getIfPresent(positionBoardType);
-        if(r == null) {
-            fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
+        StatEntry r;
+        try {
+            r = positionCache.getIfPresent(positionBoardType);
+            if (r == null) {
+                fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
+            }
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return StatEntry.error(positionBoardType.getPosition(), positionBoardType.getBoard(), positionBoardType.getType());
+            } else {
+                throw e;
+            }
         }
         return r;
     }
@@ -258,18 +300,28 @@ public class TopManager {
      * @return The number of players in that board
      */
     public int getBoardSize(String board) {
-        Integer cached = boardSizeCache.getIfPresent(board);
 
-        if(cached == null) {
-            if(BlockingFetch.shouldBlock(plugin)) {
-                cached = boardSizeCache.getUnchecked(board);
+        try {
+            Integer cached = boardSizeCache.getIfPresent(board);
+
+            if (cached == null) {
+                if (BlockingFetch.shouldBlock(plugin)) {
+                    cached = boardSizeCache.getUnchecked(board);
+                } else {
+                    fetchService.submit(() -> boardSizeCache.getUnchecked(board));
+                    return -2;
+                }
+            }
+
+            return cached;
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return -4;
             } else {
-                fetchService.submit(() -> boardSizeCache.getUnchecked(board));
-                return -2;
+                throw e;
             }
         }
-
-        return cached;
 
     }
 
@@ -311,18 +363,28 @@ public class TopManager {
      */
     public double getTotal(String board, TimedType type) {
         BoardType boardType = new BoardType(board, type);
-        Double cached = totalCache.getIfPresent(boardType);
 
-        if(cached == null) {
-            if(BlockingFetch.shouldBlock(plugin)) {
-                cached = totalCache.getUnchecked(boardType);
+        try {
+            Double cached = totalCache.getIfPresent(boardType);
+
+            if (cached == null) {
+                if (BlockingFetch.shouldBlock(plugin)) {
+                    cached = totalCache.getUnchecked(boardType);
+                } else {
+                    fetchService.submit(() -> totalCache.getUnchecked(boardType));
+                    return -2;
+                }
+            }
+
+            return cached;
+        } catch(Exception e) {
+            if(e.getMessage().contains(OUT_OF_THREADS_MESSAGE)) {
+                informAboutThreadLimit();
+                return -4;
             } else {
-                fetchService.submit(() -> totalCache.getUnchecked(boardType));
-                return -2;
+                throw e;
             }
         }
-
-        return cached;
 
     }
 
@@ -562,6 +624,15 @@ public class TopManager {
     @SuppressWarnings("UnusedReturnValue")
     public Future<?> submit(Runnable task) {
         return fetchService.submit(task);
+    }
+
+
+    private void informAboutThreadLimit() {
+        plugin.getLogger().warning("'" + OUT_OF_THREADS_MESSAGE + "' error detected! " +
+                "This is usually caused by your server hitting the limit on the number of threads it can have. " +
+                "If the server crashes, take the crash report and paste it into https://crash-report-analyser.ajg0702.us/ " +
+                "to help find which plugin is using too many threads. If you need help interpreting the results, " +
+                "feel free to ask in aj's discord server (invite link is on the ajLeaderboards plugin page under 'support')");
     }
 }
 
