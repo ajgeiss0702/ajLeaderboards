@@ -664,6 +664,13 @@ public class Cache {
 					method.close(conn);
 				} catch(SQLException e) {
 					if(debug) Debug.info("in catch: " + e.getMessage());
+					if(e.getMessage().contains("Incorrect string value")) {
+						plugin.getLogger().warning(
+								"Unable to update "+player.getName()+" due to the database rejecting a string. " +
+										"This is usually caused by your database not supporting certain characters in the prefix or suffix. " +
+										"Either contact your host about \"" + e.getMessage() + "\" " +
+										"or disable \"fetch-prefix-suffix-from-vault\" in ajLeaderboard's config");
+					}
 					try(PreparedStatement statement = conn.prepareStatement(String.format(
 							method.formatStatement(UPDATE_PLAYER),
 							tablePrefix+board
