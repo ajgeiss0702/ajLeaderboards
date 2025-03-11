@@ -48,6 +48,8 @@ public class Cache {
 	private final String DROP_TABLE = "drop table '%s';";
 	private final String INSERT_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
 	private final String UPDATE_PLAYER = "update '%s' set 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder()+" where id=?";
+	private final String INSERT_OR_UPDATE_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+") ON DUPLICATE KEY update 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder();
+	private final String INSERT_OR_UPDATE_PLAYER_H2 = "merge into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
 	private final String QUERY_LASTTOTAL = "select '%s' from '%s' where id=?";
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
 	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
@@ -635,83 +637,70 @@ public class Cache {
 
 			if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+ finalSuffix +" prefix: "+ finalPrefix);
 			try(Connection conn = method.getConnection()) {
-				try {
-					PreparedStatement statement = conn.prepareStatement(String.format(
-							method.formatStatement(INSERT_PLAYER),
-							tablePrefix+board
-					));
-					if(debug) Debug.info("in try");
-					statement.setString(1, player.getUniqueId().toString());
-					statement.setDouble(2, output);
-					statement.setString(3, player.getName());
-					statement.setString(4, finalPrefix);
-					statement.setString(5, finalSuffix);
-					statement.setString(6, finalDisplayName);
-					int i = 6;
+				PreparedStatement statement = conn.prepareStatement(String.format(
+						method.formatStatement(method.getName().equals("h2") ? INSERT_OR_UPDATE_PLAYER_H2 : INSERT_OR_UPDATE_PLAYER),
+						tablePrefix+board
+				));
+				statement.setString(1, player.getUniqueId().toString());
+				statement.setDouble(2, output);
+				statement.setString(3, player.getName());
+				statement.setString(4, finalPrefix);
+				statement.setString(5, finalSuffix);
+				statement.setString(6, finalDisplayName);
+
+				Map<TimedType, Double> timedTypeValues = new HashMap<>();
+				timedTypeValues.put(TimedType.ALLTIME, output);
+
+				int i = 6;
+				for(TimedType type : TimedType.values()) {
+					if(type == TimedType.ALLTIME) continue;
+					long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
+					if(plugin.isShuttingDown()) {
+						method.close(conn);
+					}
+					double timedOut = output-lastTotals.get(type);
+					statement.setDouble(++i, 0);
+					statement.setDouble(++i, timedOut);
+					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
+				}
+				if(!method.getName().equals("h2")) {
+					statement.setDouble(++i, output);
+					statement.setString(++i, player.getName());
+					statement.setString(++i, finalPrefix);
+					statement.setString(++i, finalSuffix);
+					statement.setString(++i, finalDisplayName);
+
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
-						long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
-						if(plugin.isShuttingDown()) {
-							method.close(conn);
-						}
-						statement.setDouble(++i, 0);
-						statement.setDouble(++i, output);
-						statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
-					}
-
-					statement.executeUpdate();
-					statement.close();
-					method.close(conn);
-				} catch(SQLException e) {
-					if(debug) Debug.info("in catch: " + e.getMessage());
-					if(e.getMessage().contains("Incorrect string value")) {
-						plugin.getLogger().warning(
-								"Unable to update "+player.getName()+" due to the database rejecting a string. " +
-										"This is usually caused by your database not supporting certain characters in the prefix or suffix. " +
-										"Either contact your host about \"" + e.getMessage() + "\" " +
-										"or disable \"fetch-prefix-suffix-from-vault\" in ajLeaderboard's config");
-					}
-					try(PreparedStatement statement = conn.prepareStatement(String.format(
-							method.formatStatement(UPDATE_PLAYER),
-							tablePrefix+board
-					))) {
-						statement.setDouble(1, output);
-						statement.setString(2, player.getName());
-						statement.setString(3, finalPrefix);
-						statement.setString(4, finalSuffix);
-						statement.setString(5, finalDisplayName);
-						Map<TimedType, Double> timedTypeValues = new HashMap<>();
-						timedTypeValues.put(TimedType.ALLTIME, output);
-						int i = 6;
-						for(TimedType type : TimedType.values()) {
-							if(type == TimedType.ALLTIME) continue;
-							double timedOut = output-lastTotals.get(type);
-							timedTypeValues.put(type, timedOut);
-							statement.setDouble(i++, timedOut);
-						}
-						for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
-							TimedType type = timedTypeDoubleEntry.getKey();
-							double timedOut = timedTypeDoubleEntry.getValue();
-
-							StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
-							if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
-								statEntry.changeScore(timedOut, finalPrefix, finalSuffix);
-							}
-
-							Integer position = plugin.getTopManager()
-									.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
-									.get(new BoardType(board, type));
-							if(position != null) {
-								StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
-								if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
-									stat.changeScore(timedOut, finalPrefix, finalSuffix);
-								}
-							}
-						}
-						statement.setString(i, player.getUniqueId().toString());
-						statement.executeUpdate();
+						double timedOut = output-lastTotals.get(type);
+						timedTypeValues.put(type, timedOut);
+						statement.setDouble(++i, timedOut);
 					}
 				}
+
+				for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
+					TimedType type = timedTypeDoubleEntry.getKey();
+					double timedOut = timedTypeDoubleEntry.getValue();
+
+					StatEntry statEntry = plugin.getTopManager().getCachedStatEntry(player, board, type, false);
+					if(statEntry != null && player.getUniqueId().equals(statEntry.getPlayerID())) {
+						statEntry.changeScore(timedOut, finalPrefix, finalSuffix);
+					}
+
+					Integer position = plugin.getTopManager()
+							.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
+							.get(new BoardType(board, type));
+					if(position != null) {
+						StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
+						if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
+							stat.changeScore(timedOut, finalPrefix, finalSuffix);
+						}
+					}
+				}
+				statement.executeUpdate();
+				statement.close();
+				method.close(conn);
+
 			} catch(SQLException e) {
 				if(plugin.isShuttingDown()) return;
 				plugin.getLogger().log(Level.WARNING, "Unable to update stat for player:", e);
