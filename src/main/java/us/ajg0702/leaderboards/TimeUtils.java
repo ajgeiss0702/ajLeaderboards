@@ -60,11 +60,11 @@ public class TimeUtils {
 
     public static void setStrings(Messages messages) {
         setStrings(
-                messages.getString("time.w"),
-                messages.getString("time.d"),
-                messages.getString("time.h"),
-                messages.getString("time.m"),
-                messages.getString("time.s")
+                messages.getRawString("time.w"),
+                messages.getRawString("time.d"),
+                messages.getRawString("time.h"),
+                messages.getRawString("time.m"),
+                messages.getRawString("time.s")
         );
     }
 }
