@@ -109,6 +109,12 @@ tasks.shadowJar {
     minimize {
         exclude(project(":nms:nms-19"))
     }
+
+    // This is set to prevent paper from remapping the jar.
+    // This is an issue because paper's remapper has a bug around 1.21.1-1.21.4 that causes some plugins to error for no reason
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
+    }
 }
 
 publishing {
