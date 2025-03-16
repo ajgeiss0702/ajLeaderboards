@@ -201,7 +201,11 @@ public class StatEntry {
 			if(i == prefix.length()-1) break;
 			if(c == '&' || c == '\u00A7') {
 				colors.append(c);
-				colors.append(prefix.charAt(i+1));
+				char nextChar = prefix.charAt(i+1);
+				colors.append(nextChar);
+				if(nextChar == '#')  {
+					colors.append(prefix, i+2, i+8);
+				}
 			}
 			i++;
 		}
