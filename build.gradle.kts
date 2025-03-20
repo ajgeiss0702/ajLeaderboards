@@ -19,8 +19,8 @@ repositories {
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://repo.citizensnpcs.co/") }
     maven { url = uri("https://oss.sonatype.org/content/groups/public/") }
-    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
 
     mavenLocal()
 }
