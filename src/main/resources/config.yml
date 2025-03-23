@@ -84,7 +84,7 @@ extras:
 
 # When resetting a timed type (e.g. daily, weekly, etc) how many positions should we save?
 # They are saved in the "past-resets" folder
-# Set to 0 or a negative number to disbale saving
+# Set to 0 or a negative number to disable saving
 #  Default: 10
 reset-save-positions: 10
 
@@ -236,7 +236,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 34
+config-version: 35
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
