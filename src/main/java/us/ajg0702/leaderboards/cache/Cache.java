@@ -13,6 +13,7 @@ import us.ajg0702.leaderboards.api.events.UpdatePlayerEvent;
 import us.ajg0702.leaderboards.boards.StatEntry;
 import us.ajg0702.leaderboards.boards.TimedType;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
+import us.ajg0702.leaderboards.boards.keys.PositionBoardType;
 import us.ajg0702.leaderboards.cache.helpers.DbRow;
 import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
@@ -658,10 +659,13 @@ public class Cache {
 					if(plugin.isShuttingDown()) {
 						method.close(conn);
 					}
-					double timedOut = output-lastTotals.get(type);
-					statement.setDouble(++i, 0);
-					statement.setDouble(++i, timedOut);
-					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset);
+					Double lastTotal = lastTotals.get(type);
+					double lastTotalNumber = lastTotal == null ? output : lastTotal;
+					double timedOut = output-lastTotalNumber;
+					statement.setDouble(++i, timedOut); // delta
+					statement.setDouble(++i, lastTotalNumber); // lasttotal
+					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset); // timestamp
+					timedTypeValues.put(type, timedOut);
 				}
 				if(!method.getName().equals("h2")) {
 					statement.setDouble(++i, output);
@@ -672,8 +676,9 @@ public class Cache {
 
 					for(TimedType type : TimedType.values()) {
 						if(type == TimedType.ALLTIME) continue;
-						double timedOut = output-lastTotals.get(type);
-						timedTypeValues.put(type, timedOut);
+						Double lastTotal = lastTotals.get(type);
+						double lastTotalNumber = lastTotal == null ? output : lastTotal;
+						double timedOut = output-lastTotalNumber;
 						statement.setDouble(++i, timedOut);
 					}
 				}
@@ -690,8 +695,9 @@ public class Cache {
 					Integer position = plugin.getTopManager()
 							.positionPlayerCache.getOrDefault(player.getUniqueId(), new HashMap<>())
 							.get(new BoardType(board, type));
+					Debug.info("Position for " + type + ": " + position);
 					if(position != null) {
-						StatEntry stat = plugin.getTopManager().getCachedStat(position, board, type);
+						StatEntry stat = plugin.getTopManager().getCachedStat(new PositionBoardType(position, board, type), false);
 						if(stat != null && player.getUniqueId().equals(stat.getPlayerID())) {
 							stat.changeScore(timedOut, finalPrefix, finalSuffix);
 						}
@@ -714,8 +720,8 @@ public class Cache {
 		}
 	}
 
-	public double getLastTotal(String board, OfflinePlayer player, TimedType type) {
-		double last = 0;
+	public Double getLastTotal(String board, OfflinePlayer player, TimedType type) {
+		Double last = null;
 		try {
 			Connection conn = method.getConnection();
 			try {

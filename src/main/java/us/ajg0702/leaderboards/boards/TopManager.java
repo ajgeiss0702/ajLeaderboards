@@ -243,13 +243,13 @@ public class TopManager {
     }
 
     public StatEntry getCachedStat(int position, String board, TimedType type) {
-        return getCachedStat(new PositionBoardType(position, board, type));
+        return getCachedStat(new PositionBoardType(position, board, type), true);
     }
-    public StatEntry getCachedStat(PositionBoardType positionBoardType) {
+    public StatEntry getCachedStat(PositionBoardType positionBoardType, boolean fetchIfAbsent) {
         StatEntry r;
         try {
             r = positionCache.getIfPresent(positionBoardType);
-            if (r == null) {
+            if (r == null && fetchIfAbsent) {
                 fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
             }
         } catch(Exception e) {
