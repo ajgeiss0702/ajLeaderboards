@@ -260,7 +260,7 @@ public class UnClosableConnection implements Connection {
 
     @Override
     public String getSchema() throws SQLException {
-        return getSchema();
+        return handle.getSchema();
     }
 
     @Override
