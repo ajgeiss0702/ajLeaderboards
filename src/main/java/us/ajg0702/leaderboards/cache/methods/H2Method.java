@@ -134,7 +134,7 @@ public class H2Method implements CacheMethod {
                     for (TimedType type : TimedType.values()) {
                         String index = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
                         conn.createStatement().executeUpdate(
-                                "create index if not exists `" + index + "` on `"+tableName+"` (`" + index + "`)"
+                                "create index if not exists `" + index + "` on \""+tableName+"\" (`" + index + "`)"
                         );
                     }
                     statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '3';");
