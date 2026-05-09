@@ -13,6 +13,7 @@ public class DbRow {
 
     private final UUID id;
     private final double value;
+    private final long lastUpdated;
 
     private final Map<TimedType, Double> deltas;
     private final Map<TimedType, Double> lastTotals;
@@ -30,6 +31,7 @@ public class DbRow {
         this(
                 UUID.fromString(resultSet.getString(getIndex(resultSet, "id"))),
                 resultSet.getDouble(getIndex(resultSet, "value")),
+                resultSet.getLong(getIndex(resultSet, "last_updated")),
                 getTypeMaps(resultSet),
                 resultSet.getString(getIndex(resultSet, "namecache")),
                 resultSet.getString(getIndex(resultSet, "prefixcache")),
@@ -42,11 +44,12 @@ public class DbRow {
         positionCache.clear();
     }
 
-    private DbRow(UUID id, double value, List<Object> typeMaps, String namecache, String prefixcache, String suffixcache, String displaynamecache) {
+    private DbRow(UUID id, double value, long lastUpdated, List<Object> typeMaps, String namecache, String prefixcache, String suffixcache, String displaynamecache) {
         //noinspection unchecked
         this(
                 id,
                 value,
+                lastUpdated,
                 (Map<TimedType, Double>) typeMaps.get(0),
                 (Map<TimedType, Double>) typeMaps.get(1),
                 (Map<TimedType, Long>) typeMaps.get(2),
@@ -57,9 +60,10 @@ public class DbRow {
         );
     }
 
-    public DbRow(UUID id, double value, Map<TimedType, Double> deltas, Map<TimedType, Double> lastTotals, Map<TimedType, Long> timestamps, String namecache, String prefixcache, String suffixcache, String displaynamecache) {
+    public DbRow(UUID id, double value, long lastUpdated, Map<TimedType, Double> deltas, Map<TimedType, Double> lastTotals, Map<TimedType, Long> timestamps, String namecache, String prefixcache, String suffixcache, String displaynamecache) {
         this.id = id;
         this.value = value;
+        this.lastUpdated = lastUpdated;
         this.deltas = deltas;
         this.lastTotals = lastTotals;
         this.timestamps = timestamps;
@@ -104,6 +108,9 @@ public class DbRow {
     public double getValue() {
         return value;
     }
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
     public Map<TimedType, Double> getDeltas() {
         return deltas;
     }
@@ -130,7 +137,8 @@ public class DbRow {
     public JsonObject toJsonObject() {
         EasyJsonObject out = new EasyJsonObject()
                 .add("id", getId().toString())
-                .add("value", getValue());
+                .add("value", getValue())
+                .add("last_updated", getLastUpdated());
         for(TimedType type : TimedType.values()) {
             String lowerName = type.lowerName();
             out.add(lowerName+"_delta", getDeltas().get(type));
@@ -157,9 +165,12 @@ public class DbRow {
             timestamps.put(type, object.get(type.lowerName()+"_timestamp").getAsLong());
         }
 
+        long lastUpdated = object.has("last_updated") ? object.get("last_updated").getAsLong() : 0L;
+
         return new DbRow(
                 UUID.fromString(object.get("id").getAsString()),
                 object.get("value").getAsDouble(),
+                lastUpdated,
                 deltas, lastTotals, timestamps,
                 object.get("namecache").getAsString(),
                 object.get("prefixcache").getAsString(),

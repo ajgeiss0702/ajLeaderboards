@@ -193,6 +193,33 @@ public class MysqlMethod implements CacheMethod {
                     statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '5';");
                     version = 5;
                 }
+                if(version == 5) {
+                    plugin.getLogger().info("Running MySQL table updater for table "+tableName+" (pv"+version+")");
+                    try {
+                        statement.executeUpdate("alter table `"+tableName+"` add column last_updated BIGINT DEFAULT 0");
+                    } catch(SQLException e) {
+                        String message = e.getMessage();
+                        if(message != null && message.contains("Duplicate")) {
+                            plugin.getLogger().info("The column already exists for "+tableName+". Canceling updater and bumping DB version.");
+                            try (Statement stmt = conn.createStatement()) {
+                                stmt.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '6';");
+                            } catch (SQLException er) {
+                                er.printStackTrace();
+                                throw e;
+                            }
+                        } else {
+                            throw e;
+                        }
+                    }
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.executeUpdate("create index last_updated_idx on `"+tableName+"` (last_updated)");
+                    } catch(SQLException e) {
+                        String message = e.getMessage();
+                        if((message == null || !message.contains("Duplicate key name")) && e.getErrorCode() != 1061) throw e;
+                    }
+                    statement.executeUpdate("ALTER TABLE `"+tableName+"` COMMENT = '6';");
+                    version = 6;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

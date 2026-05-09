@@ -36,17 +36,17 @@ import java.util.logging.Level;
 public class Cache {
 	private String q = "'";
 
-	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc limit 1 offset %d";
-	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, namecache desc";
+	private final String SELECT_POSITION = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, last_updated asc, namecache desc limit 1 offset %d";
+	private final String SELECT_PLAYER = "select 'id','value','namecache','prefixcache','suffixcache','displaynamecache',"+deltaBuilder()+" from '%s' order by '%s' %s, last_updated asc, namecache desc";
 	private final String GET_POSITION = "/*%s*/select *,(" +
 				"select count(*) + 1 from '%s' as t2 where " +
 					"t2.'%s' %s t1.'%s' OR " +
-					"(t2.'%s' = t1.'%s' AND t2.namecache > t1.namecache)" + // simple tiebreaker to make sure it's at least consistent
+					"(t2.'%s' = t1.'%s' AND (t2.last_updated < t1.last_updated OR (t2.last_updated = t1.last_updated AND t2.namecache > t1.namecache)))" + // timestamp tiebreaker: earlier score = higher rank, namecache as tertiary for determinism
 			") as position from '%s' as t1 where id = ?";
 	private final Map<String, String> CREATE_TABLE = ImmutableMap.of(
-			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT)",
-			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))",
-			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048))"
+			"sqlite", "create table if not exists '%s' (id TEXT PRIMARY KEY, value DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", namecache TEXT, prefixcache TEXT, suffixcache TEXT, displaynamecache TEXT, last_updated BIGINT DEFAULT 0)",
+			"h2", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048), 'last_updated' BIGINT DEFAULT 0)",
+			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048), 'last_updated' BIGINT DEFAULT 0)"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
@@ -54,8 +54,8 @@ public class Cache {
 	);
 	private final String DROP_TABLE = "drop table '%s';";
 	private final String INSERT_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
-	private final String UPDATE_PLAYER = "update '%s' set 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder()+" where id=?";
-	private final String INSERT_OR_UPDATE_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+") ON DUPLICATE KEY update 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder();
+	private final String UPDATE_PLAYER = "update '%s' set 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder()+","+q+"last_updated"+q+"=? where id=?";
+	private final String INSERT_OR_UPDATE_PLAYER = "insert into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+") ON DUPLICATE KEY update 'value'=?, 'namecache'=?, 'prefixcache'=?, 'suffixcache'=?, 'displaynamecache'=?"+updateBuilder()+","+q+"last_updated"+q+"=?";
 	private final String INSERT_OR_UPDATE_PLAYER_H2 = "merge into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
 	private final String QUERY_LASTTOTAL = "select '%s' from '%s' where id=?";
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
@@ -63,6 +63,7 @@ public class Cache {
 	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
 	private final String QUERY_ALL = "select * from '%s'";
 	private final String CREATE_TIMESTAMP_INDEX = "create index '%s_timestamp' on '%s' (%s_timestamp)";
+	private final String CREATE_LAST_UPDATED_INDEX = "create index '%s_last_updated' on '%s' (last_updated)";
 	private final String CREATE_VALUE_INDEX = "create index '%s' on '%s' ('%s')";
 
 
@@ -189,6 +190,7 @@ public class Cache {
 					String prefix = "";
 					String suffix = "";
 					int position = -1;
+					long lastUpdated = 0;
 					try {
 						uuidraw = rs.getString("id");
 						name = rs.getString("namecache");
@@ -197,6 +199,9 @@ public class Cache {
 						displayName = rs.getString("displaynamecache");
 						position = rs.getInt("position");
 						value = rs.getDouble(sortBy);
+						try {
+							lastUpdated = rs.getLong(rs.findColumn("last_updated"));
+						} catch(SQLException ignored) {}
 					} catch(SQLException e) {
 						String message = e.getMessage();
 						if(message == null || 
@@ -211,7 +216,7 @@ public class Cache {
 					if(suffix == null) suffix = "";
 					if(displayName == null) displayName = name;
 					if(uuidraw != null) {
-						r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type);
+						r = new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidraw), suffix, value, type, lastUpdated);
 					}
 				}
 			}
@@ -337,6 +342,17 @@ public class Cache {
 					String message = e.getMessage();
 					if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") ) throw e;
 				}
+			}
+
+			try (PreparedStatement ps = conn.prepareStatement(method.formatStatement(String.format(
+					CREATE_LAST_UPDATED_INDEX,
+					name,
+					tablePrefix+name
+			)))) {
+				ps.executeUpdate();
+			} catch(SQLException e) {
+				String message = e.getMessage();
+				if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") ) throw e;
 			}
 
 			plugin.getTopManager().fetchBoards();
@@ -579,6 +595,17 @@ public class Cache {
 				return;
 			}
 
+			long lastUpdatedValue;
+			if (cached != null && cached.hasPlayer()) {
+				if (cached.getScore() != output) {
+					lastUpdatedValue = System.currentTimeMillis();
+				} else {
+					lastUpdatedValue = cached.getLastUpdated();
+				}
+			} else {
+				lastUpdatedValue = getLastUpdated(board, player);
+			}
+
 			if(plugin.getAConfig().getStringList("dont-add-zero").contains(board)) {
 				if(output == 0) {
 					Debug.info("Skipping " + player.getName() + " because they returned 0 for " + board + "(dont-add-zero)");
@@ -636,6 +663,7 @@ public class Cache {
 					statement.setLong(++i, lastReset == 0 ? System.currentTimeMillis() : lastReset); // timestamp
 					timedTypeValues.put(type, timedOut);
 				}
+				statement.setLong(++i, lastUpdatedValue); // last_updated
 				if(!method.getName().equals("h2")) {
 					statement.setDouble(++i, output);
 					statement.setString(++i, player.getName());
@@ -650,6 +678,7 @@ public class Cache {
 						double timedOut = output-lastTotalNumber;
 						statement.setDouble(++i, timedOut);
 					}
+					statement.setLong(++i, lastUpdatedValue); // last_updated
 				}
 
 				for (Map.Entry<TimedType, Double> timedTypeDoubleEntry : timedTypeValues.entrySet()) {
@@ -684,6 +713,24 @@ public class Cache {
 		} else {
 			updateTask.run();
 		}
+	}
+
+	private long getLastUpdated(String board, OfflinePlayer player) {
+		try (Connection conn = method.getConnection();
+		     PreparedStatement ps = conn.prepareStatement(String.format(
+				method.formatStatement("select 'last_updated' from '%s' where id=?"),
+				tablePrefix + board
+		))) {
+			ps.setString(1, player.getUniqueId().toString());
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return rs.getLong(1);
+				}
+			}
+		} catch (SQLException e) {
+			plugin.getLogger().log(Level.WARNING, "Unable to get last_updated for player:", e);
+		}
+		return System.currentTimeMillis();
 	}
 
 	public Double getLastTotal(String board, OfflinePlayer player, TimedType type) {
@@ -834,6 +881,7 @@ public class Cache {
 						statement.setDouble(++i, row.getLastTotals().get(type));
 						statement.setLong(++i, row.getTimestamps().get(type));
 					}
+					statement.setLong(++i, row.getLastUpdated());
 					statement.executeUpdate();
 				} catch(SQLException e) {
 					String message = e.getMessage();
@@ -885,7 +933,8 @@ public class Cache {
 			if(t == TimedType.ALLTIME) continue;
 			deltaBuilder.append(q).append(t.lowerName()).append("_delta").append(q).append(",");
 		}
-		return deltaBuilder.deleteCharAt(deltaBuilder.length()-1).toString();
+		deltaBuilder.append(q).append("last_updated").append(q);
+		return deltaBuilder.toString();
 	}
 	private String columnBuilder(String t) {
 		String q = "'";
@@ -905,6 +954,7 @@ public class Cache {
 			if(type == TimedType.ALLTIME) continue;
 			addQs.append(", ?").append(", ?").append(", ?");
 		}
+		addQs.append(", ?");
 		return addQs.toString();
 	}
 
@@ -918,6 +968,7 @@ public class Cache {
 					.append(", ").append(name).append("_lasttotal")
 					.append(", ").append(name).append("_timestamp");
 		}
+		addTables.append(", last_updated");
 		return addTables.toString();
 	}
 
@@ -940,6 +991,7 @@ public class Cache {
 		String displayName = name;
 		String prefix = "";
 		String suffix = "";
+		long lastUpdated = 0;
 		if(method instanceof MysqlMethod || method instanceof H2Method) {
 			r.next();
 		}
@@ -949,6 +1001,9 @@ public class Cache {
 			prefix = r.getString(4);
 			suffix = r.getString(5);
 			displayName = r.getString(6);
+			try {
+				lastUpdated = r.getLong(r.findColumn("last_updated"));
+			} catch(SQLException ignored) {}
 			value = r.getDouble(dataSortByIndexes.computeIfAbsent(sortBy,
 					k -> {
 						try {
@@ -980,7 +1035,7 @@ public class Cache {
 		if(uuidRaw == null) {
 			return StatEntry.noData(plugin, position, board, type);
 		} else {
-			return new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidRaw), suffix, value, type);
+			return new StatEntry(position, board, prefix, name, displayName, UUID.fromString(uuidRaw), suffix, value, type, lastUpdated);
 		}
 	}
 

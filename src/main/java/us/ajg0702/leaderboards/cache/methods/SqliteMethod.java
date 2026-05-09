@@ -107,11 +107,20 @@ public class SqliteMethod implements CacheMethod {
                 statement.executeUpdate("PRAGMA user_version = 5;");
                 version = 5;
             }
+            if(version == 5) {
+                plugin.getLogger().info("Running SQLite table updater (pv"+version+")");
+                for(String b : cacheInstance.getDbTableList()) {
+                    statement.executeUpdate("alter table `"+b+"` add column last_updated BIGINT DEFAULT 0");
+                    statement.executeUpdate("create index if not exists '"+b+"_last_updated' on '"+b+"' (last_updated)");
+                }
+                statement.executeUpdate("PRAGMA user_version = 6;");
+                version = 6;
+            }
         } catch (SQLException e) {
             String message = e.getMessage();
             if(message != null && message.contains("duplicate column name")) {
                 try(Statement statement = conn.createStatement()) {
-                    statement.executeUpdate("PRAGMA user_version = 5;");
+                    statement.executeUpdate("PRAGMA user_version = 6;");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }

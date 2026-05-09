@@ -140,6 +140,28 @@ public class H2Method implements CacheMethod {
                     statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '3';");
                     version = 3;
                 }
+                if(version == 3) {
+                    try {
+                        statement.executeUpdate("alter table \""+tableName+"\" add column last_updated BIGINT DEFAULT 0");
+                    } catch(SQLException e) {
+                        String message = e.getMessage();
+                        if(message != null && message.contains("42121")) {
+                            try {
+                                conn.createStatement().executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '4';");
+                            } catch (SQLException er) {
+                                er.printStackTrace();
+                                throw e;
+                            }
+                        } else {
+                            throw e;
+                        }
+                    }
+                    conn.createStatement().executeUpdate(
+                        "create index if not exists `" + tableName + "_last_updated` on \""+tableName+"\" (`last_updated`)"
+                    );
+                    statement.executeUpdate("COMMENT ON TABLE \""+tableName+"\" IS '4';");
+                    version = 4;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

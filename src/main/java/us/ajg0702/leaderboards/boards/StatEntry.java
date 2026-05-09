@@ -35,6 +35,8 @@ public class StatEntry {
 	final int position;
 	final String board;
 
+	private final long lastUpdated;
+
 	private final TimedType type;
 
 
@@ -54,7 +56,7 @@ public class StatEntry {
 	
 	double score;
 	String scorePretty;
-	public StatEntry(int position, String board, String prefix, @Nullable String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type) {
+	public StatEntry(int position, String board, String prefix, @Nullable String playerName, String playerDisplayName, UUID playerID, String suffix, double score, TimedType type, long lastUpdated) {
 		if(prefix == null) throw new IllegalArgumentException("Prefix cannot be null");
 		if(suffix == null) throw new IllegalArgumentException("Suffix cannot be null");
 		this.playerName = playerName == null ? "" : playerName;
@@ -63,6 +65,7 @@ public class StatEntry {
 		this.prefix = prefix;
 		this.suffix = suffix;
 		this.type = type;
+		this.lastUpdated = lastUpdated;
 
 		this.playerID = playerID;
 
@@ -180,6 +183,10 @@ public class StatEntry {
 
 	public TimedType getType() {
 		return type;
+	}
+
+	public long getLastUpdated() {
+		return lastUpdated;
 	}
 
 	public double getScore() {
@@ -320,27 +327,29 @@ public class StatEntry {
 		symbols.setDecimalSeparator(decimal);
 		DecimalFormat df = new DecimalFormat("#,###.##", symbols);
 		df.setGroupingUsed(useComma);
-		df.setMaximumFractionDigits(plugin.getAConfig().getInt("round-decimal-places"));
-		if(board != null) {
-			for (String s : plugin.getAConfig().getStringList("show-zero-decimal")) {
-				if(s.startsWith("%") || s.endsWith("%")) {
-					plugin.getLogger().warning("Invalid entry for show-zero-decimal '"+ s +"'. Make sure to not include '%' in the board name!");
-					continue;
-				}
-				if(!s.toLowerCase().startsWith(board.toLowerCase())) continue;
-				int minDecimals = 1;
-				if(s.contains("%")) {
-					String[] parts = s.split("%");
-					String realBoard = parts[0];
-					String rawMin = parts[1];
-					if(realBoard.equalsIgnoreCase(board)) continue;
-					try {
-						minDecimals = Integer.parseInt(rawMin);
-					} catch (NumberFormatException e) {
-						plugin.getLogger().warning("Invalid entry for show-zero-decimal '"+ s +"'. The minimum decimals, if specified, must be a number!");
+		if(plugin != null) {
+			df.setMaximumFractionDigits(plugin.getAConfig().getInt("round-decimal-places"));
+			if (board != null) {
+				for (String s : plugin.getAConfig().getStringList("show-zero-decimal")) {
+					if (s.startsWith("%") || s.endsWith("%")) {
+						plugin.getLogger().warning("Invalid entry for show-zero-decimal '" + s + "'. Make sure to not include '%' in the board name!");
+						continue;
 					}
+					if (!s.toLowerCase().startsWith(board.toLowerCase())) continue;
+					int minDecimals = 1;
+					if (s.contains("%")) {
+						String[] parts = s.split("%");
+						String realBoard = parts[0];
+						String rawMin = parts[1];
+						if (realBoard.equalsIgnoreCase(board)) continue;
+						try {
+							minDecimals = Integer.parseInt(rawMin);
+						} catch (NumberFormatException e) {
+							plugin.getLogger().warning("Invalid entry for show-zero-decimal '" + s + "'. The minimum decimals, if specified, must be a number!");
+						}
+					}
+					df.setMinimumFractionDigits(minDecimals);
 				}
-				df.setMinimumFractionDigits(minDecimals);
 			}
 		}
 		return df.format(number);
@@ -356,28 +365,28 @@ public class StatEntry {
 
 
 	public static StatEntry boardNotFound(int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type);
+		return new StatEntry(position, board, "", BOARD_DOES_NOT_EXIST, BOARD_DOES_NOT_EXIST, null, "", 0, type, 0L);
 	}
 	public static StatEntry error(int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type);
+		return new StatEntry(position, board, "", AN_ERROR_OCCURRED, AN_ERROR_OCCURRED, null, "", 0, type, 0L);
 	}
 	public static StatEntry noData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.lb.name"), plugin.getMessages().getRawString("no-data.lb.name"), null, "", -1, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.lb.name"), plugin.getMessages().getRawString("no-data.lb.name"), null, "", -1, type, 0L);
 	}
 	public static StatEntry noRelData(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.rel.name"), plugin.getMessages().getRawString("no-data.rel.name"), null, "", -2, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("no-data.rel.name"), plugin.getMessages().getRawString("no-data.rel.name"), null, "", -2, type, 0L);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, int position, String board, TimedType type) {
-		return new StatEntry(position, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type);
+		return new StatEntry(position, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type, 0L);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, String board, TimedType type) {
-		return new StatEntry(-2, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type);
+		return new StatEntry(-2, board, "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, type, 0L);
 	}
 	public static StatEntry loading(LeaderboardPlugin plugin, BoardType boardType) {
-		return new StatEntry(-2, boardType.getBoard(), "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, boardType.getType());
+		return new StatEntry(-2, boardType.getBoard(), "", plugin.getMessages().getRawString("loading.text"), plugin.getMessages().getRawString("loading.text"), null, "", 0, boardType.getType(), 0L);
 	}
 	public static StatEntry loading(OfflinePlayer player, BoardType boardType) {
-		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType());
+		return new StatEntry(-2, boardType.getBoard(), "", player.getName(), player.getName(), player.getUniqueId(), "", 0, boardType.getType(), 0L);
 	}
 
 	@SuppressWarnings("unused")
@@ -392,11 +401,13 @@ public class StatEntry {
 				.add("board", board)
 				.add("type", nullString(type))
 				.add("score", score)
+				.add("last_updated", lastUpdated)
 				.getHandle();
 	}
 
 	@SuppressWarnings("unused")
 	public static StatEntry fromJsonObject(LeaderboardPlugin plugin, JsonObject object) {
+		long lastUpdated = object.has("last_updated") ? object.get("last_updated").getAsLong() : 0L;
 		return new StatEntry(
 				object.get("position").getAsInt(),
 				object.get("board").getAsString(),
@@ -406,7 +417,8 @@ public class StatEntry {
 				UUID.fromString(object.get("playerID").getAsString()),
 				object.get("suffix").getAsString(),
 				object.get("score").getAsDouble(),
-				TimedType.valueOf(object.get("type").getAsString().toUpperCase(Locale.ROOT))
+				TimedType.valueOf(object.get("type").getAsString().toUpperCase(Locale.ROOT)),
+				lastUpdated
 		);
 	}
 
