@@ -27,6 +27,7 @@ public class ExtraManager {
     private final String QUERY_IDVALUE = "select id,'value' from '%s' where id=? and 'placeholder'=?";
     private final String INSERT_PLAYER = "insert into '%s' ('id', 'placeholder', 'value') values (?, ?, ?)";
     private final String UPDATE_PLAYER = "update '%s' set 'value'=? where id=? and 'placeholder'=?";
+    private final String CREATE_LOOKUP_INDEX = "create unique index '%s_lookup' on '%s' ('id', 'placeholder')";
 
     private final CacheMethod method;
     private final String tableName;
@@ -49,6 +50,21 @@ public class ExtraManager {
             ps.executeUpdate();
         } catch(SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to create storage for Extras:", e);
+        }
+
+        try (Connection conn = method.getConnection();
+             PreparedStatement ps = conn.prepareStatement(method.formatStatement(String.format(
+                     CREATE_LOOKUP_INDEX,
+                     tableName,
+                     tableName
+             )))) {
+            ps.executeUpdate();
+        } catch(SQLException e) {
+            String message = e.getMessage();
+            if(message != null && (message.contains("already exists") || message.contains("Duplicate key") || e.getErrorCode() == 1061)) {
+            } else {
+                plugin.getLogger().log(Level.WARNING, "Failed to create lookup index for Extras:", e);
+            }
         }
     }
 

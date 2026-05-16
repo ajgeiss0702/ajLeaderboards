@@ -60,9 +60,8 @@ public class Cache {
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
 	private final String BULK_RESET = "update '%s' set '%s'=0, '%s'='value', '%s'=?";
 	private final String QUERY_ALL = "select * from '%s'";
-	private final String CREATE_TIMESTAMP_INDEX = "create index '%s_timestamp' on '%s' (%s_timestamp)";
-	private final String CREATE_LAST_UPDATED_INDEX = "create index '%s_last_updated' on '%s' (last_updated)";
-	private final String CREATE_VALUE_INDEX = "create index '%s' on '%s' ('%s')";
+	private final String CREATE_COMPOSITE_INDEX = "create index '%s_composite' on '%s' ('%s', 'last_updated', 'namecache')";
+	private final String CREATE_NAMECACHE_INDEX = "create index '%s_namecache' on '%s' ('namecache')";
 
 
 
@@ -313,44 +312,29 @@ public class Cache {
 			}
 
 			for (TimedType type : TimedType.values()) {
-
-				String index = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
+				String indexCol = type == TimedType.ALLTIME ? "value" : type.lowerName()+"_delta";
 				try (PreparedStatement ps = conn.prepareStatement(method.formatStatement(String.format(
-						CREATE_VALUE_INDEX,
-						index,
+						CREATE_COMPOSITE_INDEX,
+						indexCol,
 						tablePrefix+name,
-						index
-						)))) {
+						indexCol
+				)))) {
 					ps.executeUpdate();
 				} catch(SQLException e) {
 					String message = e.getMessage();
 					if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") && e.getErrorCode() != 1061) throw e;
 				}
-
-				if(type == TimedType.ALLTIME) continue;
-
-				try (PreparedStatement ps = conn.prepareStatement(method.formatStatement(String.format(
-						CREATE_TIMESTAMP_INDEX,
-						type.lowerName(),
-						tablePrefix+name,
-						type.lowerName()
-				)))) {
-					ps.executeUpdate();
-				} catch(SQLException e) {
-					String message = e.getMessage();
-					if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") ) throw e;
-				}
 			}
 
 			try (PreparedStatement ps = conn.prepareStatement(method.formatStatement(String.format(
-					CREATE_LAST_UPDATED_INDEX,
+					CREATE_NAMECACHE_INDEX,
 					name,
 					tablePrefix+name
 			)))) {
 				ps.executeUpdate();
 			} catch(SQLException e) {
 				String message = e.getMessage();
-				if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") ) throw e;
+				if((message == null || !message.contains("already exists")) && !message.contains("Duplicate key") && e.getErrorCode() != 1061) throw e;
 			}
 
 			plugin.getTopManager().fetchBoards();
