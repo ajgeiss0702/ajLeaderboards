@@ -19,7 +19,6 @@ import us.ajg0702.leaderboards.cache.methods.H2Method;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.cache.methods.SqliteMethod;
 import us.ajg0702.leaderboards.utils.BoardPlayer;
-import us.ajg0702.leaderboards.utils.Partition;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.time.Instant;
@@ -59,8 +58,7 @@ public class Cache {
 	private final String INSERT_OR_UPDATE_PLAYER_H2 = "merge into '%s' ('id', 'value', 'namecache', 'prefixcache', 'suffixcache', 'displaynamecache'"+tableBuilder()+") values (?, ?, ?, ?, ?, ?"+qBuilder()+")";
 	private final String QUERY_LASTTOTAL = "select '%s' from '%s' where id=?";
 	private final String QUERY_LASTRESET = "select '%s' from '%s' limit 1";
-	private final String QUERY_IDVALUE = "select id,'value' from '%s'";
-	private final String UPDATE_RESET = "update '%s' set '%s'=?, '%s'=?, '%s'=? where id=?";
+	private final String BULK_RESET = "update '%s' set '%s'=0, '%s'='value', '%s'=?";
 	private final String QUERY_ALL = "select * from '%s'";
 	private final String CREATE_TIMESTAMP_INDEX = "create index '%s_timestamp' on '%s' (%s_timestamp)";
 	private final String CREATE_LAST_UPDATED_INDEX = "create index '%s_last_updated' on '%s' (last_updated)";
@@ -818,40 +816,15 @@ public class Cache {
 		String t = type.lowerName();
 		try (Connection conn = method.getConnection();
 		     PreparedStatement ps = conn.prepareStatement(String.format(
-					method.formatStatement(QUERY_IDVALUE),
-					tablePrefix+board
-			));
-		     ResultSet rs = ps.executeQuery()) {
-			Map<String, Double> uuids = new HashMap<>();
-			while(rs.next()) {
-				uuids.put(rs.getString(1), rs.getDouble(2));
-			}
-			Partition<String> partition = Partition.ofSize(new ArrayList<>(uuids.keySet()), Math.max(uuids.size()/(int) Math.ceil(method.getMaxConnections()/2D), 1));
-			Debug.info("Partition length: "+partition.size()+" uuids size: "+ uuids.size()+" partition chunk size: "+partition.getChunkSize());
-			for(List<String> uuidPartition : partition) {
-				if(plugin.isShuttingDown()) {
-					return;
-				}
-				try (Connection con = method.getConnection()) {
-					for(String idRaw : uuidPartition) {
-						try (PreparedStatement p = con.prepareStatement(String.format(
-								method.formatStatement(UPDATE_RESET),
-								tablePrefix+board,
-								t+"_lasttotal",
-								t+"_delta",
-								t+"_timestamp"
-						))) {
-							p.setDouble(1, uuids.get(idRaw));
-							p.setDouble(2, 0);
-							p.setLong(3, newTime);
-							p.setString(4, idRaw);
-							p.executeUpdate();
-						}
-					}
-				} catch (SQLException e) {
-					plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);
-				}
-			}
+					method.formatStatement(BULK_RESET),
+					tablePrefix+board,
+					t+"_delta",
+					t+"_lasttotal",
+					t+"_timestamp"
+		     ))) {
+			ps.setLong(1, newTime);
+			int updated = ps.executeUpdate();
+			Debug.info("Bulk reset updated " + updated + " rows of " + board + " " + type.lowerName());
 		} catch (SQLException e) {
 			plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);
 		}
