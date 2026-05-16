@@ -516,16 +516,16 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         if(resetNow.size() > 0) {
             Debug.info("Resetting " + type + " due to lastReset being before estimatedLastReset");
-            getScheduler().runTaskAsynchronously(() -> {
-                try {
-                    for (String board : resetNow) {
+            for (String board : resetNow) {
+                topManager.submit(() -> {
+                    try {
                         cache.reset(board, type);
+                    } catch (ExecutionException | InterruptedException e) {
+                        if(isShuttingDown()) return;
+                        getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
                     }
-                } catch (ExecutionException | InterruptedException e) {
-                    if(isShuttingDown()) return;
-                    getLogger().log(Level.WARNING, "Unable to reset "+type+": (interupted/exception)", e);
-                }
-            });
+                });
+            }
         }
 
         if(isShuttingDown()) return;
@@ -544,13 +544,15 @@ public class LeaderboardPlugin extends JavaPlugin {
         if(secsTilNextReset > 16 * 60) return;
         Task task = getScheduler().runTaskLaterAsynchronously(
                 () -> {
-                    try {
-                        for (String board : getTopManager().getBoards()) {
-                            cache.reset(board, type);
-                        }
-                    } catch (ExecutionException | InterruptedException e) {
-                        if(isShuttingDown()) return;
-                        getLogger().log(Level.WARNING, "Unable to reset "+type+": (interupted/exception)", e);
+                    for (String board : getTopManager().getBoards()) {
+                        topManager.submit(() -> {
+                            try {
+                                cache.reset(board, type);
+                            } catch (ExecutionException | InterruptedException e) {
+                                if(isShuttingDown()) return;
+                                getLogger().log(Level.WARNING, "Unable to reset "+type+" for "+board+": (interupted/exception)", e);
+                            }
+                        });
                     }
                 },
                 secsTilNextReset*20L
