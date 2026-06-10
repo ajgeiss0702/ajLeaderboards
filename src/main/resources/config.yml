@@ -236,8 +236,13 @@ check-cache-on-update: true
 # ajLeaderboards will always fetch from the database more when the db responds quickly, and less when it is slower.
 # Enabling this will make it so ajLeaderboards will fetch from the database more often.
 # Most servers will not need to enable this.
-# With this disabled, AJLB will set the minimum refresh time to 20 seconds.
-#  With it enabled, the minimum refresh time is half a second (but the minimum is usually actually 1 second)
+# With this disabled, AJLB will set the minimum refresh time to 20 seconds,
+#  but note that the cached values (that are displayed between database fetches) are updated when a player's stat/score
+#  is updated with stat-refresh, so in the majority of setups you don't need to disable this.
+# The only time you should enable this option is if you have multiple servers
+#  with leaderboards and stats synced to an external database,
+#  and want players that are on other servers stats to update quickly.
+# With it enabled, the minimum refresh time is half a second (but the minimum is usually actually 1 second)
 #  Default: false
 more-fetching: false
 
