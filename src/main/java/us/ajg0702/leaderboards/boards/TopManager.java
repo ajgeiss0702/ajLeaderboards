@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -19,10 +20,8 @@ import us.ajg0702.leaderboards.cache.BlockingFetch;
 import us.ajg0702.leaderboards.cache.CacheMethod;
 import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
-import us.ajg0702.leaderboards.utils.Cached;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -532,23 +531,23 @@ public class TopManager {
 
 
     Map<ExtraKey, Long> extraLastRefresh = new ConcurrentHashMap<>();
-    LoadingCache<ExtraKey, String> extraCache = CacheBuilder.newBuilder()
+    LoadingCache<ExtraKey, Optional<String>> extraCache = CacheBuilder.newBuilder()
             .expireAfterAccess(30, TimeUnit.MINUTES)
             .maximumSize(10_000)
-            .build(new CacheLoader<ExtraKey, String>() {
+            .build(new CacheLoader<ExtraKey, Optional<String>>() {
                 @Override
-                public String load(ExtraKey key) {
-                    return plugin.getExtraManager().getExtra(key.getId(), key.getPlaceholder());
+                public @NonNull Optional<String> load(@NonNull ExtraKey key) {
+                    return Optional.ofNullable(plugin.getExtraManager().getExtra(key.getId(), key.getPlaceholder()));
                 }
             });
     public String getExtra(UUID id, String placeholder) {
         ExtraKey key = new ExtraKey(id, placeholder);
-        String cached = extraCache.getIfPresent(key);
+        Optional<String> cached = extraCache.getIfPresent(key);
         if(cached == null) {
             if(BlockingFetch.shouldBlock(plugin)) {
                 return fetchExtra(id, placeholder);
             } else {
-                extraCache.put(key, plugin.getMessages().getRawString("loading.text"));
+                extraCache.put(key, Optional.of(plugin.getMessages().getRawString("loading.text")));
                 fetchExtraAsync(id, placeholder);
                 return plugin.getMessages().getRawString("loading.text");
             }
@@ -558,13 +557,13 @@ public class TopManager {
                 extraLastRefresh.put(key, System.currentTimeMillis());
                 fetchExtraAsync(id, placeholder);
             }
-            return cached;
+            return cached.orElse(null);
         }
     }
     public String fetchExtra(UUID id, String placeholder) {
         ExtraKey key = new ExtraKey(id, placeholder);
         String value = plugin.getExtraManager().getExtra(id, placeholder);
-        extraCache.put(key, value);
+        extraCache.put(key, Optional.ofNullable(value));
         return value;
     }
     public void fetchExtraAsync(UUID id, String placeholder) {
@@ -573,12 +572,12 @@ public class TopManager {
     }
 
     public String getCachedExtra(UUID id, String placeholder) {
-        String r = extraCache.getIfPresent(new ExtraKey(id, placeholder));
+        Optional<String> r = extraCache.getIfPresent(new ExtraKey(id, placeholder));
         if(r == null) {
             fetchExtraAsync(id, placeholder);
             return null;
         }
-        return r;
+        return r.orElse(null);
     }
 
     public StatEntry getRelative(OfflinePlayer player, int difference, String board, TimedType type) {
