@@ -48,6 +48,7 @@ public class Cache {
 			"mysql", "create table if not exists '%s' ('id' VARCHAR(36) PRIMARY KEY, 'value' DECIMAL(65, 5)"+columnBuilder("DECIMAL(65, 5)")+", 'namecache' VARCHAR(16), 'prefixcache' VARCHAR(1024), 'suffixcache' VARCHAR(1024), 'displaynamecache' VARCHAR(2048), 'last_updated' BIGINT DEFAULT 0)"
 	);
 	private final String REMOVE_PLAYER = "delete from '%s' where 'namecache'=?";
+	private final String REMOVE_PLAYER_BY_ID = "delete from '%s' where 'id'=?";
 	private final Map<String, String> LIST_TABLES = ImmutableMap.of(
 			"sqlite", "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
 	);
@@ -361,6 +362,21 @@ public class Cache {
 					 tablePrefix+board
 			 ))) {
 			ps.setString(1, playerName);
+			ps.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			plugin.getLogger().log(Level.WARNING, "Unable to remove player from board:", e);
+			return false;
+		}
+	}
+
+	public boolean removePlayer(String board, UUID playerUuid) {
+		try (Connection conn = method.getConnection();
+			 PreparedStatement ps = conn.prepareStatement(String.format(
+				 method.formatStatement(REMOVE_PLAYER_BY_ID),
+				 tablePrefix+board
+			 ))) {
+			ps.setString(1, playerUuid.toString());
 			ps.executeUpdate();
 			return true;
 		} catch (SQLException e) {
