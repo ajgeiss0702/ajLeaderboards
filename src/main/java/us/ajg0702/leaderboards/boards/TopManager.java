@@ -9,7 +9,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import us.ajg0702.leaderboards.Debug;
 import us.ajg0702.leaderboards.LeaderboardPlugin;
 import us.ajg0702.leaderboards.boards.keys.BoardType;
@@ -536,7 +535,7 @@ public class TopManager {
             .maximumSize(10_000)
             .build(new CacheLoader<ExtraKey, Optional<String>>() {
                 @Override
-                public @NonNull Optional<String> load(@NonNull ExtraKey key) {
+                public @NotNull Optional<String> load(@NotNull ExtraKey key) {
                     return Optional.ofNullable(plugin.getExtraManager().getExtra(key.getId(), key.getPlaceholder()));
                 }
             });
