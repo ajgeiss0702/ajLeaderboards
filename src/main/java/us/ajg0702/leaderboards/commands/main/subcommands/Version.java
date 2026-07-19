@@ -27,7 +27,7 @@ public class Version extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
         sender.sendMessage(message(
-                "<gold>ajLedeaderboards v<yellow>"+plugin.getDescription().getVersion()+"<gold> by ajgeiss0702"
+                "<gold>ajLeaderboards v<yellow>"+plugin.getDescription().getVersion()+"<gold> by ajgeiss0702"
         ));
     }
 }
