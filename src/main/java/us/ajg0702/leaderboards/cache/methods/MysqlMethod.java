@@ -54,6 +54,7 @@ public class MysqlMethod implements CacheMethod {
         hikariConfig.setPassword(password);
         hikariConfig.setMaximumPoolSize(maxCount);
         hikariConfig.setMinimumIdle(minCount);
+        hikariConfig.setMaxLifetime(config.getInt("maxLifetime"));
 
         //hikariConfig.setRegisterMbeans(true);
         //hikariConfig.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());

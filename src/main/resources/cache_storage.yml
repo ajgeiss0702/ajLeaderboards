@@ -20,14 +20,19 @@ characterEncoding: "utf8"
 table_prefix: ajlb_
 
 # These settings are for mysql only
-# If you dont know what these are for, I reccomend leaving them as default
+# If you don't know what these are for, I recommend leaving them as default
 minConnections: 1
 maxConnections: 20
 
 allowPublicKeyRetrieval: false
 useSSL: false
 
+# The default (1,800,000ms which is 30 minutes) is fine most of the time,
+#  but if your database has an unusually low wait_timeout (or similar settings), you might need to change this.
+# This should be set at least 30 seconds less than any database or infrastructure-imposed connection time limit.
+maxLifetime: 1800000
+
 
 
 # Dont touch me
-config-version: 5
+config-version: 6
