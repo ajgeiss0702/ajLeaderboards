@@ -106,6 +106,7 @@ tasks.shadowJar {
 
     archiveBaseName.set("ajLeaderboards")
     archiveClassifier.set("")
+    exclude("slimjar-resolutions.json") // needed for mirror to be used
     exclude("junit/**/*")
     exclude("org/junit/**/*")
     exclude("org/slf4j/**/*")
