@@ -531,6 +531,9 @@ public class TopManager {
     }
 
 
+    // Guava caches don't allow null values, so we store this marker when a player has no value for an extra
+    private static final String NO_EXTRA_VALUE = new String("ajlb-no-extra-value");
+
     Map<ExtraKey, Long> extraLastRefresh = new ConcurrentHashMap<>();
     LoadingCache<ExtraKey, String> extraCache = CacheBuilder.newBuilder()
             .expireAfterAccess(30, TimeUnit.MINUTES)
@@ -538,7 +541,8 @@ public class TopManager {
             .build(new CacheLoader<ExtraKey, String>() {
                 @Override
                 public String load(ExtraKey key) {
-                    return plugin.getExtraManager().getExtra(key.getId(), key.getPlaceholder());
+                    String value = plugin.getExtraManager().getExtra(key.getId(), key.getPlaceholder());
+                    return value == null ? NO_EXTRA_VALUE : value;
                 }
             });
     public String getExtra(UUID id, String placeholder) {
@@ -558,13 +562,13 @@ public class TopManager {
                 extraLastRefresh.put(key, System.currentTimeMillis());
                 fetchExtraAsync(id, placeholder);
             }
-            return cached;
+            return cached == NO_EXTRA_VALUE ? null : cached;
         }
     }
     public String fetchExtra(UUID id, String placeholder) {
         ExtraKey key = new ExtraKey(id, placeholder);
         String value = plugin.getExtraManager().getExtra(id, placeholder);
-        extraCache.put(key, value);
+        extraCache.put(key, value == null ? NO_EXTRA_VALUE : value);
         return value;
     }
     public void fetchExtraAsync(UUID id, String placeholder) {
@@ -578,7 +582,7 @@ public class TopManager {
             fetchExtraAsync(id, placeholder);
             return null;
         }
-        return r;
+        return r == NO_EXTRA_VALUE ? null : r;
     }
 
     public StatEntry getRelative(OfflinePlayer player, int difference, String board, TimedType type) {
@@ -710,4 +714,3 @@ public class TopManager {
                 "feel free to ask in aj's discord server (invite link is on the ajLeaderboards plugin page under 'support')");
     }
 }
-
